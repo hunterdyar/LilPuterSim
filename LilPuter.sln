@@ -1,0 +1,22 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LilPuterSim", "LilPuterSim\LilPuterSim.csproj", "{84C5A4FE-CF62-456C-BBBE-A2E3E46FC29E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LilPuterSimTest", "LilPuterSimTest\LilPuterSimTest.csproj", "{C2C2DECF-7979-4879-8286-A469FD198754}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{84C5A4FE-CF62-456C-BBBE-A2E3E46FC29E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{84C5A4FE-CF62-456C-BBBE-A2E3E46FC29E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{84C5A4FE-CF62-456C-BBBE-A2E3E46FC29E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{84C5A4FE-CF62-456C-BBBE-A2E3E46FC29E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C2C2DECF-7979-4879-8286-A469FD198754}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C2C2DECF-7979-4879-8286-A469FD198754}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C2C2DECF-7979-4879-8286-A469FD198754}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C2C2DECF-7979-4879-8286-A469FD198754}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
