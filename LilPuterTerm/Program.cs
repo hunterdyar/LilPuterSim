@@ -7,11 +7,12 @@ Application.Init();
 try
 {
 	WireManager wire = new WireManager();
-	NandGate nand = new NandGate(wire);
-	wire.SetPin(nand.A, WireSignal.Low);
-	wire.SetPin(nand.B, WireSignal.Low);
-	
-	Application.Run(new NandView(nand));
+	Adder adder = new Adder(wire);
+	//Starts floating. Let's ground it.
+	wire.SetPin(adder.A, WireSignal.Low);
+	wire.SetPin(adder.B, WireSignal.Low);
+	wire.SetPin(adder.CarryIn, WireSignal.Low);
+	Application.Run(new AdderView(adder));
 }
 finally
 {

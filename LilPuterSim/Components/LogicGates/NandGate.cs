@@ -18,7 +18,8 @@ public class NandGate
 	internal void Trigger(Pin p)
 	{
 		var data = new byte[]
-			{ (byte)(A.Signal == WireSignal.Low || B.Signal == WireSignal.Low ? WireSignal.High : WireSignal.Low) };
+			{ (byte)(A.Signal == WireSignal.Low ||
+			         B.Signal == WireSignal.Low ? WireSignal.High : WireSignal.Low) };
 		Out.Set(data);
 	}
 	

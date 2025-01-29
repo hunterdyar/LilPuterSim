@@ -7,10 +7,12 @@ public class PinView : Terminal.Gui.Button
 {
 	private Pin _pin;
 	private string _name;
-	public PinView(Pin pin, string name)
+	private bool _triggerAble;
+	public PinView(Pin pin, string name, bool triggerAble = true)
 	{
 		_pin = pin;
 		_name = name;
+		_triggerAble = triggerAble;
 		
 		_pin.Subscribe(OnPinChange);
 		InitializeComponent();
@@ -19,13 +21,18 @@ public class PinView : Terminal.Gui.Button
 	private void InitializeComponent()
 	{
 		this.Text = _name+" ";
+		this.CanFocus = _triggerAble;
+		
 	}
 
 	public override void OnClicked()
 	{
-		var val = _pin.ReadValue();
-		var flip = WireUtility.Invert(val);
-		_pin.SetAndImpulse(flip);
+		if (_triggerAble)
+		{
+			var val = _pin.ReadValue();
+			var flip = WireUtility.Invert(val);
+			_pin.SetAndImpulse(flip);
+		}
 	}
 
 
