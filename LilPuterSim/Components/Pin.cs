@@ -13,11 +13,30 @@ public class Pin : IObservable
 	public Type ValueType => typeof(WireSignal);
 
 	private readonly WireManager _manager;
+	
+	private readonly List<IObservable.OnValueChangeDelegate> _subscribers = [];
 
 	public Pin(WireManager manager, string name)
 	{
 		this._manager = manager;
 		this.Name = name;
+	}
+
+	public void Subscribe(IObservable.OnValueChangeDelegate subscriber)
+	{
+		_subscribers.Add(subscriber);
+	}
+
+	public void Unubscribe(IObservable.OnValueChangeDelegate subscriber)
+	{
+		if (_subscribers.Contains(subscriber))
+		{
+			_subscribers.Remove(subscriber);
+		}
+		else
+		{
+			throw new Exception("Subscriber not found. Can't Remove.");
+		}
 	}
 
 	public byte[] ReadValue()
@@ -38,12 +57,21 @@ public class Pin : IObservable
 		{
 			Value = [(byte)newVal];
 			_manager.Changed(this, Value);
+			UpdateSubscribers();
 		}
 
 		return changed;
 	}
 
-	public void Set(WireSignal newVal, bool alwaysUpdate = false)
+	private void UpdateSubscribers()
+	{
+		foreach (var onChange in _subscribers)
+		{
+			onChange(Value);
+		}
+	}
+
+	internal void Set(WireSignal newVal, bool alwaysUpdate = false)
 	{
 		Set([(byte)newVal], alwaysUpdate);
 	}
@@ -71,5 +99,10 @@ public class Pin : IObservable
 	public override string ToString()
 	{
 		return $"Pin {Name} ({Signal})"; 
+	}
+
+	public void SetAndImpulse(WireSignal flip)
+	{
+		_manager.SetPin(this, flip);
 	}
 }

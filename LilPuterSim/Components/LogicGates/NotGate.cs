@@ -9,10 +9,10 @@ public class NotGate
 	{
 		A = new Pin(manager, "Not In");
 		Out = new Pin(manager, "Not Out");
-		manager.Listen(A, OnInputChanged);
+		manager.Listen(A, Trigger);
 	}
 
-	private void OnInputChanged(Pin from)
+	private void Trigger(Pin from)
 	{
 		var val = A.Signal;
 		//floats gonna float

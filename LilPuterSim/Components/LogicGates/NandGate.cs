@@ -1,6 +1,6 @@
 ﻿namespace LilPuter;
 
-public class NandGate : IObservable
+public class NandGate
 {
 	public readonly Pin A;
 	public readonly Pin B;
@@ -22,9 +22,9 @@ public class NandGate : IObservable
 		Out.Set(data);
 	}
 	
-	public byte[] ReadValue()
-	{
-		return Out.ReadValue();
-	}
-	public Type ValueType => Out.ValueType;
+	// public byte[] ReadValue()
+	// {
+	// 	return Out.ReadValue();
+	// }
+	// public Type ValueType => Out.ValueType;
 }

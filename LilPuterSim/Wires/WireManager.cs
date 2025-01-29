@@ -9,6 +9,9 @@ public class WireManager
 	private readonly Queue<Pin> _changeQueue = new Queue<Pin>();
 	public delegate void PinChangedHandler(Pin pin);
 
+	/// <summary>
+	/// Sets a Pin and calls an impulse. This is what we want to call from external systems.
+	/// </summary>
 	public void SetPin(Pin pin, WireSignal signal)
 	{
 		pin.Set(signal);

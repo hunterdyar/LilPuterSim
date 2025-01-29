@@ -2,7 +2,7 @@ using LilPuter;
 
 namespace LilPuterSimTest;
 
-public class Tests
+public class LogicGatesTests
 {
 
 	private WireManager _manager;
@@ -173,13 +173,11 @@ public class Tests
 	{
 		var orGate = new NotGate(_manager);
 
-		orGate.A.Set(WireSignal.Low);
-		_manager.Impulse(orGate.A);
+		_manager.SetPin(orGate.A, WireSignal.Low);
 		Assert.That((WireSignal)orGate.Out.Value[0], Is.EqualTo(WireSignal.High));
 		Assert.That(orGate.Out.Value.Length, Is.EqualTo(1));
 
-		orGate.A.Set(WireSignal.High);
-		_manager.Impulse(orGate.A);
+		_manager.SetPin(orGate.A, WireSignal.High);
 		Assert.That((WireSignal)orGate.Out.Value[0], Is.EqualTo(WireSignal.Low));
 		Assert.That(orGate.Out.Value.Length, Is.EqualTo(1));
 
