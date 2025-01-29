@@ -15,7 +15,7 @@ public class Pin : IObservable
 	private readonly WireManager _manager;
 	
 	private readonly List<IObservable.OnValueChangeDelegate> _subscribers = [];
-
+	public int SubscriberCount() => _subscribers.Count;
 	public Pin(WireManager manager, string name)
 	{
 		this._manager = manager;
