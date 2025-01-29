@@ -67,12 +67,12 @@ public class Tests
 	public void OrLogicTable()
 	{
 		var orGate = new OrGate(_manager);
+
 		_manager.SetPin(orGate.A, WireSignal.Low);
 		_manager.SetPin(orGate.B, WireSignal.Low);
-		
 		Assert.That((WireSignal)orGate.Out.Value[0], Is.EqualTo(WireSignal.Low));
 		Assert.That(orGate.Out.Value.Length, Is.EqualTo(1));
-		
+
 		_manager.SetPin(orGate.A, WireSignal.Low);
 		_manager.SetPin(orGate.B, WireSignal.High);
 		Assert.That((WireSignal)orGate.Out.Value[0], Is.EqualTo(WireSignal.High));
@@ -82,7 +82,7 @@ public class Tests
 		_manager.SetPin(orGate.B, WireSignal.Low);
 		Assert.That((WireSignal)orGate.Out.Value[0], Is.EqualTo(WireSignal.High));
 		Assert.That(orGate.Out.Value.Length, Is.EqualTo(1));
-
+		
 		_manager.SetPin(orGate.A, WireSignal.High);
 		_manager.SetPin(orGate.B, WireSignal.High);
 		Assert.That((WireSignal)orGate.Out.Value[0], Is.EqualTo(WireSignal.High));
@@ -90,9 +90,37 @@ public class Tests
 	}
 
 	[Test]
+	public void NorLogicTable()
+	{
+		var norGate = new NorGate(_manager);
+		
+		_manager.SetPin(norGate.A, WireSignal.Low);
+		_manager.SetPin(norGate.B, WireSignal.Low);
+		
+		Assert.That((WireSignal)norGate.Out.Value[0], Is.EqualTo(WireSignal.High));
+		Assert.That(norGate.Out.Value.Length, Is.EqualTo(1));
+
+		_manager.SetPin(norGate.A, WireSignal.Low);
+		_manager.SetPin(norGate.B, WireSignal.High);
+		Assert.That((WireSignal)norGate.Out.Value[0], Is.EqualTo(WireSignal.Low));
+		Assert.That(norGate.Out.Value.Length, Is.EqualTo(1));
+
+		_manager.SetPin(norGate.A, WireSignal.High);
+		_manager.SetPin(norGate.B, WireSignal.Low);
+		Assert.That((WireSignal)norGate.Out.Value[0], Is.EqualTo(WireSignal.Low));
+		Assert.That(norGate.Out.Value.Length, Is.EqualTo(1));
+		
+		_manager.SetPin(norGate.A, WireSignal.High);
+		_manager.SetPin(norGate.B, WireSignal.High);
+		Assert.That((WireSignal)norGate.Out.Value[0], Is.EqualTo(WireSignal.Low));
+		Assert.That(norGate.Out.Value.Length, Is.EqualTo(1));
+	}
+	
+	[Test]
 	public void NotLogicTable()
 	{
 		var orGate = new NotGate(_manager);
+
 		orGate.A.Set(WireSignal.Low);
 		_manager.Impulse(orGate.A);
 		Assert.That((WireSignal)orGate.Out.Value[0], Is.EqualTo(WireSignal.High));

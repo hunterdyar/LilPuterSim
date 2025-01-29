@@ -13,10 +13,6 @@ public class NandGate : IObservable
 		Out = new Pin(manager, "NandGateOut");
 		manager.Listen(A, Trigger);
 		manager.Listen(B, Trigger);
-		
-		//ensure our nandgate output begins in the correct state.
-		//Techniclly we ignore the pin that changed, so we only need to call this once.
-		Trigger(A);
 	}
 
 	internal void Trigger(Pin p)
@@ -31,6 +27,4 @@ public class NandGate : IObservable
 		return Out.ReadValue();
 	}
 	public Type ValueType => Out.ValueType;
-
-	
 }

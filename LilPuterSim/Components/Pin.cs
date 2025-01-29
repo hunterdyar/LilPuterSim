@@ -10,7 +10,7 @@ namespace LilPuter;
 public class Pin : IObservable
 {
 	public string Name { get; private set; }
-	public byte[] Value { get; private set; } = [0];
+	public byte[] Value { get; private set; } = [(byte)WireSignal.Floating];//Default should be not connected == floating
 	public WireSignal Signal => (WireSignal)Value[0];
 	public Type ValueType => typeof(WireSignal);
 

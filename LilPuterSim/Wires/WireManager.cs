@@ -16,6 +16,8 @@ public class WireManager
 	}
 	public void Impulse(Pin pin)
 	{
+		
+		Console.WriteLine($"Impulse on {pin}");
 		//update the systems that use this pin directly.
 		//This is basically only NAND gates in most cases! Neat!
 		if (_onValueChangeMap.TryGetValue(pin, out var action))
@@ -50,6 +52,7 @@ public class WireManager
 	
 	public void Connect(Pin from, Pin to, bool biDirectional = false)
 	{
+		//Create connection wire.
 		if (_connections.ContainsKey(from))
 		{
 			if (!_connections[from].Contains(to))
@@ -74,18 +77,7 @@ public class WireManager
 			_connections.Add(from, [to]);
 		}
 	}
-
-	public void Flash()
-	{
-		//Impulse no pins. Run impulse but on the current state.
-		//In most states, this should do nothing! So it's useful for testing if it did do something (which means back-propogation)
-		//Used to clean initial state. This is like... power on.
-		foreach (var pin in _connections.Keys)
-		{
-			Impulse(pin);
-		}
-	}
-
+	
 	/// <summary>
 	/// Called by pins in set, which is called by the OnValueChange functions we register that do the logic.
 	/// </summary>
