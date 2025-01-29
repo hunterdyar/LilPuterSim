@@ -143,7 +143,7 @@ public class Tests
 	}
 
 	[Test]
-	public void XNORLogicTable()
+	public void XnorLogicTable()
 	{
 		var xnorGate = new XnorGate(_manager);
 
