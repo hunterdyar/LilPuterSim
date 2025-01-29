@@ -1,6 +1,4 @@
-﻿using System.Collections;
-
-namespace LilPuter;
+﻿namespace LilPuter;
 
 //todo: Create a GUID on creation for passing around serialized forms.
 
@@ -14,11 +12,11 @@ public class Pin : IObservable
 	public WireSignal Signal => (WireSignal)Value[0];
 	public Type ValueType => typeof(WireSignal);
 
-	private WireManager manager;
+	private readonly WireManager _manager;
 
 	public Pin(WireManager manager, string name)
 	{
-		this.manager = manager;
+		this._manager = manager;
 		this.Name = name;
 	}
 
@@ -39,7 +37,7 @@ public class Pin : IObservable
 		if(changed || alwaysUpdate)
 		{
 			Value = [(byte)newVal];
-			manager.Changed(this, Value);
+			_manager.Changed(this, Value);
 		}
 
 		return changed;
@@ -58,7 +56,7 @@ public class Pin : IObservable
 	/// <param name="twoWay">Whether to also connect other pin to this pin.</param>
 	public void ConnectTo(Pin otherPin, bool twoWay = false)
 	{
-		manager.Connect(this, otherPin, twoWay);
+		_manager.Connect(this, otherPin, twoWay);
 	}
 
 	public void DisconnectFrom(Pin otherPin, bool twoWay)
