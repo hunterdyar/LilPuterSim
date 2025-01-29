@@ -10,13 +10,14 @@ public class AndGate
 	private readonly NandGate _nandGateA;
 	private readonly NandGate _nandGateB;
 
-	public AndGate()
+	public AndGate(WireManager manager)
 	{
-		_nandGateA = new NandGate();
-		_nandGateB = new NandGate();
+		_nandGateA = new NandGate(manager);
+		_nandGateB = new NandGate(manager);
 
 		//The out gets split and goes to both pins.
 		_nandGateA.Out.ConnectTo(_nandGateB.A);
-		_nandGateB.Out.ConnectTo(_nandGateB.B);
+		_nandGateA.Out.ConnectTo(_nandGateB.B);
 	}
+	
 }

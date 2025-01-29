@@ -2,8 +2,6 @@
 
 public interface IObservable 
 {
-	//Called when the value is set to a new value.
-	public Action<byte[]> OnValueChange { get; }
 	/// <summary>
 	/// Read the current value of the component.
 	/// </summary>

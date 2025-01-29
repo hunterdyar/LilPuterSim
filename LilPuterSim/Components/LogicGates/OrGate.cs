@@ -10,13 +10,15 @@ public class OrGate
 	public readonly Pin B;
 	public Pin Out => _gateC.Out;
 
-	public OrGate()
+	public OrGate(WireManager manager)
 	{
-		_gateA = new NandGate();
-		_gateB = new NandGate();
-		_gateC = new NandGate();
-		A = new Pin();
-		B = new Pin();
+		_gateA = new NandGate(manager);
+		_gateB = new NandGate(manager);
+		_gateC = new NandGate(manager);
+		
+		A = new Pin(manager, "Or A");
+		B = new Pin(manager, "Or B");
+		_gateC.Out.SetName("Or Out");
 		
 		//https://en.wikipedia.org/wiki/OR_gate#/media/File:OR_from_NAND.svg
 		A.ConnectTo(_gateA.A);
@@ -25,7 +27,12 @@ public class OrGate
 		B.ConnectTo(_gateB.A);
 		B.ConnectTo(_gateB.B);
 		
-		_gateA.Out.ConnectTo(_gateC.A);
-		_gateB.Out.ConnectTo(_gateC.B);
+		manager.Connect(_gateA.Out, _gateC.A);
+		manager.Connect(_gateA.Out, _gateC.B);
+		
+		//set outputs from default low inputs.
+		_gateA.Trigger(A);
+		_gateB.Trigger(B);
+		_gateC.Trigger(_gateA.Out);
 	}
 }

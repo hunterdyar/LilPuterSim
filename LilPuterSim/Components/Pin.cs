@@ -2,20 +2,32 @@
 
 namespace LilPuter;
 
+//todo: Create a GUID on creation for passing around serialized forms.
+
+/// <summary>
+/// A pin is a wire that can be set. It holds a byte[] value (like everything else).
+/// </summary>
 public class Pin : IObservable
 {
+	public string Name { get; private set; }
 	public byte[] Value { get; private set; } = [0];
 	public WireSignal Signal => (WireSignal)Value[0];
-	public Action<byte[]> OnValueChange { get; set; }
 	public Type ValueType => typeof(WireSignal);
 
-	public Pin[] Connections = [];
+	private WireManager manager;
+
+	public Pin(WireManager manager, string name)
+	{
+		this.manager = manager;
+		this.Name = name;
+	}
+
 	public byte[] ReadValue()
 	{
 		return Value;
 	}
 
-	public void Set(byte[] value, bool forceUpdate = true)
+	public bool Set(byte[] value, bool alwaysUpdate = false)
 	{
 		if (value.Length != 1)
 		{
@@ -23,30 +35,19 @@ public class Pin : IObservable
 		}
 
 		var newVal = (WireSignal)value[0];
-		if(newVal != Signal || forceUpdate)
+		bool changed = newVal != Signal;
+		if(changed || alwaysUpdate)
 		{
 			Value = [(byte)newVal];
-
-			//
-			foreach (var connection in Connections)
-			{
-				connection.Set(value, forceUpdate);
-				//todo: This propogates changes. I want to update all of my connections before propogating changes.
-				//In graph terms, I want to do breath-first, not depth-first walking. hmmmm.
-			}
-
-			// foreach (var connection in Connections)
-			// {
-			// 	connection.Update();
-			// }
-			
-			OnValueChange?.Invoke(value);
+			manager.Changed(this, Value);
 		}
+
+		return changed;
 	}
 
-	public void Set(WireSignal newVal, bool update = true)
+	public void Set(WireSignal newVal, bool alwaysUpdate = false)
 	{
-		Set([(byte)newVal]);
+		Set([(byte)newVal], alwaysUpdate);
 	}
 
 	/// <summary>
@@ -57,23 +58,20 @@ public class Pin : IObservable
 	/// <param name="twoWay">Whether to also connect other pin to this pin.</param>
 	public void ConnectTo(Pin otherPin, bool twoWay = false)
 	{
-		//Todo: Change this connection and registering to a list of our wires with the "breadboard manager". Wire will become a listenable component, basically.
-		if (Connections.Contains(otherPin))
-		{
-			throw new Exception("Pin is already connected.");
-		}	
-		
-		Array.Resize(ref Connections, Connections.Length+1);
-		Connections[^1] = otherPin;
-		if (twoWay)
-		{
-			Array.Resize(ref otherPin.Connections, otherPin.Connections.Length + 1);
-			otherPin.Connections[^1] = this;
-		}
+		manager.Connect(this, otherPin, twoWay);
 	}
 
 	public void DisconnectFrom(Pin otherPin, bool twoWay)
 	{
 		throw new NotImplementedException("Not Implemented. Pins should not be disconnected during runtime. Just configure it correctly lol?");
+	}
+
+	public void SetName(string n)
+	{
+		Name = n;
+	}
+	public override string ToString()
+	{
+		return $"Pin {Name} ({Signal})"; 
 	}
 }

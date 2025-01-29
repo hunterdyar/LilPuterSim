@@ -6,36 +6,31 @@ public class NandGate : IObservable
 	public readonly Pin B;
 	public readonly Pin Out;
 	
-	public NandGate()
+	public NandGate(WireManager manager)
 	{
-		A = new Pin();
-		B = new Pin();
-		Out = new Pin();
-		A.OnValueChange += OnInputChanged;
-		B.OnValueChange += OnInputChanged;
-		Trigger(true);
+		A = new Pin(manager, "NandGateA");
+		B = new Pin(manager, "NandGateB");
+		Out = new Pin(manager, "NandGateOut");
+		manager.Listen(A, Trigger);
+		manager.Listen(B, Trigger);
+		
+		//ensure our nandgate output begins in the correct state.
+		//Techniclly we ignore the pin that changed, so we only need to call this once.
+		Trigger(A);
 	}
 
-	private void OnInputChanged(byte[] obj)
-	{
-		Trigger();
-	}
-
-	private void Trigger(bool forceUpdate = false)
+	internal void Trigger(Pin p)
 	{
 		var data = new byte[]
 			{ (byte)(A.Signal == WireSignal.Low || B.Signal == WireSignal.Low ? WireSignal.High : WireSignal.Low) };
-		Out.Set(data,forceUpdate);
+		Out.Set(data);
 	}
 	
-	//TODO: Some way to get the appriate pin from the registration system.
-	
-	
-	//Implement IObservable by passing along the out pin as observed.
-	public Action<byte[]> OnValueChange => Out.OnValueChange;
 	public byte[] ReadValue()
 	{
 		return Out.ReadValue();
 	}
 	public Type ValueType => Out.ValueType;
+
+	
 }
