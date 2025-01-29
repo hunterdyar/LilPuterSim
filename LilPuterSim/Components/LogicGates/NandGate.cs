@@ -28,4 +28,4 @@ public class NandGate
 	// 	return Out.ReadValue();
 	// }
 	// public Type ValueType => Out.ValueType;
-}
+} 
