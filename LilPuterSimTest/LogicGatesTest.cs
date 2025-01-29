@@ -115,6 +115,32 @@ public class Tests
 		Assert.That((WireSignal)norGate.Out.Value[0], Is.EqualTo(WireSignal.Low));
 		Assert.That(norGate.Out.Value.Length, Is.EqualTo(1));
 	}
+
+	[Test]
+	public void XOrLogicTable()
+	{
+		var xorGate = new XorGate(_manager);
+
+		_manager.SetPin(xorGate.A, WireSignal.Low);
+		_manager.SetPin(xorGate.B, WireSignal.Low);
+		Assert.That((WireSignal)xorGate.Out.Value[0], Is.EqualTo(WireSignal.Low));
+		Assert.That(xorGate.Out.Value.Length, Is.EqualTo(1));
+
+		_manager.SetPin(xorGate.A, WireSignal.Low);
+		_manager.SetPin(xorGate.B, WireSignal.High);
+		Assert.That((WireSignal)xorGate.Out.Value[0], Is.EqualTo(WireSignal.High));
+		Assert.That(xorGate.Out.Value.Length, Is.EqualTo(1));
+
+		_manager.SetPin(xorGate.A, WireSignal.High);
+		_manager.SetPin(xorGate.B, WireSignal.Low);
+		Assert.That((WireSignal)xorGate.Out.Value[0], Is.EqualTo(WireSignal.High));
+		Assert.That(xorGate.Out.Value.Length, Is.EqualTo(1));
+
+		_manager.SetPin(xorGate.A, WireSignal.High);
+		_manager.SetPin(xorGate.B, WireSignal.High);
+		Assert.That((WireSignal)xorGate.Out.Value[0], Is.EqualTo(WireSignal.Low));
+		Assert.That(xorGate.Out.Value.Length, Is.EqualTo(1));
+	}
 	
 	[Test]
 	public void NotLogicTable()
@@ -132,5 +158,6 @@ public class Tests
 		Assert.That(orGate.Out.Value.Length, Is.EqualTo(1));
 
 	}
+	
 	
 }

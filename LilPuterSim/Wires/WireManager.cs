@@ -15,9 +15,7 @@ public class WireManager
 		Impulse(pin);
 	}
 	public void Impulse(Pin pin)
-	{
-		
-		Console.WriteLine($"Impulse on {pin}");
+	{ 
 		//update the systems that use this pin directly.
 		//This is basically only NAND gates in most cases! Neat!
 		if (_onValueChangeMap.TryGetValue(pin, out var action))

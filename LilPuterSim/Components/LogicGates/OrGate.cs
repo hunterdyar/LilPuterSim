@@ -8,9 +8,7 @@ public class OrGate
 
 	public readonly Pin A;
 	public readonly Pin B;
-	public readonly Pin Out;
-
-	//public Pin Out => _gateC.Out;
+	public Pin Out => _gateC.Out;
 
 	public OrGate(WireManager manager)
 	{
@@ -20,7 +18,7 @@ public class OrGate
 		
 		A = new Pin(manager, "Or inA");
 		B = new Pin(manager, "Or inB");
-		Out = new Pin(manager, "Or Out");
+		Out.SetName("Or Out");
 		
 		//https://en.wikipedia.org/wiki/OR_gate#/media/File:OR_from_NAND.svg
 		A.ConnectTo(_gateA.A);
