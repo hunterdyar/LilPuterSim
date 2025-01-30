@@ -17,14 +17,26 @@ public class WireManager
 		pin.Set(signal);
 		Impulse(pin);
 	}
+
+	public void SetPin(Pin pin, byte[] signal)
+	{
+		pin.Set(signal);
+		Impulse(pin);
+	}
 	public void Impulse(Pin pin)
 	{ 
 		//update the systems that use this pin directly.
 		//This is basically only NAND gates in most cases! Neat!
+		
 		if (_onValueChangeMap.TryGetValue(pin, out var action))
 		{
+			Console.WriteLine(action.Method.DeclaringType.Name+" - "+action.Method.Name);
+			//the dictionary should store some sort of SystemID (just use the pointer; class reference?)
+			//Add it to a secondary breadth-first queue?
+			//todo: add these to some kind of hashset, and then run when we finish the pin propogation - which will add more pin propogate..s but also prevent changing a lot of pins to have a system keep re-triggering.
 			action?.Invoke(pin);
 		}
+		Console.WriteLine($"just called changes for impulse on {pin.Name}. Now calling impulses for all connected pins.");
 		
 		//update all children
 		if (_connections.TryGetValue(pin, out var connection))
@@ -84,7 +96,11 @@ public class WireManager
 	/// </summary>
 	public void Changed(Pin pin, byte[] value)
 	{
-		_changeQueue.Enqueue(pin);
+		//this is probably inefficient for the adders....
+		if (!_changeQueue.Contains(pin))
+		{
+			_changeQueue.Enqueue(pin);
+		}
 	}
 
 	public void Listen(Pin p, Action<Pin> handler)

@@ -2,6 +2,15 @@
 
 public static class WireUtility
 {
+	public static bool IsHigh(this byte[] data)
+	{
+		return ByteToSignal(data) == WireSignal.High;
+	}
+
+	public static bool IsLow(this byte[] data)
+	{
+		return ByteToSignal(data) == WireSignal.Low;
+	}
 	public static WireSignal ByteToSignal(byte[] data)
 	{
 		if (data.Length != 1)

@@ -49,7 +49,7 @@ public class AdderTest
 	[Test]
 	public void AdderLogicTableTests()
 	{
-		var a = new Adder(_manager);
+		var a = new FullAdder(_manager);
 
 		_manager.SetPin(a.A, WireSignal.Low);
 		_manager.SetPin(a.B, WireSignal.Low);
@@ -114,5 +114,60 @@ public class AdderTest
 		Assert.That(a.CarryOut.Value.Length, Is.EqualTo(1));
 		Assert.That((WireSignal)a.SumOut.Value[0], Is.EqualTo(WireSignal.High));
 		Assert.That(a.SumOut.Value.Length, Is.EqualTo(1));
+	}
+
+	[Test]
+	public void AdderHookupTests()
+	{
+		int width = 8;
+		var adder = new Adder(_manager, width);
+		//zero out
+		_manager.SetPin(adder.CarryIn, WireSignal.Low);
+		_manager.SetPin(adder.A, new byte[width]);
+		_manager.SetPin(adder.B, new byte[width]);
+		
+		for (int i = 0; i < width; i++)
+		{
+			Assert.That((WireSignal)adder.Out.Value[i],Is.EqualTo(WireSignal.Low));
+		}
+	}
+
+	[Test]
+	public void AdderSumAllPositiveTest()
+	{
+		AdderSumAllForWidth(2);
+		AdderSumAllForWidth(4);
+		//AdderSumAllForWidth(8);
+	}
+
+	
+	private void AdderSumAllForWidth(int width)
+	{
+		int maxCanSum = ((int)Math.Pow(2,width)) -1;
+		var adder = new Adder(_manager, width);
+		//zero out
+		_manager.SetPin(adder.CarryIn, WireSignal.Low);
+		_manager.SetPin(adder.A, new byte[width]);
+		_manager.SetPin(adder.B, new byte[width]);
+
+		for (int x = 0; x < maxCanSum; x++)
+		{
+			for (int y = 0; y < maxCanSum; y++)
+			{
+				_manager.SetPin(adder.A, PinUtility.IntToByteArray(x, width));
+				_manager.SetPin(adder.B, PinUtility.IntToByteArray(y, width));
+				var result = PinUtility.ByteArrayToInt(adder.Out.Value);
+				if (x + y > maxCanSum+1)
+				{
+					Assert.That(result, Is.EqualTo((x + y) % (maxCanSum+1)));
+					Assert.That((adder.CarryOut.Signal), Is.EqualTo(WireSignal.High));
+				}
+				else
+				{
+					Assert.That(result, Is.EqualTo((x + y)));
+					Assert.That((adder.CarryOut.Signal), Is.EqualTo(WireSignal.Low));
+				}
+			}
+		}
 	}
 }

@@ -6,7 +6,7 @@ namespace LilPuterTerm;
 public class AdderView : Terminal.Gui.Window
 {
 	//system
-	private Adder _adder;
+	private FullAdder _fullAdder;
 
 	//components
 	private PinView _a;
@@ -16,9 +16,9 @@ public class AdderView : Terminal.Gui.Window
 	private PinView _carryOut;
 	private PinView _sumOut;
 	
-	public AdderView(Adder adder)
+	public AdderView(FullAdder fullAdder)
 	{
-		_adder = adder;
+		_fullAdder = fullAdder;
 		InitializeComponent();
 	}
 	private void InitializeComponent()
@@ -33,19 +33,19 @@ public class AdderView : Terminal.Gui.Window
 		this.TextAlignment = Terminal.Gui.TextAlignment.Centered;
 		this.Title = "Adder";
 
-		_a = new PinView(_adder.A, "A");
+		_a = new PinView(_fullAdder.A, "A");
 		this.Add(_a);
-		_b = new PinView(_adder.B, "B");
+		_b = new PinView(_fullAdder.B, "B");
 		_b.X = Pos.Right(_a);
 		this.Add(_b);
-		_carryIn = new PinView(_adder.CarryIn, "Carry In");
+		_carryIn = new PinView(_fullAdder.CarryIn, "Carry In");
 		_carryIn.X = Pos.Right(_b);
 		this.Add(_carryIn);
 			
-		_sumOut = new PinView(_adder.SumOut, "Sum");
+		_sumOut = new PinView(_fullAdder.SumOut, "Sum");
 		_sumOut.Y = Pos.Bottom(_a);
 		this.Add(_sumOut);
-		_carryOut = new PinView(_adder.CarryOut, "Carry Out");
+		_carryOut = new PinView(_fullAdder.CarryOut, "Carry Out");
 		_carryOut.Y = Pos.Bottom(_a);
 		_carryOut.X = Pos.Right(_sumOut);
 		this.Add(_carryOut);
