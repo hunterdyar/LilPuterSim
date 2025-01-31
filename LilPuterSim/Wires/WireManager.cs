@@ -6,7 +6,18 @@ public class WireManager
 {
 	private readonly Dictionary<Pin, Pin[]> _connections = new Dictionary<Pin, Pin[]>();
 	private readonly Dictionary<Pin, Action<Pin>> _onValueChangeMap = new Dictionary<Pin, Action<Pin>>(); 
-	private readonly Queue<Pin> _changeQueue = new Queue<Pin>();
+	private readonly List<Queue<Pin>> _changeQueues;
+	private int _maxQueueCount = 10;
+
+	public WireManager()
+	{
+		_changeQueues = new List<Queue<Pin>>();
+		for (var i = 0; i < _maxQueueCount; i++)
+		{
+			_changeQueues.Add(new Queue<Pin>());
+		}
+	}
+
 	public delegate void PinChangedHandler(Pin pin);
 
 	/// <summary>
@@ -48,15 +59,20 @@ public class WireManager
 		}
 		
 		//propogate the breadth-first queue. This doesn't check for loops yet.
-		while (_changeQueue.Count > 0)
+		for (int i = 0; i < _changeQueues.Count; i++)
 		{
-			var p = _changeQueue.Dequeue();
-			if (pin == p)
+			//Propogate through all lowest level ones first. Then the higher ones.
+			while (_changeQueues[i].Count > 0)
 			{
-				//we are already impulsing this one. Is this an infinite loop, or is this just from us calling "SetPin"?
-				continue;
+				var p = _changeQueues[i].Dequeue();
+				if (pin == p)
+				{
+					//we are already impulsing this one. Is this an infinite loop, or is this just from us calling "SetPin"?
+					continue;
+				}
+
+				Impulse(p);
 			}
-			Impulse(p);
 		}
 		//set pin and collect all pins that update in response to it. Repeat though the queue until propogation is complete.
 		//use a hashmap of updated pins to prevent infinite loops (for things like buses), if neccesary?
@@ -96,10 +112,21 @@ public class WireManager
 	/// </summary>
 	public void Changed(Pin pin, byte[] value)
 	{
-		//this is probably inefficient for the adders....
-		if (!_changeQueue.Contains(pin))
+		//todo: This can be a configuration check done once for the whole system, not a runtime check!
+		if (pin.PinWeight >= _maxQueueCount)
 		{
-			_changeQueue.Enqueue(pin);
+			int diff = pin.PinWeight - _maxQueueCount + 1;
+			_maxQueueCount += diff;
+			for (int i = 0; i < diff; i++)
+			{
+				_changeQueues.Add(new Queue<Pin>());
+			}
+		}
+		
+		
+		if (!_changeQueues[pin.PinWeight].Contains(pin))
+		{
+			_changeQueues[pin.PinWeight].Enqueue(pin);
 		}
 	}
 

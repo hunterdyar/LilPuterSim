@@ -20,6 +20,7 @@ public class Adder
 		CarryIn = new Pin(manager, "AdderCarryIn");
 		CarryOut = new Pin(manager, "AdderCarryOut");
 		Out = new Pin(manager, "AdderOut", bitWidth);
+		Out.PinWeight++;//Resolve all internal pins before setting the output.
 		
 		_adders = new FullAdder[bitWidth];
 		for (var i = 0; i < bitWidth; i++)
