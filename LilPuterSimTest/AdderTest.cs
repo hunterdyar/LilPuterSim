@@ -157,9 +157,9 @@ public class AdderTest
 				_manager.SetPin(adder.A, PinUtility.IntToByteArray(x, width));
 				_manager.SetPin(adder.B, PinUtility.IntToByteArray(y, width));
 				var result = PinUtility.ByteArrayToInt(adder.Out.Value);
-				if (x + y > maxCanSum+1)
+				if (x + y > maxCanSum)
 				{
-					Assert.That(result, Is.EqualTo((x + y) % (maxCanSum+1)));
+					Assert.That(result, Is.EqualTo((x + y) - (maxCanSum+1)));
 					Assert.That((adder.CarryOut.Signal), Is.EqualTo(WireSignal.High));
 				}
 				else
@@ -169,5 +169,15 @@ public class AdderTest
 				}
 			}
 		}
+	}
+
+	[Test]
+	public void ALUConfigurationTest()
+	{
+		var alu = new ArithmeticLogicUnit(_manager, 8);
+		//add, zero inputs.
+		alu.SetInputs(WireSignal.High,WireSignal.High,WireSignal.Low,WireSignal.High,WireSignal.Low,WireSignal.Low);
+		Assert.That(PinUtility.ByteArrayToInt(alu.Out.Value), Is.EqualTo(0));
+		
 	}
 }
