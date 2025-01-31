@@ -133,15 +133,10 @@ public class AdderTest
 	}
 
 	[Test]
-	public void AdderSumAllPositiveTest()
-	{
-		AdderSumAllForWidth(2);
-		AdderSumAllForWidth(4);
-		//AdderSumAllForWidth(8);
-	}
+	[TestCase(2)]
+	[TestCase(4)]
 
-	
-	private void AdderSumAllForWidth(int width)
+	public void AdderSumAllForWidth(int width)
 	{
 		int maxCanSum = ((int)Math.Pow(2,width)) -1;
 		var adder = new Adder(_manager, width);

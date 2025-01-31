@@ -8,7 +8,7 @@ public class WireManager
 	private readonly Dictionary<Pin, Action<Pin>> _onValueChangeMap = new Dictionary<Pin, Action<Pin>>(); 
 	private readonly List<Queue<Pin>> _changeQueues;
 	private int _maxQueueCount = 10;
-
+	private int _maxPinWeightInGraph = 0;
 	public WireManager()
 	{
 		_changeQueues = new List<Queue<Pin>>();
@@ -34,7 +34,17 @@ public class WireManager
 		pin.Set(signal);
 		Impulse(pin);
 	}
+
 	public void Impulse(Pin pin)
+	{
+		//Send out the first impulse, collecting the rest along the way. This will complete all pins of weight 0.
+		ImpulseRecursive(pin, 0);
+		for (int i = 1; i < _maxPinWeightInGraph; i++)
+		{
+			ImpulseRecursive(pin, i);
+		}
+	}
+	public void ImpulseRecursive(Pin pin, int pinWeight)
 	{ 
 		//update the systems that use this pin directly.
 		//This is basically only NAND gates in most cases! Neat!
@@ -54,26 +64,30 @@ public class WireManager
 		{
 			foreach (var connectedPin in connection)
 			{
-				connectedPin.Set(pin.Value);
+				if (connectedPin.PinWeight == pinWeight)
+				{
+					connectedPin.Set(pin.Value);
+				}
+				else
+				{
+					_changeQueues[connectedPin.PinWeight].Enqueue(connectedPin);
+				}
 			}
 		}
 		
-		//propogate the breadth-first queue. This doesn't check for loops yet.
-		for (int i = 0; i < _changeQueues.Count; i++)
-		{
-			//Propogate through all lowest level ones first. Then the higher ones.
-			while (_changeQueues[i].Count > 0)
-			{
-				var p = _changeQueues[i].Dequeue();
-				if (pin == p)
-				{
-					//we are already impulsing this one. Is this an infinite loop, or is this just from us calling "SetPin"?
-					continue;
-				}
 
-				Impulse(p);
+		while (_changeQueues[pinWeight].Count > 0)
+		{
+			var p = _changeQueues[pinWeight].Dequeue();
+			if (pin == p)
+			{
+				//we are already impulsing this one. Is this an infinite loop, or is this just from us calling "SetPin"?
+				continue;
 			}
+
+			ImpulseRecursive(p, pinWeight);
 		}
+		
 		//set pin and collect all pins that update in response to it. Repeat though the queue until propogation is complete.
 		//use a hashmap of updated pins to prevent infinite loops (for things like buses), if neccesary?
 		
@@ -113,27 +127,20 @@ public class WireManager
 	public void Changed(Pin pin, byte[] value)
 	{
 		//todo: This can be a configuration check done once for the whole system, not a runtime check!
-		if (pin.PinWeight >= _maxQueueCount)
+		if (pin.PinWeight > _maxPinWeightInGraph)
 		{
-			int diff = pin.PinWeight - _maxQueueCount + 1;
-			_maxQueueCount += diff;
-			for (int i = 0; i < diff; i++)
+			_maxPinWeightInGraph = pin.PinWeight;
+
+			if (pin.PinWeight >= _maxQueueCount)
 			{
-				_changeQueues.Add(new Queue<Pin>());
+				int diff = pin.PinWeight - _maxQueueCount + 1;
+				_maxQueueCount += diff;
+				for (int i = 0; i < diff; i++)
+				{
+					_changeQueues.Add(new Queue<Pin>());
+				}
 			}
 		}
-		
-		
-		if (!_changeQueues[pin.PinWeight].Contains(pin))
-		{
-			_changeQueues[pin.PinWeight].Enqueue(pin);
-			int diff = pin.PinWeight - _maxQueueCount + 1;
-			for (int i = 0; i < diff; i++)
-			{
-				_changeQueues.Add(new Queue<Pin>());
-			}
-		}
-		
 		
 		if (!_changeQueues[pin.PinWeight].Contains(pin))
 		{
