@@ -127,6 +127,17 @@ public class WireManager
 		if (!_changeQueues[pin.PinWeight].Contains(pin))
 		{
 			_changeQueues[pin.PinWeight].Enqueue(pin);
+			int diff = pin.PinWeight - _maxQueueCount + 1;
+			for (int i = 0; i < diff; i++)
+			{
+				_changeQueues.Add(new Queue<Pin>());
+			}
+		}
+		
+		
+		if (!_changeQueues[pin.PinWeight].Contains(pin))
+		{
+			_changeQueues[pin.PinWeight].Enqueue(pin);
 		}
 	}
 
