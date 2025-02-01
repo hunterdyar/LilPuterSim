@@ -1,12 +1,13 @@
 ﻿namespace LilPuter;
 
-public class Adder
+public class Adder : SimSystem
 {
-	public Pin A;
-	public Pin B;
-	public Pin CarryIn;
-	public Pin CarryOut;
-	public Pin Out;
+	public Pin A => Inputs[0];
+	public Pin B => Inputs[1];
+	public Pin CarryIn => Inputs[2];
+	public Pin Out => Outputs[0];
+	public Pin CarryOut => Outputs[1];
+	
 	public int bitWidth;
 	private FullAdder[] _adders;
 	private WireManager _manager;
@@ -14,12 +15,15 @@ public class Adder
 	public Adder(WireManager manager, int bitWidth)
 	{
 		_manager = manager;
+		Inputs = new Pin[3];
+		Outputs = new Pin[2];
 		this.bitWidth = bitWidth;
-		A = new Pin(manager, "AdderA", bitWidth);
-		B = new Pin(manager, "AdderB", bitWidth);
-		CarryIn = new Pin(manager, "AdderCarryIn");
-		CarryOut = new Pin(manager, "AdderCarryOut");
-		Out = new Pin(manager, "AdderOut", bitWidth);
+		Inputs[0] = new Pin(manager, "AdderA", bitWidth); 
+		Inputs[1] = new Pin(manager, "AdderB", bitWidth);
+		Inputs[2] = new Pin(manager, "AdderCarryIn");
+		Outputs[0] = new Pin(manager, "AdderOut", bitWidth);
+		Outputs[1] = new Pin(manager, "AdderCarryOut");
+		
 		Out.PinWeight++;//Resolve all internal pins before setting the output.
 		
 		_adders = new FullAdder[bitWidth];
@@ -43,6 +47,12 @@ public class Adder
 		
 		manager.Listen(A, InputChanged);
 		manager.Listen(B, InputChanged);
+	}
+
+	public override void Simulate()
+	{
+		//todo
+		base.Simulate();
 	}
 
 	private void InputChanged(Pin changed)
