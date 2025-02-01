@@ -12,7 +12,7 @@ public abstract class SimSystem
     }
     public Pin[] Outputs { get; protected set; }
 
-    private bool _needsSimulation = false;
+    protected bool _needsSimulation = false;
 
     public void SetNeedsSimulation()
     {

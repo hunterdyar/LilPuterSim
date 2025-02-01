@@ -24,8 +24,6 @@ public class Adder : SimSystem
 		Outputs[0] = new Pin(manager, "AdderOut", bitWidth);
 		Outputs[1] = new Pin(manager, "AdderCarryOut");
 		
-		Out.PinWeight++;//Resolve all internal pins before setting the output.
-		
 		_adders = new FullAdder[bitWidth];
 		for (var i = 0; i < bitWidth; i++)
 		{
@@ -51,10 +49,23 @@ public class Adder : SimSystem
 
 	public override void Simulate()
 	{
-		//todo
+		if (_needsSimulation)
+		{
+			//does this get set when things change or can we force a simulation?
+		}
+		//todo: only impulse if different since last impulse.
+		//pin's set dirty when set and un-dirty when false.
+		
+		_manager.Impulse(A);
+		_manager.Impulse(B);
+		_manager.Impulse(CarryIn);
+		//
 		base.Simulate();
+		//
+		//Now 
 	}
 
+	//hmmmm
 	private void InputChanged(Pin changed)
 	{
 		if (changed == A)
@@ -76,7 +87,6 @@ public class Adder : SimSystem
 			throw new Exception("Adder accidentally listening to wrong pin");
 		}
 		
-		//Now we need to set the output! But like, after the rest of the propogation.
-		
+		SetNeedsSimulation();
 	}
 }

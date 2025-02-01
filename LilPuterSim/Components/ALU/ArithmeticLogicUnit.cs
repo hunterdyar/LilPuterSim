@@ -71,13 +71,9 @@ public class ArithmeticLogicUnit
 		NO = new Pin(manager, "ALU NO");
 		//outs
 		Out = new Pin(manager, "ALU Out", bitWidth);
-		Out.PinWeight++;
 		ZR = new Pin(manager, "ALU ZR");
-		ZR.PinWeight++;
 		NG = new Pin(manager, "ALU NG");
-		NG.PinWeight++;
 		Overflow = new Pin(manager, "ALU Overflow");
-		Overflow.PinWeight++;
 		//
 		_adder = new Adder(manager, bitWidth);
 		_andBank = new AndBank(manager, bitWidth);

@@ -2,15 +2,22 @@ namespace LilPuter;
 
 public class SystemSimulator
 {
-    //A calling of Simulate for each system. Is it BF or DF or topological sorted? Breath for now!
+    //A calling of Simulate for each system. Is it BF or DF or topological sorted? Breadth for now!
 
     private Queue<SimSystem> _toSimulate = new Queue<SimSystem>();
 
     public void Simulate(SimSystem simSystem)
     {
-        foreach (var inputPin in simSystem.Inputs)
+        _toSimulate.Enqueue(simSystem);
+        while (_toSimulate.Count > 0)
         {
-            // inputPin
+            var next = _toSimulate.Dequeue();
+            next.Simulate();
+           
+            //get all connected systems, check if they need to be simulated.
+                //wireManager uses callbacks.
+                
         }
     }
+
 }

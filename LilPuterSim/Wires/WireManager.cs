@@ -6,16 +6,12 @@ public class WireManager
 {
 	private readonly Dictionary<Pin, Pin[]> _connections = new Dictionary<Pin, Pin[]>();
 	private readonly Dictionary<Pin, Action<Pin>> _onValueChangeMap = new Dictionary<Pin, Action<Pin>>(); 
-	private readonly List<Queue<Pin>> _changeQueues;
+	private readonly Queue<Pin> _changeQueue;
 	private int _maxQueueCount = 10;
 
 	public WireManager()
 	{
-		_changeQueues = new List<Queue<Pin>>();
-		for (var i = 0; i < _maxQueueCount; i++)
-		{
-			_changeQueues.Add(new Queue<Pin>());
-		}
+		_changeQueue = new Queue<Pin>();
 	}
 
 	public delegate void PinChangedHandler(Pin pin);
@@ -58,22 +54,20 @@ public class WireManager
 			}
 		}
 		
-		//propogate the breadth-first queue. This doesn't check for loops yet.
-		for (int i = 0; i < _changeQueues.Count; i++)
-		{
-			//Propogate through all lowest level ones first. Then the higher ones.
-			while (_changeQueues[i].Count > 0)
-			{
-				var p = _changeQueues[i].Dequeue();
-				if (pin == p)
-				{
-					//we are already impulsing this one. Is this an infinite loop, or is this just from us calling "SetPin"?
-					continue;
-				}
 
-				Impulse(p);
+		//Propogate through all lowest level ones first. Then the higher ones.
+		while (_changeQueue.Count > 0)
+		{
+			var p = _changeQueue.Dequeue();
+			if (pin == p)
+			{
+				//we are already impulsing this one. Is this an infinite loop, or is this just from us calling "SetPin"?
+				continue;
 			}
+
+			Impulse(p);
 		}
+		
 		//set pin and collect all pins that update in response to it. Repeat though the queue until propogation is complete.
 		//use a hashmap of updated pins to prevent infinite loops (for things like buses), if neccesary?
 		
@@ -112,32 +106,10 @@ public class WireManager
 	/// </summary>
 	public void Changed(Pin pin, byte[] value)
 	{
-		//todo: This can be a configuration check done once for the whole system, not a runtime check!
-		if (pin.PinWeight >= _maxQueueCount)
+		
+		if (!_changeQueue.Contains(pin))
 		{
-			int diff = pin.PinWeight - _maxQueueCount + 1;
-			_maxQueueCount += diff;
-			for (int i = 0; i < diff; i++)
-			{
-				_changeQueues.Add(new Queue<Pin>());
-			}
-		}
-		
-		
-		if (!_changeQueues[pin.PinWeight].Contains(pin))
-		{
-			_changeQueues[pin.PinWeight].Enqueue(pin);
-			int diff = pin.PinWeight - _maxQueueCount + 1;
-			for (int i = 0; i < diff; i++)
-			{
-				_changeQueues.Add(new Queue<Pin>());
-			}
-		}
-		
-		
-		if (!_changeQueues[pin.PinWeight].Contains(pin))
-		{
-			_changeQueues[pin.PinWeight].Enqueue(pin);
+			_changeQueue.Enqueue(pin);
 		}
 	}
 

@@ -177,6 +177,7 @@ public class AdderTest
 		var alu = new ArithmeticLogicUnit(_manager, 8);
 		//add, zero inputs.
 		alu.SetInputs(WireSignal.High,WireSignal.High,WireSignal.Low,WireSignal.High,WireSignal.Low,WireSignal.Low);
+		_manager.Impulse(alu.X);
 		Assert.That(PinUtility.ByteArrayToInt(alu.Out.Value), Is.EqualTo(0));
 		
 	}
