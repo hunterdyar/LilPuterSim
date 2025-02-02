@@ -7,6 +7,7 @@ public class WireManager
 	private HashSet<Pin> _allPins;
 	private readonly Dictionary<Pin, Pin[]> _connections = new Dictionary<Pin, Pin[]>();
 	private readonly Dictionary<Pin, Action<Pin>> _onValueChangeMap = new Dictionary<Pin, Action<Pin>>(); 
+	private readonly Dictionary<Pin, Action<Pin>> _changeMap = new Dictionary<Pin, Action<Pin>>();
 	private readonly Queue<Pin> _changeQueue;
 	private int _maxQueueCount = 10;
 
@@ -14,6 +15,11 @@ public class WireManager
 	private List<Pin> _tSort = new List<Pin>();
 	private Dictionary<Pin, int> _inDegree = new Dictionary<Pin, int>();
 	private bool _tSortDirty = true;
+	
+	//impulse things
+	//stores if a pin has been set or updated, and thus needs to be impulsed.
+	private readonly Dictionary<Pin, bool> _needsImpulse = new Dictionary<Pin, bool>();
+
 	
 	public WireManager()
 	{
@@ -94,6 +100,10 @@ public class WireManager
 	}
 	public void Impulse(Pin pin)
 	{ 
+		//todo: change this to getting the topoSort, getting the index of pin, and impulsing from that point and to the end.
+		
+		
+		//_needsImpulse[pin] = false;
 		//update the systems that use this pin directly.
 		//This is basically only NAND gates in most cases! Neat!
 		
@@ -171,11 +181,11 @@ public class WireManager
 	/// </summary>
 	public void Changed(Pin pin, byte[] value)
 	{
-		
 		if (!_changeQueue.Contains(pin))
 		{
 			_changeQueue.Enqueue(pin);
 		}
+		_needsImpulse[pin] = true;
 	}
 
 	public void Listen(Pin p, Action<Pin> handler)
