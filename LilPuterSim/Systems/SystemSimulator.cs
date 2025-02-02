@@ -13,11 +13,8 @@ public class SystemSimulator
         {
             var next = _toSimulate.Dequeue();
             next.Simulate();
-           
-            //get all connected systems, check if they need to be simulated.
-                //wireManager uses callbacks.
+            
                 
         }
     }
-
 }

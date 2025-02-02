@@ -4,13 +4,20 @@
 
 public class WireManager
 {
+	private HashSet<Pin> _allPins;
 	private readonly Dictionary<Pin, Pin[]> _connections = new Dictionary<Pin, Pin[]>();
 	private readonly Dictionary<Pin, Action<Pin>> _onValueChangeMap = new Dictionary<Pin, Action<Pin>>(); 
 	private readonly Queue<Pin> _changeQueue;
 	private int _maxQueueCount = 10;
 
+	//topo sort things
+	private List<Pin> _tSort = new List<Pin>();
+	private Dictionary<Pin, int> _inDegree = new Dictionary<Pin, int>();
+	private bool _tSortDirty = true;
+	
 	public WireManager()
 	{
+		_allPins = new HashSet<Pin>();
 		_changeQueue = new Queue<Pin>();
 	}
 
@@ -29,6 +36,61 @@ public class WireManager
 	{
 		pin.Set(signal);
 		Impulse(pin);
+	}
+
+	private void CalculateInDegrees()
+	{
+		_inDegree.Clear();
+		foreach (var pin in _allPins)
+		{
+			_inDegree.TryAdd(pin, 0);
+			if (_connections.TryGetValue(pin, out var toPins))
+			{
+				foreach (var to in toPins)
+				{
+					if (!_inDegree.TryAdd(to, 1))
+					{
+						_inDegree[to]++;
+					}
+					else
+					{
+						_inDegree[to] = 1;
+					}
+				}
+			}
+		}
+	}
+
+	public List<Pin> GetTopoSort()
+	{
+		if (!_tSortDirty)
+		{
+			return _tSort;
+		}
+		var _result = new List<Pin>();
+		CalculateInDegrees();
+		var s = _inDegree.Where(x=>x.Value == 0).Select(x=>x.Key).ToList();
+		Queue<Pin> q = new Queue<Pin>(s);
+
+		while (q.Count > 0)
+		{
+			var p = q.Dequeue();
+			_result.Add(p);
+			if (_connections.TryGetValue(p, out var toPins))
+			{
+				foreach (var toPin in toPins)
+				{
+					_inDegree[toPin]--;
+					if (_inDegree[toPin] == 0)
+					{
+						q.Enqueue(toPin);
+					}
+				}
+			}
+			
+		}
+		
+		return _result;
 	}
 	public void Impulse(Pin pin)
 	{ 
@@ -75,6 +137,9 @@ public class WireManager
 	
 	public void Connect(Pin from, Pin to, bool biDirectional = false)
 	{
+		_tSortDirty = true;
+		_allPins.Add(from);
+		_allPins.Add(to);
 		//Create connection wire.
 		if (_connections.ContainsKey(from))
 		{

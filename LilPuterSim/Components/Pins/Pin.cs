@@ -66,6 +66,11 @@ public class Pin : IObservable
 	{
 		Value = value;
 	}
+
+	public void SetSilently(WireSignal value)
+	{
+		Value[0] = (byte)value;
+	}
 	public bool Set(byte[] value, bool alwaysUpdate = false)
 	{
 		bool changed = false;
@@ -200,4 +205,6 @@ public class Pin : IObservable
 			return true;
 		}
 	}
+
+	
 }
