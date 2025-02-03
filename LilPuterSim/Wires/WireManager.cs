@@ -4,23 +4,19 @@
 
 public class WireManager
 {
-	private HashSet<Pin> _allPins;
-	private readonly Dictionary<Pin, List<Pin>> _dependencies = new Dictionary<Pin, List<Pin>>();
-	private readonly Dictionary<Pin, Action<Pin>> _simActionMap = new Dictionary<Pin, Action<Pin>>(); 
+	private HashSet<ISystem> _allPins = new HashSet<ISystem>();
+	private readonly Dictionary<ISystem, List<ISystem>> _dependencies = new Dictionary<ISystem, List<ISystem>>();
+	private readonly Dictionary<ISystem, Action<ISystem>> _simActionMap = new Dictionary<ISystem, Action<ISystem>>(); 
 
 	//topo sort things
-	private List<Pin> _tSort = new List<Pin>();
-	private Dictionary<Pin, int> _inDegree = new Dictionary<Pin, int>();
+	private List<ISystem> _tSort = new List<ISystem>();
+	private Dictionary<ISystem, int> _inDegree = new Dictionary<ISystem, int>();
 	private bool _tSortDirty = true;
 	
 	//impulse things
 	//stores if a pin has been set or updated, and thus needs to be impulsed.
-	private readonly Dictionary<Pin, bool> _needsTick = new Dictionary<Pin, bool>();
+	private readonly Dictionary<ISystem, bool> _needsTick = new Dictionary<ISystem, bool>();
 	
-	public WireManager()
-	{
-		_allPins = new HashSet<Pin>();
-	}
 
 	public delegate void PinChangedHandler(Pin pin);
 
@@ -50,58 +46,59 @@ public class WireManager
 		}
 	}
 
-	public List<Pin> GetTopoSort()
+	public List<ISystem> GetTopoSort()
 	{
 		if (!_tSortDirty)
 		{
 			return _tSort;
 		}
-		var _result = new List<Pin>();
+		_tSort.Clear();
 		CalculateInDegrees();
 		var s = _inDegree.Where(x=>x.Value == 0).Select(x=>x.Key).ToList();
-		Queue<Pin> q = new Queue<Pin>(s);
+		Queue<ISystem> q = new Queue<ISystem>(s);
 
 		while (q.Count > 0)
 		{
 			var p = q.Dequeue();
-			_result.Add(p);
+			_tSort.Add(p);
 			
-			if (_dependencies.TryGetValue(p, out var depPins))
+			if (_dependencies.TryGetValue(p, out var depSys))
 			{
-				foreach (var toPin in depPins)
+				foreach (var toSys in depSys)
 				{
-					_inDegree[toPin]--;
-					if (_inDegree[toPin] == 0)
+					_inDegree[toSys]--;
+					if (_inDegree[toSys] == 0)
 					{
-						q.Enqueue(toPin);
+						q.Enqueue(toSys);
 					}
 				}
 			}
 			//dependencies aren't getting included. We need their reverse as well?
 		}
-		
-		return _result;
+
+		_tSortDirty = false;
+		return _tSort;
 	}
 
-	public void Tick(Pin pin)
+	public void Tick(ISystem system)
 	{
-		if (!_needsTick.ContainsKey(pin))
+		if (!_needsTick.ContainsKey(system))
 		{
 			return;
 		}
 		//not set from anything, so we're good!
 
-		if (_simActionMap.TryGetValue(pin, out var simAction))
+		if (_simActionMap.TryGetValue(system, out var simAction))
 		{
-			simAction?.Invoke(pin);
-			_needsTick[pin] = false;
+			simAction?.Invoke(system);
+			_needsTick[system] = false;
 		}
 	}
-	public void Impulse(Pin pin)
+	public void Impulse(ISystem system)
 	{ 
 		//todo: change this to getting the topoSort, getting the index of pin, and impulsing from that point and to the end.
 		var topo = GetTopoSort();
-		var indexOfPin = topo.IndexOf(pin);
+		var indexOfPin = topo.IndexOf(system);
 		if (indexOfPin != -1)
 		{
 			for (var i = indexOfPin; i < topo.Count; i++)
@@ -112,7 +109,7 @@ public class WireManager
 		else
 		{
 			//only tick this pin... because of the OnValueChange map where others will update.
-			Tick(pin);
+			Tick(system);
 		}
 		
 		//set pin and collect all pins that update in response to it. Repeat though the queue until propogation is complete.
@@ -120,26 +117,29 @@ public class WireManager
 		
 	}
 	
-	/// <param name="disconnected">dependency only for graph. Update via listeners.</param>
-	/// <exception cref="ArgumentException"></exception>
-	public void Connect(Pin from, Pin to)
+	public void ConnectPins(Pin from, Pin to)
 	{
 		//todo: I am not sure how many of these dictionaries we need. Still tinkering as I make it.
 		
 		//initialize ourselves, we need to tick since we have a new incoming connection.
+
+		if (from == to)
+		{
+			throw new Exception("Cannot connect a system to itself.");
+		}
 		
-		SetDependency(from,to);
+		SetDependency(to,from);
 		if (_simActionMap.ContainsKey(from))
 		{
-			_simActionMap[from] += f => to.Set(f.Value);
+			_simActionMap[from] += f => to.Set(((Pin)f).Value);
 		}
 		else
 		{
-			_simActionMap.Add(from, f => to.Set(f.Value));
+			_simActionMap.Add(from, f => to.Set(((Pin)f).Value));
 		}
 	}
 
-	public void SetDependency(Pin from, Pin to)
+	public void SetDependency(ISystem from, ISystem to)
 	{
 		_tSortDirty = true;
 		_allPins.Add(from);
@@ -160,34 +160,40 @@ public class WireManager
 			_dependencies[to].Add(from);
 		}
 	}
-	/// <summary>
-	/// Called by pins in set, which is called by the OnValueChange functions we register that do the logic.
-	/// </summary>
-	public void Changed(Pin pin, byte[] value)
-	{
-		_needsTick[pin] = true;
-	}
 
-	public void Listen(Pin p, Action<Pin> handler)
+	public void RegisterSystemAction(ISystem system, Action<ISystem> handler)
 	{
-		if(!_simActionMap.TryAdd(p, handler))
+		if(!_simActionMap.TryAdd(system, handler))
 		{
-			_simActionMap[p] += handler;
+			_simActionMap[system] += handler;
 		}
 	}
 
 	/// <summary>
 	/// Marks the outins as dependent on the inpins, and adds ActionCall to when inPin changes.
 	/// </summary>
-	public void RegisterSystem(List<Pin> ins, Action<Pin> actionCall, List<Pin> outs)
+	public void RegisterSystem(List<ISystem> ins, Action<ISystem> actionCall, List<ISystem> outs)
 	{
 		foreach (var inpIn in ins)
 		{
-			_simActionMap[inpIn] += actionCall;
+			if (_simActionMap.ContainsKey(inpIn))
+			{
+				_simActionMap[inpIn] += actionCall;
+			}
+			else
+			{
+				_simActionMap.Add(inpIn, actionCall);
+			}
 			foreach (var outpin in outs)
 			{
 				SetDependency(inpIn,outpin);
 			}
 		}
+	}
+
+	public void Changed(ISystem system, byte[] value)
+	{
+		//todo: skip propogation
+		//_needsTick[system] = false;
 	}
 }

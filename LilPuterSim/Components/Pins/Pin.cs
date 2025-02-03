@@ -9,7 +9,7 @@
 /// This reduces the number of calls to the wire manager and number of connections for what is conceptually a "single" connection.
 ///	e.g. conceptually... and actually in this sim.
 /// </summary>
-public class Pin : IObservable
+public class Pin : IObservable, ISystem
 {
 	public string Name { get; private set; }
 	public byte[] Value { get; private set; } = [(byte)WireSignal.Floating];//Default should be not connected == floating
@@ -81,12 +81,17 @@ public class Pin : IObservable
 
 		if (value.Length == 1)
 		{
+			// if (value[0] == 2)
+			// {
+			//		//this is allowed, just testing things.
+			//		throw new Exception("Setting Value to Floating?");
+			// }
 			var newVal = (WireSignal)value[0];
 			changed = newVal != Signal;
 			if (changed || alwaysUpdate)
 			{
 				Value = [(byte)newVal];
-				//_manager.Changed(this, Value);
+				_manager.Changed(this, Value);
 				UpdateSubscribers();
 			}
 
@@ -136,7 +141,7 @@ public class Pin : IObservable
 	/// <param name="otherPin">The pin to connect a wire to.</param>
 	public void ConnectTo(Pin otherPin)
 	{
-		_manager.Connect(this, otherPin);
+		_manager.ConnectPins(this, otherPin);
 	}
 
 	public void DisconnectFrom(Pin otherPin, bool twoWay)
@@ -200,7 +205,6 @@ public class Pin : IObservable
 		else
 		{
 			Value[i] = b;
-			_manager.Changed(this, Value);
 			return true;
 		}
 	}
@@ -209,4 +213,6 @@ public class Pin : IObservable
 	{
 		_manager.SetDependency(pin,this);
 	}
+
+	public bool Enabled { get; }
 }

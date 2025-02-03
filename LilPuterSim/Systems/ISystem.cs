@@ -1,6 +1,7 @@
 ﻿namespace LilPuter;
 
-public class ISystem
+public interface ISystem
 {
-	
+	public bool Enabled { get; }
+	string Name { get; }
 }

@@ -1,72 +1,103 @@
 ﻿namespace LilPuter;
 
-public class Adder : SimSystem
+public class Adder
 {
-	public Pin A => Inputs[0];
-	public Pin B => Inputs[1];
-	public Pin CarryIn => Inputs[2];
-	public Pin Out => Outputs[0];
-	public Pin CarryOut => Outputs[1];
+	public readonly Pin A;
+	public readonly Pin B;
+	public readonly Pin CarryIn;
+	public readonly Pin Out;
+	public readonly Pin CarryOut;
 	
-	public int bitWidth;
-	private FullAdder[] _adders;
-	private WireManager _manager;
+	public readonly int BitWidth;
+	private readonly FullAdder[] _adders;
+	private readonly WireManager _manager;
 	
 	public Adder(WireManager manager, int bitWidth)
 	{
 		_manager = manager;
-		Inputs = new Pin[3];
-		Outputs = new Pin[2];
-		this.bitWidth = bitWidth;
-		Inputs[0] = new Pin(manager, "AdderA", bitWidth); 
-		Inputs[1] = new Pin(manager, "AdderB", bitWidth);
-		Inputs[2] = new Pin(manager, "AdderCarryIn");
-		Outputs[0] = new Pin(manager, "AdderOut", bitWidth);
-		Outputs[1] = new Pin(manager, "AdderCarryOut");
+		BitWidth = bitWidth;
+		A = new Pin(manager, "Adder A", bitWidth); 
+		B = new Pin(manager, "Adder B", bitWidth);
+		CarryIn = new Pin(manager, "AdderCarryIn");
+		Out = new Pin(manager, "Adder Out", bitWidth);
+		CarryOut = new Pin(manager, "AdderCarryOut");
 		
-		_adders = new FullAdder[bitWidth];
-		for (var i = 0; i < bitWidth; i++)
-		{
-			_adders[i] = new FullAdder(manager);
-			int bit = i;
-			_manager.Connect(_adders[i].SumOut, Out);
-			_manager.Listen(_adders[i].SumOut, (p) =>
-			{
-				Out.SetBit(bit, p.Value[0]);
-			});
-		}
-		CarryIn.ConnectTo(_adders[0].CarryIn);
+		//This system works without the internals! wheee!
+		//manager.RegisterSystem([A,B,CarryIn], AdderSystemChange, [Out,CarryOut]);//do the work without simulating the subsystems.
+		
+		//inputs
+		 _adders = new FullAdder[2];
+		 _adders[0] = new FullAdder(manager);
+		 _adders[1] = new FullAdder(manager);
+		 _adders[0].A.DependsOn(A);
+		 _adders[1].A.DependsOn(A);
+		 manager.RegisterSystemAction(A,InputAChanged);
+		 _adders[0].B.DependsOn(B);
+		 _adders[1].B.DependsOn(B);
+		 manager.RegisterSystemAction(B,InputBChanged);
+		 _adders[0].CarryIn.DependsOn(CarryIn);
+		 //connections
+		 _adders[0].CarryOut.ConnectTo(_adders[1].CarryIn);
+		 
+		 //outputs
+		 Out.DependsOn(_adders[0].SumOut);
+		 manager.RegisterSystemAction(_adders[0].SumOut, system =>
+		 {
+			 Out.SetBit(0, _adders[0].SumOut.Value[0]);
+		 });
+		 Out.DependsOn(_adders[1].SumOut);
+		 manager.RegisterSystemAction(_adders[1].SumOut, system =>
+		 {
+			 Out.SetBit(1, _adders[1].SumOut.Value[0]);
+		 });
+		 
+		 manager.RegisterSystemAction(CarryIn, CarryInChanged);
+		 
 
-		//connect them up!
-		for (int i = 0; i < this.bitWidth-1; i++)
-		{
-			_adders[i].CarryOut.ConnectTo(_adders[i + 1].CarryIn);
-		}
-		_adders[bitWidth-1].CarryOut.ConnectTo(CarryOut);
-
-		manager.RegisterSystem([A, B, CarryIn], InputChanged, [Out, CarryOut]);
+		//manager.RegisterSystem([A, B, CarryIn], InputChanged, [Out, CarryOut]);
 	}
-	
-	//hmmmm
-	private void InputChanged(Pin changed)
+
+	private void AdderSystemChange(ISystem obj)
 	{
-		if (changed == A)
+		var a = PinUtility.ByteArrayToInt(A.Value);
+		var b = PinUtility.ByteArrayToInt(B.Value);
+		var carryIn = (int)CarryIn.Value[0];
+		var result = a + b + carryIn;
+		int max = (int)Math.Pow(2, BitWidth);
+		if (result >= max)
 		{
-			for (var i = 0; i < bitWidth; i++)
-			{
-				_adders[i].A.Set([changed.Value[i]]);
-			}
-		}
-		else if (changed == B)
-		{
-			for (var i = 0; i < bitWidth; i++)
-			{
-				_adders[i].B.Set([changed.Value[i]]);
-			}
+			CarryOut.Set(WireSignal.High);
+			Out.Set(PinUtility.IntToByteArray(result-max, BitWidth));
 		}
 		else
 		{
-			throw new Exception("Adder accidentally listening to wrong pin");
+			CarryOut.Set(WireSignal.Low);
+			Out.Set(PinUtility.IntToByteArray(result, BitWidth));
 		}
+	}
+
+	//hmmmm
+	private void InputAChanged(ISystem changedSystem)
+	{
+		for (var i = 0; i < BitWidth; i++)
+		{
+			_adders[i].A.Set([A.Value[i]]);
+		}
+
+		Console.WriteLine("Adder InputA Changed");
+	}
+
+	private void InputBChanged(ISystem changedSystem)
+	{
+		for (var i = 0; i < BitWidth; i++)
+		{
+			_adders[i].B.Set([B.Value[i]]);
+		}
+		Console.WriteLine("Adder InputB Changed");
+	}
+
+	private void CarryInChanged(ISystem changedSystem)
+	{
+		_adders[0].CarryIn.Set(CarryIn.Value);
 	}
 }

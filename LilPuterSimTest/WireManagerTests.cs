@@ -40,9 +40,9 @@ public class WireManagerTests
 		var c = new Pin(_wireManager, "C");
 		b.SetSilently(WireSignal.Low);
 		a.ConnectTo(b);
-		_wireManager.Listen(a, (p) => { _log.Append($"{p.Name}"); });
-		_wireManager.Listen(b, (p) => { _log.Append($"{p.Name}"); });
-		_wireManager.Listen(c, (p) => { _log.Append($"{p.Name}"); });
+		_wireManager.RegisterSystemAction(a, (p) => { _log.Append($"{p.Name}"); });
+		_wireManager.RegisterSystemAction(b, (p) => { _log.Append($"{p.Name}"); });
+		_wireManager.RegisterSystemAction(c, (p) => { _log.Append($"{p.Name}"); });
 		a.SetAndImpulse(WireSignal.High);
 		Assert.That(_log.ToString(), Is.EqualTo("AB"));
 		_log.Clear();

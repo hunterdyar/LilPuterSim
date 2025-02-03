@@ -47,7 +47,7 @@ public class AdderTest
 	}
 
 	[Test]
-	public void AdderLogicTableTests()
+	public void FullAdderLogicTableTests()
 	{
 		var a = new FullAdder(_manager);
 
@@ -117,15 +117,19 @@ public class AdderTest
 	}
 
 	[Test]
-	public void AdderHookupTests()
+	//[TestCase(1)]
+	[TestCase(2)]
+	//[TestCase(4)]
+	//[TestCase(8)]
+
+	public void AdderHookupTests(int width)
 	{
-		int width = 8;
 		var adder = new Adder(_manager, width);
 		//zero out
-		_manager.SetPin(adder.CarryIn, WireSignal.Low);
 		_manager.SetPin(adder.A, new byte[width]);
 		_manager.SetPin(adder.B, new byte[width]);
-		
+		_manager.SetPin(adder.CarryIn, WireSignal.Low);
+
 		for (int i = 0; i < width; i++)
 		{
 			Assert.That((WireSignal)adder.Out.Value[i],Is.EqualTo(WireSignal.Low));

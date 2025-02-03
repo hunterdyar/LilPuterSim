@@ -14,7 +14,7 @@ public class AndGate
 	{
 		_nandGateA = new NandGate(manager);
 		_nandGateB = new NandGate(manager);
-
+		
 		//The out gets split and goes to both pins.
 		_nandGateA.Out.ConnectTo(_nandGateB.A);
 		_nandGateA.Out.ConnectTo(_nandGateB.B);

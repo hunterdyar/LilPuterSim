@@ -23,17 +23,17 @@ public class NorGate
 		_norGateD.Out.SetName("Nor Out");
 		
 		//https://en.wikipedia.org/wiki/NOR_gate#/media/File:NOR_from_NAND.svg
-		manager.Connect(A, _norGateInA.A);
-		manager.Connect(A, _norGateInB.B);
+		manager.ConnectPins(A, _norGateInA.A);
+		manager.ConnectPins(A, _norGateInB.B);
 		
-		manager.Connect(B, _norGateInB.A);
-		manager.Connect(B, _norGateInB.B);
+		manager.ConnectPins(B, _norGateInB.A);
+		manager.ConnectPins(B, _norGateInB.B);
 		
-		manager.Connect(_norGateInA.Out, _norGateC.A);
-		manager.Connect(_norGateInB.Out, _norGateC.B);
+		manager.ConnectPins(_norGateInA.Out, _norGateC.A);
+		manager.ConnectPins(_norGateInB.Out, _norGateC.B);
 		
-		manager.Connect(_norGateC.Out, _norGateD.A);
-		manager.Connect(_norGateC.Out, _norGateD.B);
+		manager.ConnectPins(_norGateC.Out, _norGateD.A);
+		manager.ConnectPins(_norGateC.Out, _norGateD.B);
 		
 	}
 }

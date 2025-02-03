@@ -79,10 +79,10 @@ public class ArithmeticLogicUnit
 		_andBank = new AndBank(manager, bitWidth);
 		
 		//
-		X.ConnectTo(_adder.A);
-		X.ConnectTo(_andBank.A);
-		Y.ConnectTo(_adder.B);
-		Y.ConnectTo(_andBank.B);
+		_adder.A.DependsOn(X);
+		_andBank.A.DependsOn(X);
+		_adder.A.DependsOn(Y);
+		_andBank.A.DependsOn(Y);
 		
 		//connect both and only update one of them internally?
 		_adder.Out.ConnectTo(Out);
@@ -91,13 +91,14 @@ public class ArithmeticLogicUnit
 		//todo: we need some kind of clock or pooling setup. Breath-First is the engine that should stop this, we should update all of the xy,etc;
 		//but the duplicates aren't getting checked.
 		//Currently the pinChange checks if it's already in the list, but that's not enough.
-		manager.Listen(ZX, Trigger);
-		manager.Listen(ZY, Trigger);
-		manager.Listen(NX, Trigger);
-		manager.Listen(NY, Trigger);
-		manager.Listen(F, Trigger);
-		manager.Listen(X, Trigger);
-		manager.Listen(Y, Trigger);
+		manager.RegisterSystemAction(ZX, Trigger);
+		manager.RegisterSystemAction(ZY, Trigger);
+		manager.RegisterSystemAction(NX, Trigger);
+		manager.RegisterSystemAction(NY, Trigger);
+		manager.RegisterSystemAction(F, ALUTypeChanged);
+		manager.RegisterSystemAction(F, Trigger);
+		manager.RegisterSystemAction(X, Trigger);
+		manager.RegisterSystemAction(Y, Trigger);
 		
 	}
 	/// <summary>
@@ -121,8 +122,21 @@ public class ArithmeticLogicUnit
 		//Assume the internals of X and Y have already propogated.
 		_manager.Impulse(F);
 	}
+
+	private void ALUTypeChanged(ISystem pin)
+	{
+		if (F.Signal == WireSignal.High)
+		{
+			//enable adder, disable and-er
+		}
+		else
+		{
+			//enable and-er, disable adder
+		}
+		
+	}
 	// Todo: ... just do it!
-	public void Trigger(Pin pin)
+	public void Trigger(ISystem pin)
 	{
 		if (ZX.Value.IsHigh())
 		{
