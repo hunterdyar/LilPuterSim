@@ -17,6 +17,9 @@
     &lt;TestId&gt;NUnit3x::C2C2DECF-7979-4879-8286-A469FD198754::net8.0::LilPuterSimTest.AdderTest.AdderHookupTests&lt;/TestId&gt;&#xD;
   &lt;/TestAncestor&gt;&#xD;
 &lt;/SessionState&gt;</s:String>
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=59388ba3_002D1a23_002D4e9b_002D89a6_002Dcb4c4311fdf6/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="OrLogicTable" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
+  &lt;Project Location="S:\csharp\LilPuterSim\LilPuterSimTest" Presentation="&amp;lt;LilPuterSimTest&amp;gt;" /&gt;&#xD;
+&lt;/SessionState&gt;</s:String>
 	
 	
 	

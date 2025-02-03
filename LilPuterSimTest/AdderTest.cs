@@ -120,6 +120,7 @@ public class AdderTest
 	[Test]
 	[TestCase(2)]
 	[TestCase(4)]
+	[TestCase(6)]
 	[TestCase(8)]
 
 	public void AdderHookupTests(int width)
@@ -134,14 +135,6 @@ public class AdderTest
 		{
 			Assert.That((WireSignal)adder.Out.Value[i],Is.EqualTo(WireSignal.Low));
 		}
-	}
-
-	[Test]
-	public void AdderSumAllPositiveTest()
-	{
-		AdderSumAllForWidth(2);
-		AdderSumAllForWidth(4);
-		//AdderSumAllForWidth(8);
 	}
 
 	[Test]
@@ -184,10 +177,13 @@ public class AdderTest
 		Assert.That(c, Is.LessThan(so));
 		Assert.That(c, Is.LessThan(co));
 	}
-	
-	private void AdderSumAllForWidth(int width)
+
+	[Test]
+	[TestCase(2)]
+	[TestCase(4)]
+	public void AdderSumAllForWidth(int width)
 	{
-		int maxCanSum = ((int)Math.Pow(2,width)) -1;
+		int maxCanSum = ((int)Math.Pow(2,width));
 		var adder = new Adder(_manager, width);
 		//zero out
 		_manager.SetPin(adder.CarryIn, WireSignal.Low);
@@ -201,9 +197,11 @@ public class AdderTest
 				_manager.SetPin(adder.A, PinUtility.IntToByteArray(x, width));
 				_manager.SetPin(adder.B, PinUtility.IntToByteArray(y, width));
 				var result = PinUtility.ByteArrayToInt(adder.Out.Value);
-				if (x + y > maxCanSum)
+				Console.WriteLine($"{result} is {x}+{y}. CO is {adder.CarryOut.Signal}. Max is {maxCanSum}");
+
+				if (x + y >= maxCanSum)
 				{
-					Assert.That(result, Is.EqualTo((x + y) - (maxCanSum+1)));
+					Assert.That(result, Is.EqualTo((x + y) - (maxCanSum)));
 					Assert.That((adder.CarryOut.Signal), Is.EqualTo(WireSignal.High));
 				}
 				else
@@ -221,7 +219,7 @@ public class AdderTest
 		var alu = new ArithmeticLogicUnit(_manager, 8);
 		//add, zero inputs.
 		alu.SetInputs(WireSignal.High,WireSignal.High,WireSignal.Low,WireSignal.High,WireSignal.Low,WireSignal.Low);
-		_manager.Impulse(alu.X);
+		_manager.SetPin(alu.F, WireSignal.High);
 		Assert.That(PinUtility.ByteArrayToInt(alu.Out.Value), Is.EqualTo(0));
 		
 	}

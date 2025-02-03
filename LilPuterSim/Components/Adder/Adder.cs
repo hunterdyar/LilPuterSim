@@ -50,7 +50,7 @@ public class Adder
 		 manager.RegisterSystemAction(A, InputAChanged);
 		 manager.RegisterSystemAction(B, InputBChanged);
 		 _adders[0].CarryIn.DependsOn(CarryIn);
-		 _adders[1].CarryOut.ConnectTo(CarryOut);
+		 _adders[bitWidth-1].CarryOut.ConnectTo(CarryOut);
 
 		 //connections
 		 Out.DependsOn(A);
