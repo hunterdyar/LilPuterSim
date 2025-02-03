@@ -134,10 +134,9 @@ public class Pin : IObservable
 	/// This function is not memory efficient, but we optimize for the runtime, not configuration time. Connections should rarely change during runtime (use a switch component).
 	/// </summary>
 	/// <param name="otherPin">The pin to connect a wire to.</param>
-	/// <param name="disconnected">DOn't actually disconnect them, but note the dependency for the topological sort.</param>
-	public void ConnectTo(Pin otherPin, bool disconnected = false)
+	public void ConnectTo(Pin otherPin)
 	{
-		_manager.Connect(this, otherPin, disconnected);
+		_manager.Connect(this, otherPin);
 	}
 
 	public void DisconnectFrom(Pin otherPin, bool twoWay)
@@ -205,5 +204,9 @@ public class Pin : IObservable
 			return true;
 		}
 	}
-	
+
+	public void DependsOn(Pin pin)
+	{
+		_manager.SetDependency(pin,this);
+	}
 }

@@ -9,7 +9,7 @@ public class NotGate
 	{
 		A = new Pin(manager, "Not In");
 		Out = new Pin(manager, "Not Out");
-		A.ConnectTo(Out,true);
+		A.ConnectTo(Out);
 		manager.Listen(A, Trigger);
 	}
 

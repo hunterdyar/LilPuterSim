@@ -13,8 +13,8 @@ public class AndBank
 		A = new Pin(manager, "AndBankA", bitWidth);
 		B = new Pin(manager, "AndBankB", bitWidth);
 		Out = new Pin(manager, "AndBankOut", bitWidth);
-		A.ConnectTo(Out, true);
-		B.ConnectTo(Out, true);
+		A.ConnectTo(Out);
+		B.ConnectTo(Out);
 		manager.Listen(A, Trigger);
 		manager.Listen(B, Trigger);
 	}

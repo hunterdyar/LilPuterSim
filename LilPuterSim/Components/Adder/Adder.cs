@@ -29,7 +29,7 @@ public class Adder : SimSystem
 		{
 			_adders[i] = new FullAdder(manager);
 			int bit = i;
-			_manager.Connect(_adders[i].SumOut, Out, true);
+			_manager.Connect(_adders[i].SumOut, Out);
 			_manager.Listen(_adders[i].SumOut, (p) =>
 			{
 				Out.SetBit(bit, p.Value[0]);
@@ -43,15 +43,8 @@ public class Adder : SimSystem
 			_adders[i].CarryOut.ConnectTo(_adders[i + 1].CarryIn);
 		}
 		_adders[bitWidth-1].CarryOut.ConnectTo(CarryOut);
-		
-		manager.Listen(A, InputChanged);
-		manager.Listen(B, InputChanged);
-		A.ConnectTo(Out, true);
-		A.ConnectTo(CarryOut, true);
-		B.ConnectTo(Out, true);
-		B.ConnectTo(CarryOut, true);
-		CarryIn.ConnectTo(Out, true);
-		CarryIn.ConnectTo(CarryOut, true);
+
+		manager.RegisterSystem([A, B, CarryIn], InputChanged, [Out, CarryOut]);
 	}
 	
 	//hmmmm

@@ -11,8 +11,8 @@ public class NandGate
 		A = new Pin(manager, "NandGateA");
 		B = new Pin(manager, "NandGateB");
 		Out = new Pin(manager, "NandGateOut");
-		A.ConnectTo(Out, true);
-		B.ConnectTo(Out, true);
+		A.ConnectTo(Out);
+		B.ConnectTo(Out);
 		manager.Listen(A, Trigger);
 		manager.Listen(B, Trigger);
 	}
