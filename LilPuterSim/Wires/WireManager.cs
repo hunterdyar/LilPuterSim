@@ -1,10 +1,15 @@
-﻿namespace LilPuter;
+﻿using System.Diagnostics;
+
+namespace LilPuter;
 
 //This will be the main reason that this app is not multi-threadable.
 
 public class WireManager
 {
 	private HashSet<ISystem> _allPins = new HashSet<ISystem>();
+	/// <summary>
+	/// values are dependent on key.
+	/// </summary>
 	private readonly Dictionary<ISystem, List<ISystem>> _dependencies = new Dictionary<ISystem, List<ISystem>>();
 	private readonly Dictionary<ISystem, Action<ISystem>> _simActionMap = new Dictionary<ISystem, Action<ISystem>>(); 
 
@@ -119,6 +124,7 @@ public class WireManager
 	
 	public void ConnectPins(Pin from, Pin to)
 	{
+		//to depends on from
 		//todo: I am not sure how many of these dictionaries we need. Still tinkering as I make it.
 		
 		//initialize ourselves, we need to tick since we have a new incoming connection.
@@ -128,7 +134,7 @@ public class WireManager
 			throw new Exception("Cannot connect a system to itself.");
 		}
 		
-		SetDependency(to,from);
+		SetDependentOn(from,to);
 		if (_simActionMap.ContainsKey(from))
 		{
 			_simActionMap[from] += f => to.Set(((Pin)f).Value);
@@ -137,9 +143,13 @@ public class WireManager
 		{
 			_simActionMap.Add(from, f => to.Set(((Pin)f).Value));
 		}
+
 	}
 
-	public void SetDependency(ISystem from, ISystem to)
+	/// <summary>
+	/// Sets TO as dependent on FROM. E.G. When you connect FROM to TO.
+	/// </summary>
+	public void SetDependentOn(ISystem from, ISystem to)
 	{
 		_tSortDirty = true;
 		_allPins.Add(from);
@@ -155,10 +165,12 @@ public class WireManager
 			_needsTick[from] = true;
 		}
 		
-		if (!_dependencies.TryAdd(to, [from]))
+		if (!_dependencies.TryAdd(from, [to]))
 		{
-			_dependencies[to].Add(from);
+			_dependencies[from].Add(to);
 		}
+		
+		
 	}
 
 	public void RegisterSystemAction(ISystem system, Action<ISystem> handler)
@@ -186,7 +198,7 @@ public class WireManager
 			}
 			foreach (var outpin in outs)
 			{
-				SetDependency(inpIn,outpin);
+				SetDependentOn(inpIn,outpin);
 			}
 		}
 	}
@@ -195,5 +207,33 @@ public class WireManager
 	{
 		//todo: skip propogation
 		//_needsTick[system] = false;
+	}
+
+	public bool ValidateTopoSort()
+	{
+		var s = GetTopoSort();
+		for (int i = 0; i < s.Count; i++)
+		{
+			if (_dependencies.TryGetValue(s[i], out var depSys))
+			{
+				foreach (var from in depSys)
+				{
+					var depend = s.IndexOf(from);
+					if (depend < 0)
+					{
+						Console.WriteLine($"Invalid Sort for {s[i]} ({i}) and it's dependency, {s[depend]} ({depend})");
+						return false;
+					}
+
+					if (depend < i)
+					{
+						Console.WriteLine($"Invalid Sort for {s[i]} ({i}) and it's dependent, {s[depend]} ({depend})");
+						return false;
+					}
+				}
+			}
+		}
+
+		return true;
 	}
 }

@@ -11,7 +11,7 @@
 /// </summary>
 public class Pin : IObservable, ISystem
 {
-	public string Name { get; private set; }
+	public string Name { get; set; }
 	public byte[] Value { get; private set; } = [(byte)WireSignal.Floating];//Default should be not connected == floating
 	public WireSignal Signal => (WireSignal)Value[0];
 	public int DataCount => Value.Length;
@@ -211,7 +211,7 @@ public class Pin : IObservable, ISystem
 
 	public void DependsOn(Pin pin)
 	{
-		_manager.SetDependency(pin,this);
+		_manager.SetDependentOn(pin,this);
 	}
 
 	public bool Enabled { get; }

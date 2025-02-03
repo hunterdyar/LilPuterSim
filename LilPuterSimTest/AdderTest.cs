@@ -1,4 +1,5 @@
 ﻿using LilPuter;
+using NUnit.Framework.Constraints;
 
 namespace LilPuterSimTest;
 
@@ -117,10 +118,9 @@ public class AdderTest
 	}
 
 	[Test]
-	//[TestCase(1)]
 	[TestCase(2)]
-	//[TestCase(4)]
-	//[TestCase(8)]
+	[TestCase(4)]
+	[TestCase(8)]
 
 	public void AdderHookupTests(int width)
 	{
@@ -144,6 +144,46 @@ public class AdderTest
 		//AdderSumAllForWidth(8);
 	}
 
+	[Test]
+	public void AdderTopoSortTest()
+	{
+		var add = new Adder(_manager, 2);
+		var s = _manager.GetTopoSort();
+		Assert.True(_manager.ValidateTopoSort());
+		Assert.True(add.ValidateTopoSortInternals());
+		var a = s.IndexOf(add.A);
+		var b = s.IndexOf(add.B);
+		var c = s.IndexOf(add.CarryIn);
+		var so = s.IndexOf(add.Out);
+		var co = s.IndexOf(add.CarryOut);
+
+		Assert.That(a, Is.LessThan(so));
+		Assert.That(a, Is.LessThan(co));
+		Assert.That(b, Is.LessThan(so));
+		Assert.That(b, Is.LessThan(co));
+		Assert.That(c, Is.LessThan(so));
+		Assert.That(c, Is.LessThan(co));
+	}
+
+	[Test]
+	public void FullAdderTopoSortTest()
+	{
+		var add = new FullAdder(_manager);
+		Assert.True(_manager.ValidateTopoSort());
+		var s = _manager.GetTopoSort();
+		var a = s.IndexOf(add.A);
+		var b = s.IndexOf(add.B);
+		var c = s.IndexOf(add.CarryIn);
+		var so = s.IndexOf(add.SumOut);
+		var co = s.IndexOf(add.CarryOut);
+
+		Assert.That(a, Is.LessThan(so));
+		Assert.That(a, Is.LessThan(co));
+		Assert.That(b, Is.LessThan(so));
+		Assert.That(b, Is.LessThan(co));
+		Assert.That(c, Is.LessThan(so));
+		Assert.That(c, Is.LessThan(co));
+	}
 	
 	private void AdderSumAllForWidth(int width)
 	{

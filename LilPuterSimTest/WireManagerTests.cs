@@ -55,7 +55,6 @@ public class WireManagerTests
 	[Test]
 	public void TopoSortTest()
 	{
-		
 		var a = new Pin(_wireManager, "A");
 		var b = new Pin(_wireManager, "B");
 		var c = new Pin(_wireManager, "C");
@@ -75,8 +74,30 @@ public class WireManagerTests
 		g.ConnectTo(f); 
 		
 		//There are multiple correct answers.
-		
 		var sorted = _wireManager.GetTopoSort();
-		Assert.That(new[] { a, g, b, c, d, e, f }, Is.EqualTo(sorted.ToArray()));
+ 		Assert.That(new[] { a, g, b, c, d, e, f }, Is.EqualTo(sorted.ToArray()));
+	}
+
+	[Test]
+	public void TopoSortTest2()
+	{
+		var a = new Pin(_wireManager, "A");
+		var b = new Pin(_wireManager, "B");
+		var c = new Pin(_wireManager, "C");
+		var d = new Pin(_wireManager, "D");
+		var e = new Pin(_wireManager, "E");
+		var f = new Pin(_wireManager, "F");
+		var g = new Pin(_wireManager, "G");
+		
+		f.ConnectTo(g);
+		e.ConnectTo(f);
+		_wireManager.ConnectPins(d, e);
+		c.ConnectTo(d);
+		b.ConnectTo(c);
+		_wireManager.ConnectPins(a,b);
+
+		//There are multiple correct answers.
+		var sorted = _wireManager.GetTopoSort();
+		Assert.That(new[] { a, b, c, d, e, f, g }, Is.EqualTo(sorted.ToArray()));
 	}
 }
