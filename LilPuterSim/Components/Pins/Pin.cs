@@ -86,7 +86,7 @@ public class Pin : IObservable
 			if (changed || alwaysUpdate)
 			{
 				Value = [(byte)newVal];
-				_manager.Changed(this, Value);
+				//_manager.Changed(this, Value);
 				UpdateSubscribers();
 			}
 
@@ -124,9 +124,9 @@ public class Pin : IObservable
 		}
 	}
 
-	internal void Set(WireSignal newVal, bool alwaysUpdate = false)
+	internal bool Set(WireSignal newVal, bool alwaysUpdate = false)
 	{
-		Set([(byte)newVal], alwaysUpdate);
+		return Set([(byte)newVal], alwaysUpdate);
 	}
 
 	/// <summary>
@@ -134,10 +134,10 @@ public class Pin : IObservable
 	/// This function is not memory efficient, but we optimize for the runtime, not configuration time. Connections should rarely change during runtime (use a switch component).
 	/// </summary>
 	/// <param name="otherPin">The pin to connect a wire to.</param>
-	/// <param name="twoWay">Whether to also connect other pin to this pin.</param>
-	public void ConnectTo(Pin otherPin, bool twoWay = false)
+	/// <param name="disconnected">DOn't actually disconnect them, but note the dependency for the topological sort.</param>
+	public void ConnectTo(Pin otherPin, bool disconnected = false)
 	{
-		_manager.Connect(this, otherPin, twoWay);
+		_manager.Connect(this, otherPin, disconnected);
 	}
 
 	public void DisconnectFrom(Pin otherPin, bool twoWay)
@@ -205,6 +205,5 @@ public class Pin : IObservable
 			return true;
 		}
 	}
-
 	
 }

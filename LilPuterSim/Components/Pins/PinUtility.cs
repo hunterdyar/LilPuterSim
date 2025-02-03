@@ -4,12 +4,12 @@ public static class PinUtility
 {
 	public static PinType GetPinType(Pin pin)
 	{
-		if (Enum.IsDefined(typeof(PinType),pin.DataCount))
-		{
+		//if (Enum.IsDefined(typeof(PinType),pin.DataCount))
+		
 			return (PinType)pin.DataCount;
-		}
+		
 
-		throw new Exception("Invalid Pin Type. It's just ... data?");
+		//throw new Exception("Invalid Pin Type. It's just ... data?");
 	}
 
 	public static byte[] IntToByteArray(int i, int width)

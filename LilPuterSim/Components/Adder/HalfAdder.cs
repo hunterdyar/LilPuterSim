@@ -21,7 +21,7 @@ public class HalfAdder
 		CarryOut = new Pin(manager, "HalfAdderCarryOut");
 		_and = new AndGate(manager);
 		_xor = new XorGate(manager);
-
+		
 		A.ConnectTo(_xor.A);
 		A.ConnectTo(_and.A);
 		

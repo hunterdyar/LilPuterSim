@@ -29,6 +29,7 @@ public class Adder : SimSystem
 		{
 			_adders[i] = new FullAdder(manager);
 			int bit = i;
+			_manager.Connect(_adders[i].SumOut, Out, true);
 			_manager.Listen(_adders[i].SumOut, (p) =>
 			{
 				Out.SetBit(bit, p.Value[0]);
@@ -45,26 +46,14 @@ public class Adder : SimSystem
 		
 		manager.Listen(A, InputChanged);
 		manager.Listen(B, InputChanged);
+		A.ConnectTo(Out, true);
+		A.ConnectTo(CarryOut, true);
+		B.ConnectTo(Out, true);
+		B.ConnectTo(CarryOut, true);
+		CarryIn.ConnectTo(Out, true);
+		CarryIn.ConnectTo(CarryOut, true);
 	}
-
-	public override void Simulate()
-	{
-		if (_needsSimulation)
-		{
-			//does this get set when things change or can we force a simulation?
-		}
-		//todo: only impulse if different since last impulse.
-		//pin's set dirty when set and un-dirty when false.
-		
-		_manager.Impulse(A);
-		_manager.Impulse(B);
-		_manager.Impulse(CarryIn);
-		//
-		base.Simulate();
-		//
-		//Now 
-	}
-
+	
 	//hmmmm
 	private void InputChanged(Pin changed)
 	{
@@ -86,7 +75,5 @@ public class Adder : SimSystem
 		{
 			throw new Exception("Adder accidentally listening to wrong pin");
 		}
-		
-		SetNeedsSimulation();
 	}
 }
