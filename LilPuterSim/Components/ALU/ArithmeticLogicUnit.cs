@@ -37,6 +37,7 @@ public class ArithmeticLogicUnit
 	public Pin NO;
 	
 	//Output Pins
+	private readonly Pin _rawOut;
 	public Pin Out;
 	/// <summary>
 	/// HIGH when output is zero.:
@@ -53,8 +54,8 @@ public class ArithmeticLogicUnit
 	/// </summary>
 	public Pin Overflow;
 	
-	private AndBank _andBank;
-	private Adder _adder;
+	//private AndBank _andBank;
+	private readonly Adder _adder;
 	private WireManager _manager;
 
 	public ArithmeticLogicUnit(WireManager manager, int bitWidth)
@@ -62,47 +63,64 @@ public class ArithmeticLogicUnit
 		_manager = manager;
 		//ins
 		X = new Pin(manager, "ALU X", bitWidth);
-		Y = new Pin(manager, "ALU Y", bitWidth);
 		ZX = new Pin(manager, "ALU ZX");
 		NX = new Pin(manager, "ALU NX");
+		
+		Y = new Pin(manager, "ALU Y", bitWidth);
+
 		ZY = new Pin(manager, "ALU ZY");
 		NY = new Pin(manager, "ALU NY");
+		
 		F = new Pin(manager, "ALU F");
 		NO = new Pin(manager, "ALU NO");
 		//outs
 		Out = new Pin(manager, "ALU Out", bitWidth);
-		Out.PinWeight++;
+		_rawOut = new Pin(manager, "ALU Raw Out", bitWidth);
 		ZR = new Pin(manager, "ALU ZR");
-		ZR.PinWeight++;
 		NG = new Pin(manager, "ALU NG");
-		NG.PinWeight++;
 		Overflow = new Pin(manager, "ALU Overflow");
-		Overflow.PinWeight++;
 		//
 		_adder = new Adder(manager, bitWidth);
-		_andBank = new AndBank(manager, bitWidth);
-		
+		//_andBank = new AndBank(manager, bitWidth);
 		//
-		X.ConnectTo(_adder.A);
-		X.ConnectTo(_andBank.A);
-		Y.ConnectTo(_adder.B);
-		Y.ConnectTo(_andBank.B);
+		_rawOut.DependsOn(_adder.A);
+		_rawOut.DependsOn(_adder.B);
 		
+		//andbank
+		_rawOut.DependsOn(NX);
+		_rawOut.DependsOn(ZX);
+		_rawOut.DependsOn(NY);
+		_rawOut.DependsOn(ZY);
+		_rawOut.DependsOn(F);
+		_rawOut.DependsOn(NO);
+
+		Out.DependsOn(_rawOut);
+		
+		Overflow.DependsOn(Out);
+		NG.DependsOn(Out);
+		ZR.DependsOn(Out);
+		//
+		
+		//When X or Y change, run ExsternalInputChange which inverts or zeros the internal (_adder.A) values appropriately.
+		_adder.A.DependsOn(X);
+		_adder.B.DependsOn(Y);
+		
+		manager.RegisterSystemAction(X, ExternalInputChange);
+		manager.RegisterSystemAction(Y, ExternalInputChange);
 		//connect both and only update one of them internally?
-		_adder.Out.ConnectTo(Out);
-		_andBank.Out.ConnectTo(Out);
+		_adder.Out.ConnectTo(_rawOut);
+		//_andBank.Out.ConnectTo(RawOut);
 		
-		//todo: we need some kind of clock or pooling setup. Breath-First is the engine that should stop this, we should update all of the xy,etc;
-		//but the duplicates aren't getting checked.
-		//Currently the pinChange checks if it's already in the list, but that's not enough.
-		manager.Listen(ZX, Trigger);
-		manager.Listen(ZY, Trigger);
-		manager.Listen(NX, Trigger);
-		manager.Listen(NY, Trigger);
-		manager.Listen(F, Trigger);
-		manager.Listen(X, Trigger);
-		manager.Listen(Y, Trigger);
+		manager.RegisterSystemAction(ZX, Trigger);
+		manager.RegisterSystemAction(ZY, Trigger);
+		manager.RegisterSystemAction(NX, Trigger);
+		manager.RegisterSystemAction(NY, Trigger);
+		manager.RegisterSystemAction(F, ALUTypeChanged);
 		
+		manager.RegisterSystemAction(_rawOut, RawOutChanged);
+
+		//Config! We don't use the adder. so it needs to get, erm, grounded.
+		manager.SetPin(_adder.CarryIn, WireSignal.Low);
 	}
 	/// <summary>
 	/// Set all input data once so we only propogate changes once.
@@ -119,46 +137,121 @@ public class ArithmeticLogicUnit
 		NX.Set(nx);
 		ZY.Set(zy);
 		NY.Set(ny);
-		F.Set(f);
 		NO.Set(no);
-		
-		//Assume the internals of X and Y have already propogated.
-		_manager.Impulse(F);
+		F.Set(f);
 	}
-	// Todo: ... just do it!
-	public void Trigger(Pin pin)
+
+	private void ExternalInputChange(ISystem system)
 	{
-		if (ZX.Value.IsHigh())
+		if (system == X)
 		{
-			X.ZeroOutSilent();
-		}
+			var val = X.Value;
+			if (ZX.Signal == WireSignal.High)
+			{
+				val = new byte[X.Value.Length];
+			}else if (NX.Signal == WireSignal.High)//else if b/c we don't have to bother inverting 0's one way or the other.
+			{
+				val = PinUtility.Invert(val);
+			}
+			
+			_adder.A.Set(val);
+			//_andBank.A.Set(val);
+		}else if (system == Y)
+		{
+			var val = Y.Value;
+			if (ZY.Signal == WireSignal.High)
+			{
+				val = new byte[Y.Value.Length];
+			}
+			else if (NY.Signal == WireSignal.High)
+			{
+				val = PinUtility.Invert(val);
+			}
 
-		if (ZY.Value.IsHigh())
-		{
-			Y.ZeroOutSilent();
+			_adder.B.Set(val);
+			//_andBank.B.Set(val);
 		}
-		if(NX.Value.IsHigh())
-		{
-			X.InvertSilent();
-		}
+	}
 
-		if (NY.Value.IsHigh())
+	private void ALUTypeChanged(ISystem pin)
+	{
+		if (F.Signal == WireSignal.High)
 		{
-			Y.InvertSilent();
+			//enable adder, disable and-er
 		}
-		
-		if (F.Value.IsHigh())
+		else if(F.Signal == WireSignal.Low)
 		{
-			Out.Set(_adder.Out.Value);
+			throw new NotImplementedException("& operation not yet implemented");
+			//enable and-er, disable adder
+		}
+		//now directly call the follow-up, because I don't want to deal with having to worry about the order of SystemActions.
+		Trigger(pin);
+	}
+
+	void RawOutChanged(ISystem system)
+	{
+		if (NO.Signal == WireSignal.High)
+		{
+			Out.Set(PinUtility.Invert(_rawOut.Value));
 		}
 		else
 		{
-			Out.Set(_andBank.Out.Value);
+			Out.Set(_rawOut.Value);
 		}
 		
-		if(NO.Value.IsHigh())
+		//we read Out because inverted.
+		var r = PinUtility.ByteArrayToInt(Out.Value);
+		if (r == 0)
 		{
-			Out.InvertSilent();
+			ZR.Set(WireSignal.High);
 		}
+		else
+		{
+			ZR.Set(WireSignal.Low);
+		}
+
+		if (r < 0)
+		{
+			NG.Set(WireSignal.High);
+		}
+		else
+		{
+			NG.Set(WireSignal.Low);
+		}
+		
+		Overflow.Set(_adder.CarryOut.Value);
+	}
+
+	public void Trigger(ISystem pin)
+	{
+		//todo: these modifiers.
+		// if (ZX.Value.IsHigh())
+		// {
+		// 	X.ZeroOutSilent();
+		// }
+		//
+		// if (ZY.Value.IsHigh())
+		// {
+		// 	Y.ZeroOutSilent();
+		// }
+		// if(NX.Value.IsHigh())
+		// {
+		// 	X.InvertSilent();
+		// }
+		//
+		// if (NY.Value.IsHigh())
+		// {
+		// 	Y.InvertSilent();
+		// }
+		
+		if (F.Value.IsHigh())
+		{
+			_rawOut.Set(_adder.Out.Value);
+		}
+		else if(F.Signal == WireSignal.Low)
+		{
+			throw new NotImplementedException("And operation not yet implemented");
+			//RawOut.Set(_andBank.Out.Value);
+		}//else it's floating. ignore.
 	}
 }

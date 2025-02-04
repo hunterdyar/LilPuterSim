@@ -1,22 +1,27 @@
-﻿namespace LilPuter;
+﻿using System.Diagnostics;
+
+namespace LilPuter;
 
 //This will be the main reason that this app is not multi-threadable.
 
 public class WireManager
 {
-	private readonly Dictionary<Pin, Pin[]> _connections = new Dictionary<Pin, Pin[]>();
-	private readonly Dictionary<Pin, Action<Pin>> _onValueChangeMap = new Dictionary<Pin, Action<Pin>>(); 
-	private readonly List<Queue<Pin>> _changeQueues;
-	private int _maxQueueCount = 10;
-	private int _maxPinWeightInGraph = 0;
-	public WireManager()
-	{
-		_changeQueues = new List<Queue<Pin>>();
-		for (var i = 0; i < _maxQueueCount; i++)
-		{
-			_changeQueues.Add(new Queue<Pin>());
-		}
-	}
+	private HashSet<ISystem> _allPins = new HashSet<ISystem>();
+	/// <summary>
+	/// values are dependent on key.
+	/// </summary>
+	private readonly Dictionary<ISystem, List<ISystem>> _dependencies = new Dictionary<ISystem, List<ISystem>>();
+	private readonly Dictionary<ISystem, Action<ISystem>> _simActionMap = new Dictionary<ISystem, Action<ISystem>>(); 
+
+	//topo sort things
+	private List<ISystem> _tSort = new List<ISystem>();
+	private Dictionary<ISystem, int> _inDegree = new Dictionary<ISystem, int>();
+	private bool _tSortDirty = true;
+	
+	//impulse things
+	//stores if a pin has been set or updated, and thus needs to be impulsed.
+	private readonly Dictionary<ISystem, bool> _needsTick = new Dictionary<ISystem, bool>();
+	
 
 	public delegate void PinChangedHandler(Pin pin);
 
@@ -25,67 +30,91 @@ public class WireManager
 	/// </summary>
 	public void SetPin(Pin pin, WireSignal signal)
 	{
-		pin.Set(signal);
+		_needsTick[pin] = pin.Set(signal);
 		Impulse(pin);
 	}
 
 	public void SetPin(Pin pin, byte[] signal)
 	{
-		pin.Set(signal);
+		_needsTick[pin] = pin.Set(signal);
 		Impulse(pin);
 	}
 
-	public void Impulse(Pin pin)
+	private void CalculateInDegrees()
 	{
-		//Send out the first impulse, collecting the rest along the way. This will complete all pins of weight 0.
-		ImpulseRecursive(pin, 0);
-		for (int i = 1; i < _maxPinWeightInGraph; i++)
+		_inDegree.Clear();
+		foreach (var pin in _allPins)
 		{
-			ImpulseRecursive(pin, i);
+			_inDegree.TryAdd(pin, 0);
+			var deps = _dependencies.Count(x => x.Value.Contains(pin));
+			_inDegree[pin] += deps;
 		}
 	}
-	public void ImpulseRecursive(Pin pin, int pinWeight)
+
+	public List<ISystem> GetTopoSort()
+	{
+		if (!_tSortDirty)
+		{
+			return _tSort;
+		}
+		_tSort.Clear();
+		CalculateInDegrees();
+		var s = _inDegree.Where(x=>x.Value == 0).Select(x=>x.Key).ToList();
+		Queue<ISystem> q = new Queue<ISystem>(s);
+
+		while (q.Count > 0)
+		{
+			var p = q.Dequeue();
+			_tSort.Add(p);
+			
+			if (_dependencies.TryGetValue(p, out var depSys))
+			{
+				foreach (var toSys in depSys)
+				{
+					_inDegree[toSys]--;
+					if (_inDegree[toSys] == 0)
+					{
+						q.Enqueue(toSys);
+					}
+				}
+			}
+			//dependencies aren't getting included. We need their reverse as well?
+		}
+
+		_tSortDirty = false;
+		return _tSort;
+	}
+
+	public void Tick(ISystem system)
+	{
+		if (!_needsTick.ContainsKey(system))
+		{
+			return;
+		}
+		//not set from anything, so we're good!
+
+		if (_simActionMap.TryGetValue(system, out var simAction))
+		{
+			simAction?.Invoke(system);
+			_needsTick[system] = false;
+		}
+	}
+	public void Impulse(ISystem system)
 	{ 
-		//update the systems that use this pin directly.
-		//This is basically only NAND gates in most cases! Neat!
-		
-		if (_onValueChangeMap.TryGetValue(pin, out var action))
+		//todo: change this to getting the topoSort, getting the index of pin, and impulsing from that point and to the end.
+		var topo = GetTopoSort();
+		var indexOfPin = topo.IndexOf(system);
+		if (indexOfPin != -1)
 		{
-			Console.WriteLine(action.Method.DeclaringType.Name+" - "+action.Method.Name);
-			//the dictionary should store some sort of SystemID (just use the pointer; class reference?)
-			//Add it to a secondary breadth-first queue?
-			//todo: add these to some kind of hashset, and then run when we finish the pin propogation - which will add more pin propogate..s but also prevent changing a lot of pins to have a system keep re-triggering.
-			action?.Invoke(pin);
-		}
-		Console.WriteLine($"just called changes for impulse on {pin.Name}. Now calling impulses for all connected pins.");
-		
-		//update all children
-		if (_connections.TryGetValue(pin, out var connection))
-		{
-			foreach (var connectedPin in connection)
+			for (var i = indexOfPin; i < topo.Count; i++)
 			{
-				if (connectedPin.PinWeight == pinWeight)
-				{
-					connectedPin.Set(pin.Value);
-				}
-				else
-				{
-					_changeQueues[connectedPin.PinWeight].Enqueue(connectedPin);
-				}
+				Tick(topo[i]);
 			}
 		}
-		
-
-		while (_changeQueues[pinWeight].Count > 0)
+		else
 		{
-			var p = _changeQueues[pinWeight].Dequeue();
-			if (pin == p)
-			{
-				//we are already impulsing this one. Is this an infinite loop, or is this just from us calling "SetPin"?
-				continue;
-			}
-
-			ImpulseRecursive(p, pinWeight);
+			//only tick this pin... because of the OnValueChange map where others will update.
+			Tick(system);
 		}
 		
 		//set pin and collect all pins that update in response to it. Repeat though the queue until propogation is complete.
@@ -93,66 +122,118 @@ public class WireManager
 		
 	}
 	
-	public void Connect(Pin from, Pin to, bool biDirectional = false)
+	public void ConnectPins(Pin from, Pin to)
 	{
-		//Create connection wire.
-		if (_connections.ContainsKey(from))
-		{
-			if (!_connections[from].Contains(to))
-			{
-				var c = _connections[from];
-				Array.Resize(ref c, _connections[from].Length + 1);
-				c[^1] = to;
-				_connections[from] = c;
+		//to depends on from
+		//todo: I am not sure how many of these dictionaries we need. Still tinkering as I make it.
+		
+		//initialize ourselves, we need to tick since we have a new incoming connection.
 
-				if (biDirectional)
-				{
-					throw new NotImplementedException("Bidirectional not yet implemented");
-				}
-			}
-			else
-			{
-				throw new ArgumentException("Cannot connect twice");
-			}
+		if (from == to)
+		{
+			throw new Exception("Cannot connect a system to itself.");
+		}
+		
+		SetDependentOn(from,to);
+		if (_simActionMap.ContainsKey(from))
+		{
+			_simActionMap[from] += f => to.Set(((Pin)f).Value);
 		}
 		else
 		{
-			_connections.Add(from, [to]);
+			_simActionMap.Add(from, f => to.Set(((Pin)f).Value));
+		}
+
+	}
+
+	/// <summary>
+	/// Sets TO as dependent on FROM. E.G. When you connect FROM to TO.
+	/// </summary>
+	public void SetDependentOn(ISystem from, ISystem to)
+	{
+		_tSortDirty = true;
+		_allPins.Add(from);
+		_allPins.Add(to);
+
+		if (!_needsTick.TryAdd(to, true))
+		{
+			_needsTick[to] = true;
+		}
+
+		if (!_needsTick.TryAdd(from, true))
+		{
+			_needsTick[from] = true;
+		}
+		
+		if (!_dependencies.TryAdd(from, [to]))
+		{
+			_dependencies[from].Add(to);
+		}
+		
+		
+	}
+
+	public void RegisterSystemAction(ISystem system, Action<ISystem> handler)
+	{
+		if(!_simActionMap.TryAdd(system, handler))
+		{
+			_simActionMap[system] += handler;
 		}
 	}
-	
-	/// <summary>
-	/// Called by pins in set, which is called by the OnValueChange functions we register that do the logic.
-	/// </summary>
-	public void Changed(Pin pin, byte[] value)
-	{
-		//todo: This can be a configuration check done once for the whole system, not a runtime check!
-		if (pin.PinWeight > _maxPinWeightInGraph)
-		{
-			_maxPinWeightInGraph = pin.PinWeight;
 
-			if (pin.PinWeight >= _maxQueueCount)
+	/// <summary>
+	/// Marks the outins as dependent on the inpins, and adds ActionCall to when inPin changes.
+	/// </summary>
+	public void RegisterSystem(List<ISystem> ins, Action<ISystem> actionCall, List<ISystem> outs)
+	{
+		foreach (var inpIn in ins)
+		{
+			if (_simActionMap.ContainsKey(inpIn))
 			{
-				int diff = pin.PinWeight - _maxQueueCount + 1;
-				_maxQueueCount += diff;
-				for (int i = 0; i < diff; i++)
+				_simActionMap[inpIn] += actionCall;
+			}
+			else
+			{
+				_simActionMap.Add(inpIn, actionCall);
+			}
+			foreach (var outpin in outs)
+			{
+				SetDependentOn(inpIn,outpin);
+			}
+		}
+	}
+
+	public void Changed(ISystem system, byte[] value)
+	{
+		//todo: skip propogation
+		//_needsTick[system] = false;
+	}
+
+	public bool ValidateTopoSort()
+	{
+		var s = GetTopoSort();
+		for (int i = 0; i < s.Count; i++)
+		{
+			if (_dependencies.TryGetValue(s[i], out var depSys))
+			{
+				foreach (var from in depSys)
 				{
-					_changeQueues.Add(new Queue<Pin>());
+					var depend = s.IndexOf(from);
+					if (depend < 0)
+					{
+						Console.WriteLine($"Invalid Sort for {s[i]} ({i}) and it's dependency, {s[depend]} ({depend})");
+						return false;
+					}
+
+					if (depend < i)
+					{
+						Console.WriteLine($"Invalid Sort for {s[i]} ({i}) and it's dependent, {s[depend]} ({depend})");
+						return false;
+					}
 				}
 			}
 		}
-		
-		if (!_changeQueues[pin.PinWeight].Contains(pin))
-		{
-			_changeQueues[pin.PinWeight].Enqueue(pin);
-		}
-	}
 
-	public void Listen(Pin p, Action<Pin> handler)
-	{
-		if(!_onValueChangeMap.TryAdd(p, handler))
-		{
-			_onValueChangeMap[p] += handler;
-		}
+		return true;
 	}
 }

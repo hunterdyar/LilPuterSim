@@ -8,8 +8,5 @@
         <RootNamespace>LilPuter</RootNamespace>
     </PropertyGroup>
 
-    <ItemGroup>
-      <Folder Include="Systems\" />
-    </ItemGroup>
-
+    
 </Project>

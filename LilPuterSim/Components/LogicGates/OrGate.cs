@@ -27,9 +27,8 @@ public class OrGate
 		B.ConnectTo(_gateB.A);
 		B.ConnectTo(_gateB.B);
 		
-		manager.Connect(_gateA.Out, _gateC.A);
-		manager.Connect(_gateB.Out, _gateC.B);
-		manager.Connect(_gateC.Out, Out);
+		manager.ConnectPins(_gateA.Out, _gateC.A);
+		manager.ConnectPins(_gateB.Out, _gateC.B);
 		
 		//set outputs from default inputs.
 		_gateA.Trigger(A);

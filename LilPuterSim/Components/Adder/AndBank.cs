@@ -13,11 +13,13 @@ public class AndBank
 		A = new Pin(manager, "AndBankA", bitWidth);
 		B = new Pin(manager, "AndBankB", bitWidth);
 		Out = new Pin(manager, "AndBankOut", bitWidth);
-		manager.Listen(A, Trigger);
-		manager.Listen(B, Trigger);
+		Out.DependsOn(A);
+		Out.DependsOn(B);
+		manager.RegisterSystemAction(A, Trigger);
+		manager.RegisterSystemAction(B, Trigger);
 	}
 
-	private void Trigger(Pin pin)
+	private void Trigger(ISystem pin)
 	{
 		var data = Out.Value;
 		for (int i = 0; i < bitWidth; i++)

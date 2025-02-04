@@ -171,17 +171,98 @@ public class LogicGatesTests
 	[Test]
 	public void NotLogicTable()
 	{
-		var orGate = new NotGate(_manager);
+		var notGate = new NotGate(_manager);
 
-		_manager.SetPin(orGate.A, WireSignal.Low);
-		Assert.That((WireSignal)orGate.Out.Value[0], Is.EqualTo(WireSignal.High));
-		Assert.That(orGate.Out.Value.Length, Is.EqualTo(1));
+		_manager.SetPin(notGate.A, WireSignal.Low);
+		Assert.That((WireSignal)notGate.Out.Value[0], Is.EqualTo(WireSignal.High));
+		Assert.That(notGate.Out.Value.Length, Is.EqualTo(1));
 
-		_manager.SetPin(orGate.A, WireSignal.High);
-		Assert.That((WireSignal)orGate.Out.Value[0], Is.EqualTo(WireSignal.Low));
-		Assert.That(orGate.Out.Value.Length, Is.EqualTo(1));
+		_manager.SetPin(notGate.A, WireSignal.High);
+		Assert.That((WireSignal)notGate.Out.Value[0], Is.EqualTo(WireSignal.Low));
+		Assert.That(notGate.Out.Value.Length, Is.EqualTo(1));
 
 	}
+
+	[TestOf(typeof(AndGate))]
+	[Test]
 	
-	
+	public void AndGateSortTests()
+	{
+		var andGate = new AndGate(_manager);
+		var s = _manager.GetTopoSort();
+		var a = s.IndexOf(andGate.A);
+		var b = s.IndexOf(andGate.B);
+		var o = s.IndexOf(andGate.Out);
+		Assert.That(a, Is.LessThan(o));
+		Assert.That(b, Is.LessThan(o));
+	}
+
+	[Test]
+
+	public void NandGateSortTests()
+	{
+		var gate = new NandGate(_manager);
+		var s = _manager.GetTopoSort();
+		var a = s.IndexOf(gate.A);
+		var b = s.IndexOf(gate.B);
+		var o = s.IndexOf(gate.Out);
+		Assert.That(a, Is.LessThan(o));
+		Assert.That(b, Is.LessThan(o));
+	}
+
+	[Test]
+
+	public void XorGateSortTests()
+	{
+		var gate = new XorGate(_manager);
+		Assert.True(_manager.ValidateTopoSort());
+		var s = _manager.GetTopoSort();
+		var a = s.IndexOf(gate.A);
+		var b = s.IndexOf(gate.B);
+		var o = s.IndexOf(gate.Out);
+		Assert.That(a, Is.LessThan(o));
+		Assert.That(b, Is.LessThan(o));
+	}
+
+	[Test]
+
+	public void XnorGateSortTests()
+	{
+		var gate = new XnorGate(_manager);
+		Assert.True(_manager.ValidateTopoSort());
+		var s = _manager.GetTopoSort();
+		var a = s.IndexOf(gate.A);
+		var b = s.IndexOf(gate.B);
+		var o = s.IndexOf(gate.Out);
+		Assert.That(a, Is.LessThan(o));
+		Assert.That(b, Is.LessThan(o));
+	}
+
+	[Test]
+
+	public void OrGateSortTests()
+	{
+		var gate = new OrGate(_manager);
+		Assert.True(_manager.ValidateTopoSort());
+		var s = _manager.GetTopoSort();
+		var a = s.IndexOf(gate.A);
+		var b = s.IndexOf(gate.B);
+		var o = s.IndexOf(gate.Out);
+		Assert.That(a, Is.LessThan(o));
+		Assert.That(b, Is.LessThan(o));
+	}
+
+	[Test]
+
+	public void NotGateSortTests()
+	{
+		var gate = new NotGate(_manager);
+		Assert.True(_manager.ValidateTopoSort());
+		var s = _manager.GetTopoSort();
+		var a = s.IndexOf(gate.A);
+		var o = s.IndexOf(gate.Out);
+		Assert.That(a, Is.LessThan(o));
+	}
+
+
 }

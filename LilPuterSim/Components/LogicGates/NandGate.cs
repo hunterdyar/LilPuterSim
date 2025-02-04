@@ -11,11 +11,13 @@ public class NandGate
 		A = new Pin(manager, "NandGateA");
 		B = new Pin(manager, "NandGateB");
 		Out = new Pin(manager, "NandGateOut");
-		manager.Listen(A, Trigger);
-		manager.Listen(B, Trigger);
+		A.ConnectTo(Out);
+		B.ConnectTo(Out);
+		manager.RegisterSystemAction(A, Trigger);
+		manager.RegisterSystemAction(B, Trigger);
 	}
 
-	internal void Trigger(Pin p)
+	internal void Trigger(ISystem p)
 	{
 		var data = new byte[]
 			{ (byte)(A.Signal == WireSignal.Low ||

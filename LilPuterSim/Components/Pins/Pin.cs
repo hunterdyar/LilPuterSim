@@ -9,10 +9,9 @@
 /// This reduces the number of calls to the wire manager and number of connections for what is conceptually a "single" connection.
 ///	e.g. conceptually... and actually in this sim.
 /// </summary>
-public class Pin : IObservable
+public class Pin : IObservable, ISystem
 {
-	public string Name { get; private set; }
-	public int PinWeight = 0;
+	public string Name { get; set; }
 	public byte[] Value { get; private set; } = [(byte)WireSignal.Floating];//Default should be not connected == floating
 	public WireSignal Signal => (WireSignal)Value[0];
 	public int DataCount => Value.Length;
@@ -67,7 +66,19 @@ public class Pin : IObservable
 	{
 		Value = value;
 	}
-	public bool Set(byte[] value, bool alwaysUpdate = false)
+
+	public void SetSilently(WireSignal value)
+	{
+		Value[0] = (byte)value;
+	}
+	/// <summary>
+	/// This should only be called by systems downstream of a Tick. e.g. in a system action. Otherwise call SetPin on the wiremanager (or SetAndImpulse) for the "public" api.
+	/// </summary>
+	/// <param name="value"></param>
+	/// <param name="alwaysUpdate"></param>
+	/// <returns></returns>
+	/// <exception cref="ArgumentException"></exception>
+	internal bool Set(byte[] value, bool alwaysUpdate = false)
 	{
 		bool changed = false;
 		if (value.Length != Value.Length)
@@ -77,6 +88,11 @@ public class Pin : IObservable
 
 		if (value.Length == 1)
 		{
+			// if (value[0] == 2)
+			// {
+			//		//this is allowed, just testing things.
+			//		throw new Exception("Setting Value to Floating?");
+			// }
 			var newVal = (WireSignal)value[0];
 			changed = newVal != Signal;
 			if (changed || alwaysUpdate)
@@ -120,9 +136,9 @@ public class Pin : IObservable
 		}
 	}
 
-	internal void Set(WireSignal newVal, bool alwaysUpdate = false)
+	internal bool Set(WireSignal newVal, bool alwaysUpdate = false)
 	{
-		Set([(byte)newVal], alwaysUpdate);
+		return Set([(byte)newVal], alwaysUpdate);
 	}
 
 	/// <summary>
@@ -130,10 +146,9 @@ public class Pin : IObservable
 	/// This function is not memory efficient, but we optimize for the runtime, not configuration time. Connections should rarely change during runtime (use a switch component).
 	/// </summary>
 	/// <param name="otherPin">The pin to connect a wire to.</param>
-	/// <param name="twoWay">Whether to also connect other pin to this pin.</param>
-	public void ConnectTo(Pin otherPin, bool twoWay = false)
+	public void ConnectTo(Pin otherPin)
 	{
-		_manager.Connect(this, otherPin, twoWay);
+		_manager.ConnectPins(this, otherPin);
 	}
 
 	public void DisconnectFrom(Pin otherPin, bool twoWay)
@@ -197,8 +212,14 @@ public class Pin : IObservable
 		else
 		{
 			Value[i] = b;
-			_manager.Changed(this, Value);
 			return true;
 		}
 	}
+
+	public void DependsOn(Pin pin)
+	{
+		_manager.SetDependentOn(pin,this);
+	}
+
+	public bool Enabled { get; }
 }
