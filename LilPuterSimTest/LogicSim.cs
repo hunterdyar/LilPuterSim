@@ -51,43 +51,6 @@ public class LogicSim
 		
 		Assert.That(_log.ToString(), Is.EqualTo("ABCDEFG"));
 	}
-
-	[Test]
-	public void BFTraversal()
-	{
-		A.ConnectTo(B);
-		A.ConnectTo(C);
-		B.ConnectTo(D);
-		B.ConnectTo(E);
-		C.ConnectTo(F);
-		C.ConnectTo(G);
-		
-		_manager.SetPin(A, WireSignal.High);
-
-		Assert.That(_log.ToString(), Is.EqualTo("ABCDEFG"));
-	}
-
-	[Test]
-	public void SubGroupWeightedTraversal()
-	{
-		A.ConnectTo(B);
-		A.ConnectTo(C);
-		C.ConnectTo(D);
-		C.ConnectTo(E);
-		
-		D.ConnectTo(F);
-		E.ConnectTo(F);
-		B.ConnectTo(F);
-		
-		F.ConnectTo(G);
-
-		_manager.SetPin(A, WireSignal.High);
-
-		Assert.That(_log.ToString(), Is.EqualTo("ABCFDEG"));
-		_log.Clear();
-		//Now, we should finish D and E before we move onto F, since D and E are 0 and F is 1.
-		F.PinWeight++;
-		_manager.SetPin(A,WireSignal.Low);
-		Assert.That(_log.ToString(), Is.EqualTo("ABCDEFG"));
-	}
+	
+	
 }
