@@ -3,7 +3,10 @@
 namespace LilPuter;
 
 //This will be the main reason that this app is not multi-threadable.
-
+/// <summary>
+/// Wire Manager handles connections for "combinatorial" chip simulation. Not sequential. ...howevert, this is directional and acyclic.
+/// Time, as far as this system is concerned; "a cpu cycle" or "tick" or pulse or such; is not what Impulse simulates here.
+/// </summary>
 public class WireManager
 {
 	private HashSet<ISystem> _allPins = new HashSet<ISystem>();
@@ -82,6 +85,7 @@ public class WireManager
 		}
 
 		_tSortDirty = false;
+		//todo: We can detect if there are cycles by comparing the count the result number to the total number of pins, I think?
 		return _tSort;
 	}
 
@@ -89,6 +93,11 @@ public class WireManager
 	{
 		if (!_needsTick.ContainsKey(system))
 		{
+			return;
+		}
+		if(_needsTick[system] == false)
+		{
+			//todo: what isn't working with this? Since this works up to multiplexers, I think it's something switching between ops doesn't trigger a result to switch.
 			return;
 		}
 		//not set from anything, so we're good!
@@ -169,8 +178,6 @@ public class WireManager
 		{
 			_dependencies[from].Add(to);
 		}
-		
-		
 	}
 
 	public void RegisterSystemAction(ISystem system, Action<ISystem> handler)
@@ -206,7 +213,7 @@ public class WireManager
 	public void Changed(ISystem system, byte[] value)
 	{
 		//todo: skip propogation
-		//_needsTick[system] = false;
+		_needsTick[system] = true;
 	}
 
 	public bool ValidateTopoSort()

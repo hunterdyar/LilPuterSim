@@ -141,6 +141,11 @@ public class Pin : IObservable, ISystem
 		return Set([(byte)newVal], alwaysUpdate);
 	}
 
+	internal bool Set(byte newVal, bool alwaysUpdate = false)
+	{
+		return Set([newVal], alwaysUpdate);
+	}
+
 	/// <summary>
 	/// Unlike real wires, connections are 1-way unless we explicitly state otherwise.
 	/// This function is not memory efficient, but we optimize for the runtime, not configuration time. Connections should rarely change during runtime (use a switch component).

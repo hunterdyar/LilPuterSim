@@ -32,7 +32,7 @@ public class ALUOneBit
 		CarryIn = new Pin(manager, "CarryIn");
 		CarryOut = new Pin(manager, "CarryOut");
 		Result = new Pin(manager, "Result");
-		_mux = new Multiplexer(manager, 3);
+		_mux = new Multiplexer(manager, 3);//Add, And, Or.
 		Op = new Pin(manager,"Op", _mux.SelectorSize);
 		
 		_adder = new FullAdder(manager);

@@ -13,21 +13,24 @@ public class ALUTests
 	}
 
 	[Test]
-	public void ALUConfigurationTest()
+	[TestCase(2)]
+	[TestCase(4)]
+	[TestCase(8)]
+	[TestCase(16)]
+	public void ALUConfigurationTest(int width)
 	{
-		var alu = new ArithmeticLogicUnit(_manager, 8);
+		var alu = new ALUMultiBit(_manager, width);
 		//add, don't zero out all inputs (we will set them to zero ourselves)
-		alu.SetInputs(WireSignal.High, WireSignal.Low, WireSignal.Low, WireSignal.Low, WireSignal.Low,
-			WireSignal.Low);
-
+		_manager.SetPin(alu.InvertA,WireSignal.Low);
+		_manager.SetPin(alu.InvertB,WireSignal.Low);
 		//todo: The propagation order is wrong. Zero-ing the inputs means we need intermediary inputs.
-		_manager.SetPin(alu.X, new byte[8]);
-		_manager.SetPin(alu.Y, new byte[8]);
-		_manager.SetPin(alu.F, WireSignal.High);
-		Assert.That(PinUtility.ByteArrayToInt(alu.Out.Value), Is.EqualTo(0));
+		_manager.SetPin(alu.A, new byte[width]);
+		_manager.SetPin(alu.B, new byte[width]);
 		
+		_manager.SetPin(alu.Operation, new byte[2]);//000 is add
+		Assert.That(PinUtility.ByteArrayToInt(alu.Result.Value), Is.EqualTo(0));
 	}
-
+	
 	[Test]
 	public void OneBitALUConfigurationTest()
 	{

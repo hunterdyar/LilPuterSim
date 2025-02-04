@@ -4,9 +4,9 @@ namespace LilPuterTerm.ALU;
 
 public class ALUView : Terminal.Gui.Window
 {
-	private ArithmeticLogicUnit _alu;
+	private ALUMultiBit _alu;
 	
-	public ALUView(ArithmeticLogicUnit alu)
+	public ALUView(ALUMultiBit alu)
 	{
 		_alu = alu;
 		InitializeComponent();

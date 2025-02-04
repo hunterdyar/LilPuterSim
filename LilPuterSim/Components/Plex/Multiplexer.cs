@@ -1,5 +1,7 @@
 ﻿namespace LilPuter;
 
+//Todo: This is not built out of nand gates. A multiplexer is basically an AND gate to select.
+//Then we add a few of these and the selector bit chooses the correct AND operation. 
 public class Multiplexer
 {
 	public Pin Select;
