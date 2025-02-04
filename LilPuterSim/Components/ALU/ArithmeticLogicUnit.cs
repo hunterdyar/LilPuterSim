@@ -85,6 +85,7 @@ public class ArithmeticLogicUnit
 		//
 		_rawOut.DependsOn(_adder.A);
 		_rawOut.DependsOn(_adder.B);
+		
 		//andbank
 		_rawOut.DependsOn(NX);
 		_rawOut.DependsOn(ZX);

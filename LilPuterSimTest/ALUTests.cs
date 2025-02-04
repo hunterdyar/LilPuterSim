@@ -28,4 +28,43 @@ public class ALUTests
 		
 	}
 
+	[Test]
+	public void OneBitALUConfigurationTest()
+	{
+		var alu = new ALUOneBit(_manager);
+		
+		//todo: The propagation order is wrong. Zero-ing the inputs means we need intermediary inputs.
+		_manager.SetPin(alu.Op, new byte[2]);//000 is add.
+		_manager.SetPin(alu.A, WireSignal.Low);
+		_manager.SetPin(alu.B, WireSignal.Low);
+		_manager.SetPin(alu.CarryIn, WireSignal.Low);
+		//some add tests
+		Assert.That(alu.Result.Signal, Is.EqualTo(WireSignal.Low));
+		_manager.SetPin(alu.CarryIn, WireSignal.High);
+		Assert.That(alu.Result.Signal, Is.EqualTo(WireSignal.High));
+		_manager.SetPin(alu.CarryIn, WireSignal.Low);
+		Assert.That(alu.Result.Signal, Is.EqualTo(WireSignal.Low));
+		_manager.SetPin(alu.B, WireSignal.High);
+		Assert.That(alu.Result.Signal, Is.EqualTo(WireSignal.High));
+		
+		//some and tests
+		_manager.SetPin(alu.Op, PinUtility.IntToByteArray(1,2)); //001 is and.
+		Assert.That(alu.Result.Signal, Is.EqualTo(WireSignal.Low));
+		_manager.SetPin(alu.A, WireSignal.High);
+		Assert.That(alu.Result.Signal, Is.EqualTo(WireSignal.High));
+		_manager.SetPin(alu.B, WireSignal.Low);
+		Assert.That(alu.Result.Signal, Is.EqualTo(WireSignal.Low));
+		_manager.SetPin(alu.B, WireSignal.High);
+		Assert.That(alu.Result.Signal, Is.EqualTo(WireSignal.High));
+		
+		//some or tests
+		_manager.SetPin(alu.Op, PinUtility.IntToByteArray(2, 2)); //010 is or.
+		Assert.That(alu.Result.Signal, Is.EqualTo(WireSignal.High));
+		_manager.SetPin(alu.B, WireSignal.Low);
+		Assert.That(alu.Result.Signal, Is.EqualTo(WireSignal.High));
+		_manager.SetPin(alu.A, WireSignal.Low);
+		Assert.That(alu.Result.Signal, Is.EqualTo(WireSignal.Low));
+		
+	}
+
 }

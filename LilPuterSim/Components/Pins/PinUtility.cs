@@ -24,6 +24,7 @@ public static class PinUtility
 
 	public static int ByteArrayToInt(byte[] value)
 	{
+		//We need to ensure that the value is not floating.
 		int result = 0;
 		for (int i = 0; i < value.Length; i++)
 		{
@@ -41,5 +42,17 @@ public static class PinUtility
 		}
 
 		return value;
+	}
+
+	public static int SizeToRequiredBits(int size)
+	{
+		int bits = 0;
+		while (size > 0)
+		{
+			size >>= 1;
+			bits++;
+		}
+
+		return bits;
 	}
 }
