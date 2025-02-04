@@ -71,7 +71,14 @@ public class Pin : IObservable, ISystem
 	{
 		Value[0] = (byte)value;
 	}
-	public bool Set(byte[] value, bool alwaysUpdate = false)
+	/// <summary>
+	/// This should only be called by systems downstream of a Tick. e.g. in a system action. Otherwise call SetPin on the wiremanager (or SetAndImpulse) for the "public" api.
+	/// </summary>
+	/// <param name="value"></param>
+	/// <param name="alwaysUpdate"></param>
+	/// <returns></returns>
+	/// <exception cref="ArgumentException"></exception>
+	internal bool Set(byte[] value, bool alwaysUpdate = false)
 	{
 		bool changed = false;
 		if (value.Length != Value.Length)

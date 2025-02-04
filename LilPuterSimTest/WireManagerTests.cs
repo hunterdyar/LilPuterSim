@@ -100,4 +100,10 @@ public class WireManagerTests
 		var sorted = _wireManager.GetTopoSort();
 		Assert.That(new[] { a, b, c, d, e, f, g }, Is.EqualTo(sorted.ToArray()));
 	}
+
+	[Test]
+	public void CycleDetectionTest()
+	{
+		Assert.Fail("Cycle Detection not yet implemented");
+	}
 }
