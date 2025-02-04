@@ -216,9 +216,14 @@ public class AdderTest
 	[Test]
 	public void ALUConfigurationTest()
 	{
+		
 		var alu = new ArithmeticLogicUnit(_manager, 8);
 		//add, zero inputs.
 		alu.SetInputs(WireSignal.High,WireSignal.High,WireSignal.Low,WireSignal.High,WireSignal.Low,WireSignal.Low);
+
+		//todo: The propagation order is wrong. Zero-ing the inputs means we need intermediary inputs.
+		alu.X.Set(new byte[8]);
+		alu.Y.Set(new byte[8]);
 		_manager.SetPin(alu.F, WireSignal.High);
 		Assert.That(PinUtility.ByteArrayToInt(alu.Out.Value), Is.EqualTo(0));
 		

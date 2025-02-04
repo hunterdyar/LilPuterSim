@@ -5,8 +5,7 @@ public static class PinUtility
 	public static PinType GetPinType(Pin pin)
 	{
 		//if (Enum.IsDefined(typeof(PinType),pin.DataCount))
-		
-			return (PinType)pin.DataCount;
+		return (PinType)pin.DataCount;
 		
 
 		//throw new Exception("Invalid Pin Type. It's just ... data?");
@@ -32,5 +31,15 @@ public static class PinUtility
 		}
 
 		return result;
+	}
+
+	public static byte[] Invert(byte[] value)
+	{
+		for (int i = 0; i < value.Length; i++)
+		{
+			value[i] = (byte)(value[i] == 0 ? (byte)1 : (byte)0);
+		}
+
+		return value;
 	}
 }
