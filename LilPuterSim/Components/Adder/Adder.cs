@@ -9,6 +9,7 @@ public class Adder
 	public readonly Pin CarryOut;
 	
 	public readonly int BitWidth;
+	public  FullAdder[] Adders => _adders;
 	private readonly FullAdder[] _adders;
 	private readonly WireManager _manager;
 	
@@ -49,71 +50,20 @@ public class Adder
 
 		 manager.RegisterSystemAction(A, InputAChanged);
 		 manager.RegisterSystemAction(B, InputBChanged);
-		 _adders[0].CarryIn.DependsOn(CarryIn);
+		 //_adders[0].CarryIn.DependsOn(CarryIn);
 		 _adders[bitWidth-1].CarryOut.ConnectTo(CarryOut);
 
 		 //connections
+		 CarryIn.ConnectTo(_adders[0].CarryIn);
+
+		 //system notes.
+		 //Carry out is depending correctly on the last adder.
 		 Out.DependsOn(A);
 		 Out.DependsOn(B);
 		 Out.DependsOn(CarryIn);
 		 
-		 //outputs
-		 manager.RegisterSystemAction(CarryIn, CarryInChanged);
-		 
-		//manager.RegisterSystem([A, B, CarryIn], InputChanged, [Out, CarryOut]);
 	}
-
-	public bool ValidateTopoSortInternals()
-	{
-		var s = _manager.GetTopoSort();
-
-		var a = s.IndexOf(A);
-		var b = s.IndexOf(B);
-		var c = s.IndexOf(CarryIn);
-		var so = s.IndexOf(Out);
-		var co = s.IndexOf(CarryOut);
-		var a0so = s.IndexOf(_adders[0].SumOut);
-		var a1so = s.IndexOf(_adders[1].SumOut);
-		var a0a = s.IndexOf(_adders[0].A);
-		var a1a = s.IndexOf(_adders[1].A);
-		var a0b = s.IndexOf(_adders[0].B);
-		var a1b = s.IndexOf(_adders[1].B);
-		var a0co = s.IndexOf(_adders[0].CarryOut);
-		var a1co = s.IndexOf(_adders[1].CarryOut);
-		
-		if (a > a0a || a > a1a || a > a0so || a > a1so)
-		{
-			return false;
-		}
-		
-		if (b > a1b || b > a1so || b > a0b || b > a0so)
-		{
-			return false;
-		}
-
-		if (c > a1so || c > a0a || c > a0b || c > a0so || c > a1so)
-		{
-			return false;
-		}
-
-		if (so < a || so < b || so < c || so < a0so || so < a1so)
-		{
-			return false;
-		}
-
-		if (a1co < a0co)
-		{
-			return false;
-		}
-		
-		if (co < a || co < b || co < c || co < a1co || co < a0co)
-		{
-			return false;
-		}
-		
-		return true;
-	}
-
+	
 	private void AdderSystemChange(ISystem obj)
 	{
 		var a = PinUtility.ByteArrayToInt(A.Value);
@@ -151,10 +101,5 @@ public class Adder
 			_adders[i].B.Set([B.Value[i]]);
 		}
 		Console.WriteLine("Adder InputB Changed");
-	}
-
-	private void CarryInChanged(ISystem changedSystem)
-	{
-		_adders[0].CarryIn.Set(CarryIn.Value);
 	}
 }

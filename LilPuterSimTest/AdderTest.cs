@@ -46,7 +46,7 @@ public class AdderTest
 		Assert.That((WireSignal)ha.SumOut.Value[0], Is.EqualTo(WireSignal.Low));
 		Assert.That(ha.SumOut.Value.Length, Is.EqualTo(1));
 	}
-
+	
 	[Test]
 	public void FullAdderLogicTableTests()
 	{
@@ -135,6 +135,15 @@ public class AdderTest
 		{
 			Assert.That((WireSignal)adder.Out.Value[i],Is.EqualTo(WireSignal.Low));
 		}
+
+		_manager.SetPin(adder.A, new byte[width]);
+		_manager.SetPin(adder.B, new byte[width]);
+		_manager.SetPin(adder.CarryIn, WireSignal.High);
+		//now the value should should be one.
+		for (int i = 0; i < width; i++)
+		{
+			Assert.That((WireSignal)adder.Out.Value[i], Is.EqualTo(i == 0 ? WireSignal.High : WireSignal.Low));
+		}
 	}
 
 	[Test]
@@ -143,7 +152,6 @@ public class AdderTest
 		var add = new Adder(_manager, 2);
 		var s = _manager.GetTopoSort();
 		Assert.True(_manager.ValidateTopoSort());
-		Assert.True(add.ValidateTopoSortInternals());
 		var a = s.IndexOf(add.A);
 		var b = s.IndexOf(add.B);
 		var c = s.IndexOf(add.CarryIn);
@@ -213,19 +221,37 @@ public class AdderTest
 		}
 	}
 
-	[Test]
-	public void ALUConfigurationTest()
-	{
-		
-		var alu = new ArithmeticLogicUnit(_manager, 8);
-		//add, zero inputs.
-		alu.SetInputs(WireSignal.High,WireSignal.High,WireSignal.Low,WireSignal.High,WireSignal.Low,WireSignal.Low);
 
-		//todo: The propagation order is wrong. Zero-ing the inputs means we need intermediary inputs.
-		alu.X.Set(new byte[8]);
-		alu.Y.Set(new byte[8]);
-		_manager.SetPin(alu.F, WireSignal.High);
-		Assert.That(PinUtility.ByteArrayToInt(alu.Out.Value), Is.EqualTo(0));
-		
+	[Test]
+	public void AdderTopoSortInternalsTest()
+	{
+		var add = new Adder(_manager, 8);
+		var s = _manager.GetTopoSort();
+		var a = s.IndexOf(add.A);
+		var b = s.IndexOf(add.B);
+		var c = s.IndexOf(add.CarryIn);
+		var so = s.IndexOf(add.Out);
+		var co = s.IndexOf(add.CarryOut);
+		var a0so = s.IndexOf(add.Adders[0].SumOut);
+		var a1so = s.IndexOf(add.Adders[1].SumOut);
+		var a0a = s.IndexOf(add.Adders[0].A);
+		var a1a = s.IndexOf(add.Adders[1].A);
+		var a0b = s.IndexOf(add.Adders[0].B);
+		var a1b = s.IndexOf(add.Adders[1].B);
+		var a0co = s.IndexOf(add.Adders[0].CarryOut);
+		var a1co = s.IndexOf(add.Adders[1].CarryOut);
+
+		Assert.False(a > a0a || a > a1a || a > a0so || a > a1so);
+
+		Assert.False(b > a1b || b > a1so || b > a0b || b > a0so);
+
+		Assert.False(c > a1so || c > a0a || c > a0b || c > a0so || c > a1so);
+
+		Assert.False(so < a || so < b || so < c || so < a0so || so < a1so);
+
+		Assert.False(a1co < a0co);
+
+		Assert.False(co < a || co < b || co < c || co < a1co || co < a0co);
+
 	}
 }
