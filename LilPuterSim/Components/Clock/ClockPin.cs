@@ -7,7 +7,9 @@ public class ClockPin : ISystem
 {
 	public bool Enabled { get; }
 	public string Name { get; }
-
+	
+	public Action OnTick;
+	public Action OnTock;
 	private Pin[] _connectees = [];
 	private readonly ClockManager _manager;
 
@@ -30,8 +32,16 @@ public class ClockPin : ISystem
 		_manager.RegisterPin(this);
 	}
 
+	public ClockPin(ClockManager manager, string name)
+	{
+		Name = name;
+		Enabled = true;
+		_manager = manager;
+		_manager.RegisterPin(this);
+	}
 	public void TickSilent()
 	{
+		OnTick?.Invoke();
 		//set all connectees high.
 		for (int i = 0; i < _connectees.Length; i++)
 		{
@@ -41,6 +51,7 @@ public class ClockPin : ISystem
 
 	public void TockSilent()
 	{
+		OnTock?.Invoke();
 		//set all connectees low.
 		//set all connectees high.
 		for (int i = 0; i < _connectees.Length; i++)
