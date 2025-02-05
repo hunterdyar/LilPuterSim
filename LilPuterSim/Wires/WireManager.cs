@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using LilPuter.Clock;
 
 namespace LilPuter;
 
@@ -89,6 +90,10 @@ public class WireManager
 		return _tSort;
 	}
 
+	/// <summary>
+	/// I should rename this because this is not a clock cylcle tick-tock. It's just executing the combinatorial tick.
+	/// </summary>
+	/// <param name="system"></param>
 	public void Tick(ISystem system)
 	{
 		if (!_needsTick.ContainsKey(system))
@@ -97,7 +102,6 @@ public class WireManager
 		}
 		if(_needsTick[system] == false)
 		{
-			//todo: what isn't working with this? Since this works up to multiplexers, I think it's something switching between ops doesn't trigger a result to switch.
 			return;
 		}
 		//not set from anything, so we're good!
@@ -106,6 +110,16 @@ public class WireManager
 		{
 			simAction?.Invoke(system);
 			_needsTick[system] = false;
+		}
+	}
+
+	//Without a parameter, we impulse the entire system.
+	public void Impulse()
+	{
+		var topo = GetTopoSort();
+		for (var i = 0; i < topo.Count; i++)
+		{
+			Tick(topo[i]);
 		}
 	}
 	public void Impulse(ISystem system)
@@ -137,7 +151,7 @@ public class WireManager
 		//todo: I am not sure how many of these dictionaries we need. Still tinkering as I make it.
 		
 		//initialize ourselves, we need to tick since we have a new incoming connection.
-
+		
 		if (from == to)
 		{
 			throw new Exception("Cannot connect a system to itself.");

@@ -22,12 +22,14 @@ public class Pin : IObservable, ISystem
 	public int SubscriberCount() => _subscribers.Count;
 	public Pin(WireManager manager, string name)
 	{
+		Enabled = true;
 		this._manager = manager;
 		this.Name = name;
 	}
 
 	public Pin(WireManager manager, string name, int bitWidth)
 	{
+		Enabled = true;
 		this._manager = manager;
 		this.Name = name;
 		Value = new byte[bitWidth]; //Default should be not connected == floating
