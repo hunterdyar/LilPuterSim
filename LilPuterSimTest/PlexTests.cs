@@ -28,4 +28,6 @@ public class PlexTests
 		Assert.That(mux.Out.Signal, Is.EqualTo(WireSignal.Low));
 
 	} 
+	
+	//todo: multiplexer tests.
 }

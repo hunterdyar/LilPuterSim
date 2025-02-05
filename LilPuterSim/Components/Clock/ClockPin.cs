@@ -29,7 +29,7 @@ public class ClockPin : ISystem
 		Name = "Clock In";
 		Enabled = true;
 		_manager = manager;
-		_manager.RegisterPin(this);
+		_manager.RegisterClockPin(this);
 	}
 
 	public ClockPin(ClockManager manager, string name)
@@ -37,7 +37,7 @@ public class ClockPin : ISystem
 		Name = name;
 		Enabled = true;
 		_manager = manager;
-		_manager.RegisterPin(this);
+		_manager.RegisterClockPin(this);
 	}
 	public void TickSilent()
 	{

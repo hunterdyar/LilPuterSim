@@ -14,7 +14,7 @@ public class ClockManager
 		_wireManager = wireManager;
 	}
 
-	public void RegisterPin(ClockPin pin)
+	public void RegisterClockPin(ClockPin pin)
 	{
 		if (!_clocks.Contains(pin))
 		{
@@ -35,6 +35,9 @@ public class ClockManager
 		}
 	}
 
+	/// <summary>
+	/// Calls Tick, then Tock. I called this "TickTock" for a while, which I love, but - while clear - it wasn't discoverable.
+	/// </summary>
 	public void Cycle()
 	{
 		Tick();
@@ -43,20 +46,23 @@ public class ClockManager
 
 	public void Tick()
 	{
-		foreach (var pin in _clocks)
-		{
-			pin.TickSilent();
-		}
-		
+		//This feels like the part that we can multithread. Run all of the cores, then run all of the wires to propogate on one thread after.
+		// foreach (var pin in _clocks)
+		// {
+		// 	pin.TickSilent();
+		// }
+		Parallel.ForEach(_clocks, pin => pin.TickSilent());
 		_wireManager.Impulse();
 	}
 
 	public void Tock()
 	{
-		foreach (var pin in _clocks)
-		{
-			pin.TockSilent();
-		}
+		// foreach (var pin in _clocks)
+		// {
+		// 	pin.TockSilent();
+		// }
+		Parallel.ForEach(_clocks, pin => pin.TockSilent());
+
 		_wireManager.Impulse();
 	}
 }
