@@ -35,13 +35,16 @@ public class ALUOneBit
 		_mux = new Multiplexer(manager, 3);//Add, And, Or.
 		Op = new Pin(manager,"Op", _mux.SelectorSize);
 		
+		CarryOut.DependsOn(Op);
+		Result.DependsOn(Op);
+		
 		_adder = new FullAdder(manager);
 		_and = new AndGate(manager);
 		_or = new OrGate(manager);
 		//Connect the internal components
 		Op.ConnectTo(_mux.Select);
 		_mux.Output.ConnectTo(Result);
-
+		
 		//Adder. Op is 0
 		A.ConnectTo(_adder.A);
 		B.ConnectTo(_adder.B);

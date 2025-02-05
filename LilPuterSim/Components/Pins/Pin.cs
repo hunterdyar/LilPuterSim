@@ -95,7 +95,7 @@ public class Pin : IObservable, ISystem
 			// }
 			var newVal = (WireSignal)value[0];
 			changed = newVal != Signal;
-			if (changed || alwaysUpdate)
+			if (changed || alwaysUpdate)//todo: Investigate adding a check to not propagate floating values. (floating is init only)
 			{
 				Value = [(byte)newVal];
 				_manager.Changed(this, Value);

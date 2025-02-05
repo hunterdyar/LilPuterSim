@@ -14,7 +14,6 @@ public class Multiplexer
 		Select = new Pin(manager, "Multiplexer Select", SelectorSize);
 		Inputs = new Pin[size];
 		Output = new Pin(manager, "Multiplexer Output");
-
 		Output.DependsOn(Select);
 		for (int i = 0; i < size; i++)
 		{
@@ -22,6 +21,23 @@ public class Multiplexer
 			manager.RegisterSystemAction(Inputs[i], AnyInputChanged);	
 			Output.DependsOn(Inputs[i]);
 		}
+		manager.RegisterSystemAction(Select, SelectionChanged);
+		
+	}
+
+	private void SelectionChanged(ISystem obj)
+	{
+		//If we are floating.
+		if (Select.Value[0] == 2)
+		{
+			return;
+		}
+		int val = PinUtility.ByteArrayToInt(Select.Value);
+		if (val >= Inputs.Length)
+		{
+			throw new Exception($"Invalid Selection for Multiplexer. Selected {val}, max {Inputs.Length}");
+		}
+		Output.Set(Inputs[val].Value);
 		
 	}
 
