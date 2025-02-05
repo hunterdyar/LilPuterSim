@@ -27,7 +27,7 @@ public class Multiplexer
 
 	private void SelectionChanged(ISystem obj)
 	{
-		//If we are floating.
+		//If we are floating. TODO: I want to minize the need for catching these in output by catching them and preventing propagation.
 		if (Select.Value[0] == 2)
 		{
 			return;
