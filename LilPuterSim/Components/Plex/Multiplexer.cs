@@ -4,9 +4,9 @@
 //Then we add a few of these and the selector bit chooses the correct AND operation. 
 public class Multiplexer
 {
-	public Pin Select;
-	public Pin[] Inputs;
-	public Pin Output;
+	public readonly Pin Select;
+	public readonly Pin[] Inputs;
+	public readonly Pin Output;
 	public readonly int SelectorSize;
 	public Multiplexer(WireManager manager, int size)
 	{
@@ -64,6 +64,9 @@ public class Multiplexer
 		// }
 
 		//Option B is to get the index of the changed system, like this:
+		// ReSharper disable once CoVariantArrayConversion
+		//We can ignore the casting issue because we do not write.
+			//todo: I think we can improve performance at a negligable cost by including a "Pin ID" int in Pin class.
 		int index = Array.IndexOf(Inputs, system);
 		if (index == val)
 		{
