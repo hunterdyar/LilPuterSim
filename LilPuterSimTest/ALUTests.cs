@@ -59,7 +59,7 @@ public class ALUTests
 	[TestCase(16)]
 	public void ALUConfigurationTest(int width)
 	{
-		var alu = new ALUMultiBit(_manager, width);
+		var alu = new ALUMultiBit(_computerBase, width);
 		//add, don't zero out all inputs (we will set them to zero ourselves)
 		_manager.SetPin(alu.InvertA,WireSignal.Low);
 		_manager.SetPin(alu.InvertB,WireSignal.Low);

@@ -18,20 +18,20 @@ public class ALUMultiBit
 
 	private int _width;
 	private WireManager _manager;
-	public ALUMultiBit(WireManager manager, int width)
+	public ALUMultiBit(ComputerBase manager, int width)
 	{
-		_manager = manager;
+		_manager = manager.WireManager;
 		_width = width;
 		ALUOneBits = new ALUOneBit[width];
-		A = new Pin(manager, "ALU A",width);
-		B = new Pin(manager, "ALU B",width);
-		CarryIn = new Pin(manager,"ALU CarryIn");
-		CarryOut = new Pin(manager,"ALU CarryOut");
-		Operation = new Pin(manager, "ALU Select",PinUtility.SizeToRequiredBits(3));//3 options right now.
-		Result = new Pin(manager, "ALU Result",width);
-		IsZero = new Pin(manager, "ALU IsZero");
-		InvertA	= new Pin(manager, "ALU Invert A");
-		InvertB = new Pin(manager, "ALU Invert B");
+		A = new Pin(manager.WireManager, "ALU A",width);
+		B = new Pin(manager.WireManager, "ALU B",width);
+		CarryIn = new Pin(manager.WireManager,"ALU CarryIn");
+		CarryOut = new Pin(manager.WireManager,"ALU CarryOut");
+		Operation = new Pin(manager.WireManager, "ALU Select",PinUtility.SizeToRequiredBits(3));//3 options right now.
+		Result = new Pin(manager.WireManager, "ALU Result",width);
+		IsZero = new Pin(manager.WireManager, "ALU IsZero");
+		InvertA	= new Pin(manager.WireManager, "ALU Invert A");
+		InvertB = new Pin(manager.WireManager, "ALU Invert B");
 		for (int i = 0; i < width; i++)
 		{
 			ALUOneBits[i] = new ALUOneBit(_manager);
@@ -45,18 +45,18 @@ public class ALUMultiBit
 			InvertA.ConnectTo(ALUOneBits[i].InvertA);
 			InvertB.ConnectTo(ALUOneBits[i].InvertB);
 			Result.DependsOn(ALUOneBits[i].Result);
-			manager.RegisterSystemAction(ALUOneBits[i].Result, InternalBitChanged);
+			manager.WireManager.RegisterSystemAction(ALUOneBits[i].Result, InternalBitChanged);
 		}
 		//Does this need to be a pin, or can we just do ALU[7]=>CarryOut
 		CarryIn.ConnectTo(ALUOneBits[0].CarryIn);
 		ALUOneBits[width-1].CarryOut.ConnectTo(CarryOut);
-		
-		manager.RegisterSystemAction(A,InputAChanged);
-		manager.RegisterSystemAction(B, InputBChanged);
+
+		manager.WireManager.RegisterSystemAction(A,InputAChanged);
+		manager.WireManager.RegisterSystemAction(B, InputBChanged);
 		
 		IsZero.DependsOn(Result);
-		manager.RegisterSystemAction(Result,ResultChanged);
-		manager.SetPin(CarryIn,WireSignal.Low);
+		manager.WireManager.RegisterSystemAction(Result,ResultChanged);
+		manager.WireManager.SetPin(CarryIn,WireSignal.Low);
 	}
 
 	private void ResultChanged(ISystem res)
