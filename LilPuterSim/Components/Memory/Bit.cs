@@ -2,7 +2,7 @@
 
 public class Bit : Register
 {
-	public Bit(WireManager manager, ClockManager clock) : base(manager, clock, 1)
+	public Bit(ComputerBase comp) : base(comp, 1)
 	{
 	}
 }

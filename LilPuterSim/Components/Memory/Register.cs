@@ -17,15 +17,12 @@ public class Register
 	/// DFF's are not able to be simulated by nand gates since I don't support feedback loops.
 	/// So DFF's are a primitive like NAND gates. And, well. It made sense to make this a primitive too in the meantime, since shortcuts are getting made anyway.
 	/// </summary>
-	/// <param name="manager"></param>
-	/// <param name="clock"></param>
-	/// <param name="bits"></param>
-	public Register(WireManager manager, ClockManager clock, int bits)
+	public Register(ComputerBase comp, int bits)
 	{
-		Load = new Pin(manager,"Register Load");
-		Input = new Pin(manager, "Register In", bits);
-		Output = new Pin(manager, "Register Out", bits);
-		ClockIn = new ClockPin(clock);
+		Load = new Pin(comp.WireManager,"Register Load");
+		Input = new Pin(comp.WireManager, "Register In", bits);
+		Output = new Pin(comp.WireManager, "Register Out", bits);
+		ClockIn = new ClockPin(comp.Clock);
 		_data = new byte[bits];
 		Bits = bits;
 		Output.DependsOn(Input);

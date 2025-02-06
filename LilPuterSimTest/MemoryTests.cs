@@ -16,7 +16,7 @@ public class MemoryTests
 	[Test]
 	public void BitTest()
 	{
-		Bit bit = new Bit(_manager, _clock);
+		Bit bit = new Bit(_computerBase);
 		//setup
 		_manager.SetPin(bit.Input, WireSignal.Low);
 		_manager.SetPin(bit.Load, WireSignal.High);
