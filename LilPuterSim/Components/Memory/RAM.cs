@@ -32,7 +32,7 @@ public class RAM
 		In = new Pin(comp.WireManager, "RAM8 In", width);
 		Out = new Pin(comp.WireManager, "RAM8 Out", width);
 		ClockPin = new ClockPin(comp.Clock);
-		_registers = new byte[][size];
+		_registers = new byte[size][];
 		for (int i = 0; i < size; i++)
 		{
 			_registers[i] = new byte[width];
