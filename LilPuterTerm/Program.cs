@@ -6,12 +6,12 @@ Application.Init();
 
 try
 {
-	WireManager wire = new WireManager();
-	FullAdder fullAdder = new FullAdder(wire);
+	ComputerBase compy = new ComputerBase();
+	FullAdder fullAdder = new FullAdder(compy.WireManager);
 	//Starts floating. Let's ground it.
-	wire.SetPin(fullAdder.A, WireSignal.Low);
-	wire.SetPin(fullAdder.B, WireSignal.Low);
-	wire.SetPin(fullAdder.CarryIn, WireSignal.Low);
+	compy.WireManager.SetPin(fullAdder.A, WireSignal.Low);
+	compy.WireManager.SetPin(fullAdder.B, WireSignal.Low);
+	compy.WireManager.SetPin(fullAdder.CarryIn, WireSignal.Low);
 	Application.Run(new AdderView(fullAdder));
 }
 finally

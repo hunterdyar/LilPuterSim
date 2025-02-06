@@ -4,14 +4,13 @@ namespace LilPuterSimTest;
 
 public class MemoryTests
 {
-	private WireManager _manager;
-	private ClockManager _clock;
-
+	private ComputerBase _computerBase;
+	private WireManager _manager => _computerBase.WireManager;
+	private ClockManager _clock => _computerBase.Clock;
 	[SetUp]
 	public void Setup()
 	{
-		_manager = new WireManager();
-		_clock = new ClockManager(_manager);
+		_computerBase = new ComputerBase();
 	}
 
 	[Test]

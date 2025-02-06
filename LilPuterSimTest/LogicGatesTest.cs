@@ -5,13 +5,14 @@ namespace LilPuterSimTest;
 public class LogicGatesTests
 {
 
-	private WireManager _manager;
+	private ComputerBase _computerBase;
+	private WireManager _manager => _computerBase.WireManager;
+
 	[SetUp]
 	public void Setup()
 	{
-		_manager = new WireManager();
+		_computerBase = new ComputerBase();
 	}
-
 	[Test]
 	public void NandLogicTable()
 	{

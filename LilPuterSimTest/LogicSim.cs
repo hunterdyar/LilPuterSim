@@ -5,7 +5,9 @@ namespace LilPuterSimTest;
 
 public class LogicSim
 {
-	private WireManager _manager;
+	private ComputerBase _computerBase;
+	private WireManager _manager => _computerBase.WireManager;
+	
 	Pin A;
 	Pin B;
 	Pin C;
@@ -18,7 +20,7 @@ public class LogicSim
 	[SetUp]
 	public void Setup()
 	{
-		_manager = new WireManager();
+		_computerBase = new ComputerBase();
 		_log = new StringBuilder();
 		
 		A = new Pin(_manager, "A");

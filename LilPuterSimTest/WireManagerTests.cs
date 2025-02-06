@@ -6,20 +6,21 @@ namespace LilPuterSimTest;
 
 public class WireManagerTests
 {
-	private WireManager _wireManager;
+	private ComputerBase _computerBase;
+	private WireManager _manager => _computerBase.WireManager;
 
 	[SetUp]
 	public void Setup()
 	{
-		_wireManager = new WireManager();
+		_computerBase = new ComputerBase();
 	}
 
 	[Test]
 	public void ConnectingPins()
 	{
-		var a = new Pin(_wireManager, "A");
-		var b = new Pin(_wireManager, "B");
-		var c = new Pin(_wireManager, "C");
+		var a = new Pin(_manager, "A");
+		var b = new Pin(_manager, "B");
+		var c = new Pin(_manager, "C");
 
 		b.SetSilently(WireSignal.Low);
 		a.SetAndImpulse(WireSignal.High);
@@ -35,14 +36,14 @@ public class WireManagerTests
 	public void ListenTest()
 	{
 		StringBuilder _log = new StringBuilder();
-		var a = new Pin(_wireManager, "A");
-		var b = new Pin(_wireManager, "B");
-		var c = new Pin(_wireManager, "C");
+		var a = new Pin(_manager, "A");
+		var b = new Pin(_manager, "B");
+		var c = new Pin(_manager, "C");
 		b.SetSilently(WireSignal.Low);
 		a.ConnectTo(b);
-		_wireManager.RegisterSystemAction(a, (p) => { _log.Append($"{p.Name}"); });
-		_wireManager.RegisterSystemAction(b, (p) => { _log.Append($"{p.Name}"); });
-		_wireManager.RegisterSystemAction(c, (p) => { _log.Append($"{p.Name}"); });
+		_manager.RegisterSystemAction(a, (p) => { _log.Append($"{p.Name}"); });
+		_manager.RegisterSystemAction(b, (p) => { _log.Append($"{p.Name}"); });
+		_manager.RegisterSystemAction(c, (p) => { _log.Append($"{p.Name}"); });
 		a.SetAndImpulse(WireSignal.High);
 		Assert.That(_log.ToString(), Is.EqualTo("AB"));
 		_log.Clear();
@@ -55,13 +56,13 @@ public class WireManagerTests
 	[Test]
 	public void TopoSortTest()
 	{
-		var a = new Pin(_wireManager, "A");
-		var b = new Pin(_wireManager, "B");
-		var c = new Pin(_wireManager, "C");
-		var d = new Pin(_wireManager, "D");
-		var e = new Pin(_wireManager, "E");
-		var f = new Pin(_wireManager, "F");
-		var g = new Pin(_wireManager, "G");
+		var a = new Pin(_manager, "A");
+		var b = new Pin(_manager, "B");
+		var c = new Pin(_manager, "C");
+		var d = new Pin(_manager, "D");
+		var e = new Pin(_manager, "E");
+		var f = new Pin(_manager, "F");
+		var g = new Pin(_manager, "G");
 
 		a.ConnectTo(b);
 		a.ConnectTo(c);
@@ -74,30 +75,30 @@ public class WireManagerTests
 		g.ConnectTo(f); 
 		
 		//There are multiple correct answers.
-		var sorted = _wireManager.GetTopoSort();
+		var sorted = _manager.GetTopoSort();
  		Assert.That(new[] { a, g, b, c, d, e, f }, Is.EqualTo(sorted.ToArray()));
 	}
 
 	[Test]
 	public void TopoSortTest2()
 	{
-		var a = new Pin(_wireManager, "A");
-		var b = new Pin(_wireManager, "B");
-		var c = new Pin(_wireManager, "C");
-		var d = new Pin(_wireManager, "D");
-		var e = new Pin(_wireManager, "E");
-		var f = new Pin(_wireManager, "F");
-		var g = new Pin(_wireManager, "G");
+		var a = new Pin(_manager, "A");
+		var b = new Pin(_manager, "B");
+		var c = new Pin(_manager, "C");
+		var d = new Pin(_manager, "D");
+		var e = new Pin(_manager, "E");
+		var f = new Pin(_manager, "F");
+		var g = new Pin(_manager, "G");
 		
 		f.ConnectTo(g);
 		e.ConnectTo(f);
-		_wireManager.ConnectPins(d, e);
+		_manager.ConnectPins(d, e);
 		c.ConnectTo(d);
 		b.ConnectTo(c);
-		_wireManager.ConnectPins(a,b);
+		_manager.ConnectPins(a,b);
 
 		//There are multiple correct answers.
-		var sorted = _wireManager.GetTopoSort();
+		var sorted = _manager.GetTopoSort();
 		Assert.That(new[] { a, b, c, d, e, f, g }, Is.EqualTo(sorted.ToArray()));
 	}
 

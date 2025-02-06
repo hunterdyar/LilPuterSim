@@ -8,9 +8,9 @@ namespace LilPuter;
 /// Wire Manager handles connections for "combinatorial" chip simulation. Not sequential. ...howevert, this is directional and acyclic.
 /// Time, as far as this system is concerned; "a cpu cycle" or "tick" or pulse or such; is not what Impulse simulates here.
 /// </summary>
-public class WireManager
+public class WireManager(ComputerBase computerBase)
 {
-	private HashSet<ISystem> _allPins = new HashSet<ISystem>();
+	private readonly HashSet<ISystem> _allPins = new HashSet<ISystem>();
 	/// <summary>
 	/// values are dependent on key.
 	/// </summary>
@@ -18,15 +18,15 @@ public class WireManager
 	private readonly Dictionary<ISystem, Action<ISystem>> _simActionMap = new Dictionary<ISystem, Action<ISystem>>(); 
 
 	//topo sort things
-	private List<ISystem> _tSort = new List<ISystem>();
-	private Dictionary<ISystem, int> _inDegree = new Dictionary<ISystem, int>();
+	private readonly List<ISystem> _tSort = new List<ISystem>();
+	private readonly Dictionary<ISystem, int> _inDegree = new Dictionary<ISystem, int>();
 	private bool _tSortDirty = true;
 	
 	//impulse things
 	//stores if a pin has been set or updated, and thus needs to be impulsed.
 	private readonly Dictionary<ISystem, bool> _needsTick = new Dictionary<ISystem, bool>();
 	
-
+	private ComputerBase _computerBase = computerBase;
 	public delegate void PinChangedHandler(Pin pin);
 
 	/// <summary>
@@ -96,11 +96,11 @@ public class WireManager
 	/// <param name="system"></param>
 	public void Tick(ISystem system)
 	{
-		if (!_needsTick.ContainsKey(system))
+		if (!_needsTick.TryGetValue(system, out bool needsTick))
 		{
 			return;
 		}
-		if(_needsTick[system] == false)
+		if(!needsTick)
 		{
 			return;
 		}
@@ -122,7 +122,7 @@ public class WireManager
 			Tick(topo[i]);
 		}
 	}
-	public void Impulse(ISystem system)
+	internal void Impulse(ISystem system)
 	{ 
 		//todo: change this to getting the topoSort, getting the index of pin, and impulsing from that point and to the end.
 		var topo = GetTopoSort();

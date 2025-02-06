@@ -9,9 +9,9 @@ public class ClockManager
 	private List<ClockPin> _clocks = new List<ClockPin>();
 	private WireManager _wireManager;
 
-	public ClockManager(WireManager wireManager)
+	public ClockManager(ComputerBase comp)
 	{
-		_wireManager = wireManager;
+		_wireManager = comp.WireManager;
 	}
 
 	public void RegisterClockPin(ClockPin pin)
