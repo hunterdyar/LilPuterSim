@@ -88,7 +88,6 @@ public class Adder
 	{
 		for (var i = 0; i < BitWidth; i++)
 		{
-			//todo: Test this
 			_adders[i].A.Set((A.Value >> i) & 1);
 		}
 
@@ -99,7 +98,6 @@ public class Adder
 	{
 		for (var i = 0; i < BitWidth; i++)
 		{
-			//Todo: Test this.
 			_adders[i].B.Set((B.Value >> i) & 1);
 		}
 		Console.WriteLine("Adder InputB Changed");

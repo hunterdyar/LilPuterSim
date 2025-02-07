@@ -124,7 +124,6 @@ public class WireManager(ComputerBase computerBase)
 	}
 	internal void Impulse(ISystem system)
 	{ 
-		//todo: change this to getting the topoSort, getting the index of pin, and impulsing from that point and to the end.
 		var topo = GetTopoSort();
 		var indexOfPin = topo.IndexOf(system);
 		if (indexOfPin != -1)
@@ -147,11 +146,6 @@ public class WireManager(ComputerBase computerBase)
 	
 	public void ConnectPins(Pin from, Pin to)
 	{
-		//to depends on from
-		//todo: I am not sure how many of these dictionaries we need. Still tinkering as I make it.
-		
-		//initialize ourselves, we need to tick since we have a new incoming connection.
-		
 		if (from == to)
 		{
 			throw new Exception("Cannot connect a system to itself.");
@@ -226,7 +220,6 @@ public class WireManager(ComputerBase computerBase)
 
 	public void Changed(ISystem system, int value)
 	{
-		//todo: skip propogation
 		_needsTick[system] = true;
 	}
 

@@ -23,7 +23,7 @@ public static class WireUtility
 
 	public static WireSignal Invert(int data)
 	{
-		//todo: this needs to know the width.
+		//todo: this needs to know the width. (note: currently masked out by the pin, instead of here. Move that to here because we want our system to be blind to the underlying int data type.
 		return (WireSignal)~data;
 	}
 

@@ -22,7 +22,8 @@ public class CPU
 	/// Arithmetic Logic Unit
 	/// </summary>
 	public ALUMultiBit ALU;
-	public Pin Instruction;
+	public Pin Instruction => _instruction.Input;
+	private readonly Breakout _instruction;
 	
 	public Pin InM;
 	public Pin Reset;
@@ -37,6 +38,11 @@ public class CPU
 		PC = new Counter(comp, 8);
 		ALU = new ALUMultiBit(comp,8);
 		Clock = new ClockPin(comp.Clock);
+		
+		//Bring in the instruction and break it out to individual bits.
+		_instruction = new Breakout(comp, "Instruction", 8);
+		Instruction.ConnectTo(_instruction.Input);
+		
 		//Fetch
 		//Decode the Instruction
 		//
@@ -48,7 +54,10 @@ public class CPU
 	{
 		//Todo: Implement microcode?
 		//Decode the Instruction. If Instruction is 0, then it's an A instruction, and we load the A register with... something
-		//
+		if (_instruction.OutPins[0].Signal == WireSignal.High)
+		{
+			
+		}
 	}
 
 	private void OnTock()

@@ -67,7 +67,7 @@ public class MemoryTests
 		var c = new Counter(_computerBase,width);
 		_manager.SetPin(c.Input,0);
 		_manager.SetPin(c.CountEnable, WireSignal.High);
-
+		_manager.SetPin(c.Reset, WireSignal.Low);
 		//Can we cycle through all possible values?
 		int m = (int)Math.Pow(2, width);
 		for (int i = 0; i < m; i++)
@@ -88,6 +88,19 @@ public class MemoryTests
 		_manager.SetPin(c.CountEnable, WireSignal.High);
 		_clock.Cycle();
 		Assert.That(c.Out.Value, Is.EqualTo(width));
-		//todo: What happens when both load and count are enabled?
+		
+		_manager.SetPin(c.Reset, WireSignal.High);
+		Assert.That(c.Out.Value, Is.EqualTo(0));
+
+		//Does reset keep our values low regardless?
+		_manager.SetPin(c.CountEnable, WireSignal.Low);
+		_manager.SetPin(c.Input, width - 1);
+		_clock.Cycle();
+		Assert.That(c.Out.Value, Is.EqualTo(0));
+		_manager.SetPin(c.CountEnable, WireSignal.High);
+		_clock.Cycle();
+		Assert.That(c.Out.Value, Is.EqualTo(0));
+		_clock.Cycle();
+		Assert.That(c.Out.Value, Is.EqualTo(0));
 	}
 }

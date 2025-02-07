@@ -18,7 +18,6 @@ public class ALUTests
 	{
 		var alu = new ALUOneBit(_manager);
 
-		//todo: The propagation order is wrong. Zero-ing the inputs means we need intermediary inputs.
 		_manager.SetPin(alu.Op, 0); //000 is add.
 		_manager.SetPin(alu.A, WireSignal.Low);
 		_manager.SetPin(alu.B, WireSignal.Low);
@@ -63,7 +62,6 @@ public class ALUTests
 		//add, don't zero out all inputs (we will set them to zero ourselves)
 		_manager.SetPin(alu.InvertA,WireSignal.Low);
 		_manager.SetPin(alu.InvertB,WireSignal.Low);
-		//todo: The propagation order is wrong. Zero-ing the inputs means we need intermediary inputs.
 		_manager.SetPin(alu.A, 0);
 		_manager.SetPin(alu.B,0);
 		

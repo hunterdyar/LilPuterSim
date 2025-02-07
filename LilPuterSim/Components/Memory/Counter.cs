@@ -10,6 +10,7 @@ public class Counter
 {
 	public ClockPin _ClockPin;
 	public readonly Pin CountEnable;
+	public readonly Pin Reset;
 	public readonly Pin Input;
 	public readonly Pin Out;
 	
@@ -21,21 +22,34 @@ public class Counter
 		_width = width;
 		this._max = (int)Math.Pow(2,width);//8 bits is 255.
 		_value = 0;
-		
+
+		Reset = new Pin(comp.WireManager, "Counter Reset");
 		CountEnable = new Pin(comp.WireManager, "Counter Count Enable");
 		_ClockPin = new ClockPin(comp.Clock);
 		Input = new Pin(comp.WireManager, "Counter Input", width);
 		Out = new Pin(comp.WireManager, "Counter Out", width);
 		
+		Input.DependsOn(Reset);
 		Out.DependsOn(Input);
+		Out.DependsOn(Reset);
 		Out.DependsOn(CountEnable);
 		
 		_ClockPin.OnTick += OnTick;
 		_ClockPin.OnTock += OnTock;
 
-	
+		comp.WireManager.RegisterSystemAction(Reset, OnReset);
 		//zero the output to start.
 		Out.SetSilently(0);
+	}
+
+	//Resets the clock. Independent from clock.
+	private void OnReset(ISystem obj)
+	{
+		if (Reset.Signal == WireSignal.High)
+		{
+			_value = 0;
+			Out.Set(0);
+		}
 	}
 
 	//set internals from inputs
@@ -43,13 +57,16 @@ public class Counter
 	{
 		if (CountEnable.Signal == WireSignal.High)
 		{
-			_value++;
-			if (_value >= _max)
+			if (Reset.Signal == WireSignal.Low)
 			{
-				_value = 0;
+				_value++;
+				if (_value >= _max)
+				{
+					_value = 0;
+				}
 			}
 		}
-		else if (CountEnable.Signal == WireSignal.Low)
+		else if (CountEnable.Signal == WireSignal.Low && Reset.Signal == WireSignal.Low)
 		{
 			//todo: check if this value is greater than out bit-width, and then set to 0.
 			_value = Input.Value;

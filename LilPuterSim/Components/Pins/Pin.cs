@@ -1,7 +1,5 @@
 ﻿namespace LilPuter;
 
-//todo: Create a GUID on creation for passing around serialized forms.
-
 /// <summary>
 /// A pin is a wire (or set of wires) that can be set. It holds a byte[] value (like everything else).
 /// A "normal singular pin" is an array of 1 byte.
