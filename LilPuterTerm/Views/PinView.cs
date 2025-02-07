@@ -36,9 +36,9 @@ public class PinView : Terminal.Gui.Button
 	}
 
 
-	private void OnPinChange(byte[] val)
+	private void OnPinChange(int val)
 	{
-		var d = (WireSignal)val[0];
+		var d = (WireSignal)val;
 		if (d == WireSignal.High)
 		{
 			this.ColorScheme = Colors.Dialog;

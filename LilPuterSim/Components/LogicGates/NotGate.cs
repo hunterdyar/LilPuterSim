@@ -19,10 +19,10 @@ public class NotGate
 		//floats gonna float
 		if (val == WireSignal.Floating)
 		{
-			Out.Set([(byte)WireSignal.Floating]);
+			Out.Set((int)WireSignal.Floating);
 			return;
 		}
-		Out.Set([(byte)(val == WireSignal.Low ? WireSignal.High : WireSignal.Low)]);
+		Out.Set((int)(val == WireSignal.Low ? WireSignal.High : WireSignal.Low));
 		
 		//onChange
 	}

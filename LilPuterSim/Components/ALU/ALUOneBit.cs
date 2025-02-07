@@ -33,10 +33,12 @@ public class ALUOneBit
 		CarryOut = new Pin(manager, "CarryOut");
 		Result = new Pin(manager, "Result");
 		_mux = new Multiplexer(manager, 3);//Add, And, Or.
-		Op = new Pin(manager,"Op", _mux.SelectorSize);
+		Op = new Pin(manager,"Op", _mux.SelectorWidth);
 		
 		CarryOut.DependsOn(Op);
 		Result.DependsOn(Op);
+		Result.DependsOn(A);
+		Result.DependsOn(B);
 		
 		_adder = new FullAdder(manager);
 		_and = new AndGate(manager);

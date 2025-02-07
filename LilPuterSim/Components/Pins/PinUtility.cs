@@ -5,9 +5,7 @@ public static class PinUtility
 	public static PinType GetPinType(Pin pin)
 	{
 		//if (Enum.IsDefined(typeof(PinType),pin.DataCount))
-		return (PinType)pin.DataCount;
-		
-
+		return (PinType)pin.Width;
 		//throw new Exception("Invalid Pin Type. It's just ... data?");
 	}
 

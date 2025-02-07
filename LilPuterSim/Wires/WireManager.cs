@@ -38,7 +38,7 @@ public class WireManager(ComputerBase computerBase)
 		Impulse(pin);
 	}
 
-	public void SetPin(Pin pin, byte[] signal)
+	public void SetPin(Pin pin, int signal)
 	{
 		_needsTick[pin] = pin.Set(signal);
 		Impulse(pin);
@@ -224,7 +224,7 @@ public class WireManager(ComputerBase computerBase)
 		}
 	}
 
-	public void Changed(ISystem system, byte[] value)
+	public void Changed(ISystem system, int value)
 	{
 		//todo: skip propogation
 		_needsTick[system] = true;

@@ -11,31 +11,31 @@
 /// </summary>
 public class Pin : IObservable, ISystem
 {
+	private static readonly int[] FloatingVal = [1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024,2048,4096,8192,16384, 32768, 65536];
 	public string Name { get; set; }
-	public byte[] Value { get; private set; } = [(byte)WireSignal.Floating];//Default should be not connected == floating
-	public WireSignal Signal => (WireSignal)Value[0];
-	public int DataCount => Value.Length;
+	public int Value { get; private set; } //Default should be not connected == floating
+	public WireSignal Signal => (WireSignal)Value;
+	public readonly int Width = 1;
 	public PinType PinType => PinUtility.GetPinType(this);
 	private readonly WireManager _manager;
 	
 	private readonly List<IObservable.OnValueChangeDelegate> _subscribers = [];
 	public int SubscriberCount() => _subscribers.Count;
-	public Pin(WireManager manager, string name)
-	{
-		Enabled = true;
-		this._manager = manager;
-		this.Name = name;
-	}
 
-	public Pin(WireManager manager, string name, int bitWidth)
+	private readonly int _validMask;
+
+	public Pin(WireManager manager, string name, int bitWidth = 1)
 	{
 		Enabled = true;
 		this._manager = manager;
 		this.Name = name;
-		Value = new byte[bitWidth]; //Default should be not connected == floating
+		this.Width = bitWidth;
+		Value = (int)Math.Pow(2, bitWidth);//8 bit can't store the value 256, it can store 0-255. A one bit value, floating is 2.
+
+		//TODO: Move these to static constants.
 		for (int i = 0; i < bitWidth; i++)
 		{
-			Value[i] = (byte)WireSignal.Floating;
+			_validMask = _validMask | (1 << i);
 		}
 	}
 
@@ -56,22 +56,27 @@ public class Pin : IObservable, ISystem
 		}
 	}
 
-	public byte[] ReadValue()
+	public int ReadValue()
 	{
 		return Value;
+	}
+
+	public WireSignal ReadPin(int pin)
+	{
+		return (WireSignal)((Value >> pin) & 1);
 	}
 
 	/// <summary>
 	/// For use by parent systems that will manually propogate or call impulse.
 	/// </summary>
-	public void SetSilently(byte[] value)
+	public void SetSilently(int value)
 	{
 		Value = value;
 	}
 
 	public void SetSilently(WireSignal value)
 	{
-		Value[0] = (byte)value;
+		Value = (int)value;
 	}
 	/// <summary>
 	/// This should only be called by systems downstream of a Tick. e.g. in a system action. Otherwise call SetPin on the wiremanager (or SetAndImpulse) for the "public" api.
@@ -80,46 +85,25 @@ public class Pin : IObservable, ISystem
 	/// <param name="alwaysUpdate"></param>
 	/// <returns></returns>
 	/// <exception cref="ArgumentException"></exception>
-	internal bool Set(byte[] value, bool alwaysUpdate = false)
+	internal bool Set(int value, bool alwaysUpdate = false)
 	{
 		bool changed = false;
-		if (value.Length != Value.Length)
+		
+		// if (value[0] == 2)
+		// {
+		//		//this is allowed, just testing things.
+		//		throw new Exception("Setting Value to Floating?");
+		// }
+		var newVal = value;
+		changed = newVal != Value;
+		if (changed || alwaysUpdate)//todo: Investigate adding a check to not propagate floating values. (floating is init only)
 		{
-			throw new ArgumentException("Value for pin must match pin length.");
+			Value = newVal;
+			_manager.Changed(this, Value);
+			UpdateSubscribers();
 		}
 
-		if (value.Length == 1)
-		{
-			// if (value[0] == 2)
-			// {
-			//		//this is allowed, just testing things.
-			//		throw new Exception("Setting Value to Floating?");
-			// }
-			var newVal = (WireSignal)value[0];
-			changed = newVal != Signal;
-			if (changed || alwaysUpdate)//todo: Investigate adding a check to not propagate floating values. (floating is init only)
-			{
-				Value = [(byte)newVal];
-				_manager.Changed(this, Value);
-				UpdateSubscribers();
-			}
-
-			return changed;
-		}
-		else
-		{
-			int c = 0;
-			for (int i = 0; i < Value.Length; i++)
-			{
-				if (Value[i] != value[i])
-				{
-					Value[i] = value[i];
-					c++;
-				}
-			}
-
-			changed = c > 0;
-		}
+		return changed;
 
 		if (changed || alwaysUpdate)
 		{
@@ -140,12 +124,7 @@ public class Pin : IObservable, ISystem
 
 	internal bool Set(WireSignal newVal, bool alwaysUpdate = false)
 	{
-		return Set([(byte)newVal], alwaysUpdate);
-	}
-
-	internal bool Set(byte newVal, bool alwaysUpdate = false)
-	{
-		return Set([newVal], alwaysUpdate);
+		return Set((int)newVal, alwaysUpdate);
 	}
 
 	/// <summary>
@@ -175,7 +154,7 @@ public class Pin : IObservable, ISystem
 		}
 		else
 		{
-			return $"Pin {Name} ({PinUtility.ByteArrayToInt(Value)})";
+			return $"Pin {Name} ({Convert.ToString(Value,2)})";
 		}
 	}
 
@@ -189,36 +168,47 @@ public class Pin : IObservable, ISystem
 	/// </summary>
 	public void ZeroOutSilent()
 	{
-		for (var i = 0; i < Value.Length; i++)
-		{
-			Value[i] = (byte)WireSignal.Low;
-		}
+		Value = 0;
 	}
 	/// <summary>
 	/// Inverts the value.
 	/// </summary>
 	public void InvertSilent()
 	{
-		for (var i = 0; i < Value.Length; i++)
-		{
-			Value[i] = (byte)WireUtility.Invert((WireSignal)Value[i]);
-		}
+		Value = ~Value;
 	}
 
-	public bool SetBit(int i, byte b)
+	public bool SetBit(int i, WireSignal b)
 	{
-		if (i < 0 || i >= Value.Length)
+		if (b == WireSignal.Floating)
+		{
+			return false;
+		}
+		
+		if (i < 0 || i >= Width)
 		{
 			throw new ArgumentException("Index out of range for setting pin bit");
 		}
 
-		if (Value[i] == b)
+		var current = (WireSignal)((Value >> i) & 1);
+		if (current == b)
 		{
 			return false;
 		}
 		else
 		{
-			Value[i] = b;
+			if (b == WireSignal.High)
+			{
+				Value = Value | (1 << i);
+			}
+			else
+			{
+				Value = Value & ~(1 << i);
+			}
+
+			//Inversions and such mess up the unused section of the 
+			Value = Value & _validMask;
+			
 			return true;
 		}
 	}
@@ -229,4 +219,9 @@ public class Pin : IObservable, ISystem
 	}
 
 	public bool Enabled { get; }
+
+	public bool IsFloating()
+	{
+		return Value == FloatingVal[Width];
+	}
 }

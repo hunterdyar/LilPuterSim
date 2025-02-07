@@ -7,11 +7,13 @@ public class Multiplexer
 	public readonly Pin Select;
 	public readonly Pin[] Inputs;
 	public readonly Pin Output;
-	public readonly int SelectorSize;
+	public readonly int SelectorWidth;
+	public readonly int Size;
 	public Multiplexer(WireManager manager, int size)
 	{
-		SelectorSize = PinUtility.SizeToRequiredBits(size);
-		Select = new Pin(manager, "Multiplexer Select", SelectorSize);
+		Size = size;
+		SelectorWidth = PinUtility.SizeToRequiredBits(size);
+		Select = new Pin(manager, "Multiplexer Select", SelectorWidth);
 		Inputs = new Pin[size];
 		Output = new Pin(manager, "Multiplexer Output");
 		Output.DependsOn(Select);
@@ -28,11 +30,11 @@ public class Multiplexer
 	private void SelectionChanged(ISystem obj)
 	{
 		//If we are floating. TODO: I want to minize the need for catching these in output by catching them and preventing propagation.
-		if (Select.Value[0] == 2)
+		if (Select.IsFloating())
 		{
 			return;
 		}
-		int val = PinUtility.ByteArrayToInt(Select.Value);
+		int val = Select.Value;
 		if (val >= Inputs.Length)
 		{
 			throw new Exception($"Invalid Selection for Multiplexer. Selected {val}, max {Inputs.Length}");
@@ -44,11 +46,12 @@ public class Multiplexer
 	private void AnyInputChanged(ISystem system)
 	{
 		//whats a more efficient way to do this?
-		if(Select.Value.Any(x=>x == (byte)WireSignal.Floating))
+		if(Select.Value == (int)Math.Pow(2,Select.Width))
 		{
+			Console.WriteLine("Multiplexer Select is floating");
 			return;
 		}
-		int val = PinUtility.ByteArrayToInt(Select.Value);
+		int val = Select.Value;
 		if (val >= Inputs.Length)
 		{
 			throw new Exception("Invalid Selection for Multiplexer");

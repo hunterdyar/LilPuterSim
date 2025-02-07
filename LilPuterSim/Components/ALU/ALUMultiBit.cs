@@ -62,7 +62,7 @@ public class ALUMultiBit
 	private void ResultChanged(ISystem res)
 	{
 		//update our various status registers from Result.
-		IsZero.Set(PinUtility.ByteArrayToInt(Result.Value) == 0 ? WireSignal.High : WireSignal.Low);
+		IsZero.Set(Result.Value == 0 ? WireSignal.High : WireSignal.Low);
 	}
 
 	private void InternalBitChanged(ISystem system)
@@ -74,23 +74,25 @@ public class ALUMultiBit
 
 		for (int i = 0; i < _width; i++)
 		{
-			Result.SetBit(i, ALUOneBits[i].Result.Value[0]);
+			//todo: Test this
+			Result.SetBit(i, (WireSignal)(ALUOneBits[i].Result.Value >> (i)));
 		}
+		
 	}
 
 	private void InputAChanged(ISystem obj)
 	{
-		for (int i = 0; i < A.Value.Length; i++)
+		for (int i = 0; i < A.Width; i++)
 		{
-			ALUOneBits[i].A.Set(A.Value[i]);
+			ALUOneBits[i].A.Set((A.Value >> i) & 1);
 		}
 	}
 
 	private void InputBChanged(ISystem obj)
 	{
-		for (int i = 0; i < B.Value.Length; i++)
+		for (int i = 0; i < B.Width; i++)
 		{
-			ALUOneBits[i].B.Set(B.Value[i]);
+			ALUOneBits[i].B.Set((B.Value >> i) & 1);
 		}
 	}
 }

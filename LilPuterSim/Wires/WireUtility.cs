@@ -21,9 +21,10 @@ public static class WireUtility
 		return (WireSignal)data[0];
 	}
 
-	public static WireSignal Invert(byte[] data)
+	public static WireSignal Invert(int data)
 	{
-		return Invert(ByteToSignal(data));
+		//todo: this needs to know the width.
+		return (WireSignal)~data;
 	}
 
 	public static WireSignal Invert(WireSignal input)

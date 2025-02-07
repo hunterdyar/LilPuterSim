@@ -13,8 +13,8 @@ namespace LilPuter;
 /// </summary>
 public class RAM
 {
-	public byte[][] Registers => _registers;
-	private readonly byte[][] _registers;
+	public int[] Registers => _registers;
+	private readonly int[] _registers;
 	public readonly Pin Load;
 	public readonly Pin In;
 	public readonly Pin Address;
@@ -32,10 +32,10 @@ public class RAM
 		In = new Pin(comp.WireManager, "RAM8 In", width);
 		Out = new Pin(comp.WireManager, "RAM8 Out", width);
 		ClockPin = new ClockPin(comp.Clock);
-		_registers = new byte[size][];
+		_registers = new int[size];
 		for (int i = 0; i < size; i++)
 		{
-			_registers[i] = new byte[width];
+			_registers[i] = 0;
 		}
 
 		Out.DependsOn(Address);
@@ -47,7 +47,7 @@ public class RAM
 	{
 		if (Load.Signal == WireSignal.High)
 		{
-			_currentAddress = PinUtility.ByteArrayToInt(Address.Value);
+			_currentAddress = Address.Value;
 			if (_currentAddress < 0 || _currentAddress > _size)
 			{
 				//is this a real error? 

@@ -45,7 +45,7 @@ public class Adder
 
 			 Out.DependsOn(_adders[i].SumOut);
 			 int bit = i;
-			 manager.RegisterSystemAction(_adders[i].SumOut, system => { Out.SetBit(bit, _adders[bit].SumOut.Value[0]); });
+			 manager.RegisterSystemAction(_adders[i].SumOut, system => { Out.SetBit(bit, (WireSignal)_adders[bit].SumOut.Value); });
 		 }
 
 		 manager.RegisterSystemAction(A, InputAChanged);
@@ -66,20 +66,20 @@ public class Adder
 	
 	private void AdderSystemChange(ISystem obj)
 	{
-		var a = PinUtility.ByteArrayToInt(A.Value);
-		var b = PinUtility.ByteArrayToInt(B.Value);
-		var carryIn = (int)CarryIn.Value[0];
+		var a = A.Value;
+		var b = B.Value;
+		var carryIn = CarryIn.Value;
 		var result = a + b + carryIn;
 		int max = (int)Math.Pow(2, BitWidth);
 		if (result >= max)
 		{
 			CarryOut.Set(WireSignal.High);
-			Out.Set(PinUtility.IntToByteArray(result-max, BitWidth));
+			Out.Set(result-max);
 		}
 		else
 		{
 			CarryOut.Set(WireSignal.Low);
-			Out.Set(PinUtility.IntToByteArray(result, BitWidth));
+			Out.Set(result);
 		}
 	}
 
@@ -88,7 +88,8 @@ public class Adder
 	{
 		for (var i = 0; i < BitWidth; i++)
 		{
-			_adders[i].A.Set([A.Value[i]]);
+			//todo: Test this
+			_adders[i].A.Set((A.Value >> i) & 1);
 		}
 
 		Console.WriteLine("Adder InputA Changed");
@@ -98,7 +99,8 @@ public class Adder
 	{
 		for (var i = 0; i < BitWidth; i++)
 		{
-			_adders[i].B.Set([B.Value[i]]);
+			//Todo: Test this.
+			_adders[i].B.Set((B.Value >> i) & 1);
 		}
 		Console.WriteLine("Adder InputB Changed");
 	}

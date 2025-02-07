@@ -9,7 +9,7 @@ public class Register
 	public readonly Pin Input;
 	public readonly Pin Output;
 	public readonly ClockPin ClockIn;
-	private byte[] _data;
+	private int _data;
 
 	/// <summary>
 	/// This multi-bit register is not based off of DataFlipFlops.
@@ -23,7 +23,7 @@ public class Register
 		Input = new Pin(comp.WireManager, "Register In", bits);
 		Output = new Pin(comp.WireManager, "Register Out", bits);
 		ClockIn = new ClockPin(comp.Clock);
-		_data = new byte[bits];
+		_data = 0;
 		Bits = bits;
 		Output.DependsOn(Input);
 		Output.DependsOn(Load);

@@ -35,7 +35,7 @@ public class Counter
 
 	
 		//zero the output to start.
-		Out.SetSilently(new byte[width]);
+		Out.SetSilently(0);
 	}
 
 	//set internals from inputs
@@ -52,13 +52,13 @@ public class Counter
 		else if (CountEnable.Signal == WireSignal.Low)
 		{
 			//todo: check if this value is greater than out bit-width, and then set to 0.
-			_value = PinUtility.ByteArrayToInt(Input.Value);
+			_value = Input.Value;
 		}
 	}
 
 	//set output from internals
 	private void OnTock()
 	{
-		Out.Set(PinUtility.IntToByteArray(_value, _width));
+		Out.Set(_value);
 	}
 }

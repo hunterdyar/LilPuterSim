@@ -21,15 +21,6 @@ public class AndBank
 
 	private void Trigger(ISystem pin)
 	{
-		var data = Out.Value;
-		for (int i = 0; i < bitWidth; i++)
-		{
-			data[i] =
-				(byte)(A.Value[i] == (byte)WireSignal.High && B.Value[i] == (byte)WireSignal.High
-				? (byte)
-				WireSignal.High
-				: (byte)WireSignal.Low);
-		}
-		Out.Set(data);
+		Out.Set(A.Value & B.Value);
 	}
 }

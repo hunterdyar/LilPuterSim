@@ -2,7 +2,7 @@
 
 public interface IObservable
 {
-	public delegate void OnValueChangeDelegate(byte[] newData);
+	public delegate void OnValueChangeDelegate(int newData);
 
 
 	public void Subscribe(OnValueChangeDelegate subscriber);
@@ -12,5 +12,5 @@ public interface IObservable
 	/// <summary>
 	/// Read the current value of the component.
 	/// </summary>
-	public byte[] ReadValue();
+	public int ReadValue();
 }
