@@ -30,7 +30,7 @@ public class Pin : IObservable, ISystem
 		this._manager = manager;
 		this.Name = name;
 		this.Width = bitWidth;
-		Value = (int)Math.Pow(2, bitWidth);//8 bit can't store the value 256, it can store 0-255. A one bit value, floating is 2.
+		Value = FloatingVal[bitWidth];//8 bit can't store the value 256, it can store 0-255. A one bit value, floating is 2.
 
 		//TODO: Move these to static constants.
 		for (int i = 0; i < bitWidth; i++)
