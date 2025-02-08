@@ -56,9 +56,14 @@ public class CPU
 		PC.CountEnable.SetSilently(WireSignal.Low);
 		
 		//Register on the bus!
-		(ARegInBit, ARegOutBit) = comp.Bus.RegisterComponent("A", A.Input,A.Output, A.Load);
-		(BRegInBit, BRegOutBit) = comp.Bus.RegisterComponent("B", B.Input, B.Output, B.Load);
-		(PCInBit, PCOutBit) = comp.Bus.RegisterComponent("PC", PC.Input, PC.Out, PC.CountEnable, true);
+		ARegInBit = comp.Bus.RegisterComponent("AI", true, A.Input, A.Load);
+		ARegInBit = comp.Bus.RegisterComponent("AO", false, A.Output);
+
+		BRegInBit = comp.Bus.RegisterComponent("BI", true, B.Input, B.Load);
+		BRegInBit = comp.Bus.RegisterComponent("BO", false, B.Output);
+
+		PCInBit = comp.Bus.RegisterComponent("PCI", true, PC.Input, PC.CountEnable, true);
+		PCOutBit = comp.Bus.RegisterComponent("PCO", false, PC.Out);
 		
 		Clock.OnTick += OnTick;
 		Clock.OnTock += OnTock;

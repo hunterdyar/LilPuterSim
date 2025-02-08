@@ -12,20 +12,17 @@ public class Bus
 	private int _value;
 	
 	//todo: make this a pre-allocated array.
-	public readonly List<BusConnection> Inputs;
-	public readonly List<BusConnection> Outputs;
+	public readonly List<BusConnection> Connections;
 	
 	private int _width;
 	private ComputerBase _computer;
 	public readonly ClockPin ClockPin;
-	private uint _inputMask =  0x00FF;
-	private uint _outputMask = 0xFF00;
+
 	public Bus(ComputerBase comp, int dataWidth)
 	{
 		_computer = comp;
 		_width = dataWidth;
-		Inputs = [];
-		Outputs = [];
+		Connections = [];
 		ClockPin = new ClockPin(comp.Clock, "Bus Clock");
 		ClockPin.OnTick += OnTick;
 		ClockPin.OnTock += OnTock;
@@ -40,81 +37,75 @@ public class Bus
 		Trigger();
 	}
 	
-	public (int inputPinIndex, int outputPinIndex) RegisterComponent(string compName, Pin inputPin, Pin outputPin,  Pin? loadPin = null, bool invertedLoad = false)
+	public int RegisterComponent(string compName, bool isInput, Pin pin,  Pin? loadPin = null, bool invertedLoad = false)
 	{
-		int i = Inputs.Count;
-		Inputs.Add(new BusConnection()
+		if (Connections.Any(x => x.Name == compName))
+		{
+			throw new Exception($"Component {compName} is already registered on the bus.");
+		}
+		int i = Connections.Count;
+		Connections.Add(new BusConnection()
 		{
 			Name = compName,
-			IsInput = true,
+			IsInput = isInput,
 			LoadPin = loadPin,
-			Pin = inputPin,
+			Pin = pin,
 			InvertedLoad = invertedLoad,
 			Index = i,
 		});
-		int o = Outputs.Count;
-		Outputs.Add(new BusConnection()
-		{
-			Name = compName,
-			IsInput = false,
-			LoadPin = loadPin,
-			Pin = outputPin,
-			InvertedLoad = invertedLoad,
-			Index = o,
-		});
-		return (i, o);
+		
+		return i;
 	}
 
-	public void SetInputComponent(int inputComponentIndex, bool enabled)
+	public void SetComponent(int inputComponentIndex, bool enabled)
 	{
-		Inputs[inputComponentIndex].SetEnabled(enabled);
-	}
-
-	public void SetOutputComponent(int outputComponentIndex, bool enabled)
-	{
-		Outputs[outputComponentIndex].SetEnabled(enabled);
+		Connections[inputComponentIndex].SetEnabled(enabled);
 	}
 
 	public void SetBus(uint controlCode)
 	{
-		uint ic = controlCode & _inputMask;
-		for (int i = 0; i < Inputs.Count; i++)
+		for (int i = 0; i < Connections.Count; i++)
 		{
-			Inputs[0].SetEnabled(((ic >> i) & 1) == 1);
+			Connections[0].SetEnabled(((controlCode >> i) & 1) == 1);
 		}
-
-		uint oc = controlCode & _outputMask;
-		for (int i = 0; i < Outputs.Count; i++)
-		{
-			Outputs[0].SetEnabled(((oc >> i) & 1) == 1);
-		}
+		
 	}
 
 	
 	private void Trigger()
 	{
-		//Get the input value that is enabled and set our value to it's value.
-		for (int i = 0; i < Inputs.Count; i++)
+		//Run through twice, first for inputs, second for outputs.
+		//Todo: During setup, create separte internal lists to cache. (or lists of indices in the connections)
+		
+		var ic = 0;
+		for (var i = 0; i < Connections.Count; i++)
 		{
-			if (Inputs[i].Enabled)
+			if (Connections[i].Enabled)
 			{
-				_value = Inputs[i].Pin.Value;
-				break;
+				if (Connections[i].IsInput)
+				{
+					_value = Connections[i].Pin.Value;
+					ic += Connections[i].IsInput ? 1 : 0;
+					break;
+				}
 			}
 		}
 		
-		if(Inputs.Count(x => x.Enabled) > 1)
+		if(ic > 1)
 		{
 			throw new Exception("More than one input enabled! This isn't allowed on trigger.");
 		}
 		
 		//Get the output pins that are enabled and set their value to value.
-		for (int i = 0; i < Outputs.Count; i++)
+		for (var i = 0; i < Connections.Count; i++)
 		{
-			if (Outputs[i].Enabled)
+			if (Connections[i].Enabled)
 			{
-				//through the wiremanager to trigger propagation.
-				_computer.WireManager.SetPin(Outputs[i].Pin,_value);
+				if (!Connections[i].IsInput)
+				{
+					Connections[i].Pin.Set(_value);
+					break;
+				}
 			}
 		}
 	}

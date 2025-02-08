@@ -9,7 +9,8 @@ namespace LilPuter;
 public class Counter
 {
 	public ClockPin _ClockPin;
-	//Counts when High, Reads from Input when Low.
+	//Counts when High.
+	public readonly Pin Load;
 	public readonly Pin CountEnable;
 	public readonly Pin Reset;
 	public readonly Pin Input;
@@ -25,11 +26,13 @@ public class Counter
 		_value = 0;
 
 		Reset = new Pin(comp.WireManager, "Counter Reset");
+		Load = new Pin(comp.WireManager, "Load");
 		CountEnable = new Pin(comp.WireManager, "Counter Count Enable");
 		_ClockPin = new ClockPin(comp.Clock);
 		Input = new Pin(comp.WireManager, "Counter Input", width);
 		Out = new Pin(comp.WireManager, "Counter Out", width);
 		
+		Out.DependsOn(Load);
 		Input.DependsOn(Reset);
 		Out.DependsOn(Input);
 		Out.DependsOn(Reset);
@@ -56,7 +59,11 @@ public class Counter
 	//set internals from inputs
 	private void OnTick()
 	{
-		if (CountEnable.Signal == WireSignal.High)
+		//If load is high, load regardless of other pins.
+		if (Load.Signal == WireSignal.High)
+		{
+			_value = Input.Value;
+		} else if (CountEnable.Signal == WireSignal.High)
 		{
 			if (Reset.Signal == WireSignal.Low)
 			{
@@ -67,10 +74,9 @@ public class Counter
 				}
 			}
 		}
-		else if (CountEnable.Signal == WireSignal.Low && Reset.Signal == WireSignal.Low)
+		else if (Reset.Signal == WireSignal.High)
 		{
-			//todo: check if this value is greater than out bit-width, and then set to 0.
-			_value = Input.Value;
+			_value = 0;
 		}
 	}
 
