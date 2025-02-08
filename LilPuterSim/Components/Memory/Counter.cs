@@ -9,6 +9,7 @@ namespace LilPuter;
 public class Counter
 {
 	public ClockPin _ClockPin;
+	//Counts when High, Reads from Input when Low.
 	public readonly Pin CountEnable;
 	public readonly Pin Reset;
 	public readonly Pin Input;

@@ -23,7 +23,7 @@ public class ClockPin : ISystem
 	{
 		throw new NotImplementedException("Disconnecting pins is not yet supported.");
 	}
-	
+	 
 	public ClockPin(ClockManager manager)
 	{
 		Name = "Clock In";
