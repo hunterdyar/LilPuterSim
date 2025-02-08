@@ -32,12 +32,12 @@ public class CPU
 	//Input: Instructions (instructionMem[pc]). inM: Data[pc]. Reset)
 	//Output: outM, writeM, addressM <- to data memory pc-> to instruction memory
 
-	private int _aRegInBit;
-	private int _aRegOutBit;
-	private int _bRegInBit;
-	private int _bRegOutBit;
-	private int _pcInBit;
-	private int _pcOutBit;
+	public readonly int ARegInBit;
+	public readonly int ARegOutBit;
+	public readonly int BRegInBit;
+	public readonly int BRegOutBit;
+	public readonly int PCInBit;
+	public readonly int PCOutBit;
 	public CPU(ComputerBase comp, int width = 8)
 	{
 		A = new Register(comp, width);
@@ -45,7 +45,6 @@ public class CPU
 		PC = new Counter(comp, width);
 		ALU = new ALUMultiBit(comp,width);
 		Clock = new ClockPin(comp.Clock);
-		Bus = new Bus(comp, width);
 		
 		//Bring in the instruction and break it out to individual bits.
 		_instruction = new Breakout(comp, "Instruction", width);
@@ -54,14 +53,13 @@ public class CPU
 		A.Output.ConnectTo(ALU.A);
 		B.Output.ConnectTo(ALU.B);
 		
-		//Register on the bus!
-		(_aRegInBit, _aRegOutBit) = Bus.RegisterComponent("A", A.Input,A.Output, A.Load);
-		(_bRegInBit, _bRegOutBit) = Bus.RegisterComponent("B", B.Input, B.Output, B.Load);
-		(_pcInBit, _pcOutBit) = Bus.RegisterComponent("PC", PC.Input, PC.Out, PC.CountEnable, true);
+		PC.CountEnable.SetSilently(WireSignal.Low);
 		
-		//Fetch
-		//Decode the Instruction
-		//
+		//Register on the bus!
+		(ARegInBit, ARegOutBit) = comp.Bus.RegisterComponent("A", A.Input,A.Output, A.Load);
+		(BRegInBit, BRegOutBit) = comp.Bus.RegisterComponent("B", B.Input, B.Output, B.Load);
+		(PCInBit, PCOutBit) = comp.Bus.RegisterComponent("PC", PC.Input, PC.Out, PC.CountEnable, true);
+		
 		Clock.OnTick += OnTick;
 		Clock.OnTock += OnTock;
 	}

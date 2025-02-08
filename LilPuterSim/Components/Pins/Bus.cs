@@ -18,6 +18,8 @@ public class Bus
 	private int _width;
 	private ComputerBase _computer;
 	public readonly ClockPin ClockPin;
+	private uint _inputMask =  0x00FF;
+	private uint _outputMask = 0xFF00;
 	public Bus(ComputerBase comp, int dataWidth)
 	{
 		_computer = comp;
@@ -66,13 +68,28 @@ public class Bus
 	public void SetInputComponent(int inputComponentIndex, bool enabled)
 	{
 		Inputs[inputComponentIndex].SetEnabled(enabled);
-
 	}
 
 	public void SetOutputComponent(int outputComponentIndex, bool enabled)
 	{
 		Outputs[outputComponentIndex].SetEnabled(enabled);
 	}
+
+	public void SetBus(uint controlCode)
+	{
+		uint ic = controlCode & _inputMask;
+		for (int i = 0; i < Inputs.Count; i++)
+		{
+			Inputs[0].SetEnabled(((ic >> i) & 1) == 1);
+		}
+
+		uint oc = controlCode & _outputMask;
+		for (int i = 0; i < Outputs.Count; i++)
+		{
+			Outputs[0].SetEnabled(((oc >> i) & 1) == 1);
+		}
+	}
+
 	
 	private void Trigger()
 	{
@@ -118,8 +135,11 @@ public class BusConnection
 	/// </summary>
 	public void SetEnabled(bool enabled)
 	{
-		Enabled = enabled;
-		SetLoadPin(enabled);
+		if (enabled != Enabled)
+		{
+			Enabled = enabled;
+			SetLoadPin(enabled);
+		}
 	}
 	/// <summary>
 	/// Sets or Unsets the load pin, inverting if neccesary and ignoring if null.
