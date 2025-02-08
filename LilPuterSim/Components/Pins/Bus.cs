@@ -62,13 +62,12 @@ public class Bus
 		Connections[inputComponentIndex].SetEnabled(enabled);
 	}
 
-	public void SetBus(uint controlCode)
+	public void SetBus(int controlCode)
 	{
 		for (int i = 0; i < Connections.Count; i++)
 		{
 			Connections[0].SetEnabled(((controlCode >> i) & 1) == 1);
 		}
-		
 	}
 
 	
@@ -85,7 +84,7 @@ public class Bus
 				if (Connections[i].IsInput)
 				{
 					_value = Connections[i].Pin.Value;
-					ic += Connections[i].IsInput ? 1 : 0;
+					ic++;
 					break;
 				}
 			}
@@ -93,7 +92,7 @@ public class Bus
 		
 		if(ic > 1)
 		{
-			throw new Exception("More than one input enabled! This isn't allowed on trigger.");
+			throw new Exception("More than one input enabled! This isn't allowed on bus trigger.");
 		}
 		
 		//Get the output pins that are enabled and set their value to value.
@@ -109,6 +108,31 @@ public class Bus
 			}
 		}
 	}
+
+	public int GetCodeFor(params string[] enabledConnections)
+	{
+		int code = 0;
+		for (int i = 0; i < enabledConnections.Length; i++)
+		{
+			int bit = GetBitFor(enabledConnections[i]);
+			code = code | (1 << bit);
+		}
+
+		return code;
+	}
+
+	private int GetBitFor(string connection)
+	{
+		var find = Connections.Find(x => x.Name == connection);
+		if (find != null)
+		{
+			return find.Index;
+		}
+		else
+		{
+			throw new Exception($"Unable to find bus connection {connection}");
+		}
+	}
 }
 
 public class BusConnection
@@ -116,7 +140,7 @@ public class BusConnection
 	public string Name;
 	public bool Enabled { get; private set; }
 	public bool IsInput;
-	public Pin Pin;
+	public required Pin Pin;
 	public Pin? LoadPin;//gets set before the input pin gets set, if it's an input pin. (or output)
 	public bool InvertedLoad;
 	public int Index;
