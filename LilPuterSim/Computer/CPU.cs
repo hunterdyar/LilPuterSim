@@ -32,12 +32,7 @@ public class CPU
 	//Input: Instructions (instructionMem[pc]). inM: Data[pc]. Reset)
 	//Output: outM, writeM, addressM <- to data memory pc-> to instruction memory
 
-	public readonly int ARegInBit;
-	public readonly int ARegOutBit;
-	public readonly int BRegInBit;
-	public readonly int BRegOutBit;
-	public readonly int PCInBit;
-	public readonly int PCOutBit;
+
 	public CPU(ComputerBase comp, int width = 8)
 	{
 		A = new Register(comp, width);
@@ -56,14 +51,14 @@ public class CPU
 		PC.CountEnable.SetSilently(WireSignal.Low);
 		
 		//Register on the bus!
-		ARegInBit = comp.Bus.RegisterComponent("AI", true, A.Input, A.Load);
-		ARegInBit = comp.Bus.RegisterComponent("AO", false, A.Output);
+		comp.Bus.RegisterComponent("AI", true, A.Input, A.Load);
+		comp.Bus.RegisterComponent("AO", false, A.Output);
 
-		BRegInBit = comp.Bus.RegisterComponent("BI", true, B.Input, B.Load);
-		BRegInBit = comp.Bus.RegisterComponent("BO", false, B.Output);
+		comp.Bus.RegisterComponent("BI", true, B.Input, B.Load);
+		comp.Bus.RegisterComponent("BO", false, B.Output);
 
-		PCInBit = comp.Bus.RegisterComponent("PCI", true, PC.Input, PC.CountEnable, true);
-		PCOutBit = comp.Bus.RegisterComponent("PCO", false, PC.Out);
+		comp.Bus.RegisterComponent("PCE", true, PC.Input, PC.CountEnable, true);
+		comp.Bus.RegisterComponent("PCO", false, PC.Out);
 		
 		Clock.OnTick += OnTick;
 		Clock.OnTock += OnTock;

@@ -9,6 +9,9 @@ public class ComputerBase
 
     public CPUInstructionManager MicrocodeDecoder => _microcodeDecoder;
     private CPUInstructionManager _microcodeDecoder;
+    
+    public RAM InstructionMemory =>_instructionMemory;
+    private RAM _instructionMemory;
 
     public Bus Bus => _bus;
     private Bus _bus;
@@ -23,6 +26,7 @@ public class ComputerBase
         _wireManager = new WireManager(this);
         _clock = new ClockManager(this);
         _microcodeDecoder = new CPUInstructionManager(this);
+        _instructionMemory = new RAM(this, width, 256);
         _bus = new Bus(this, width);
         _cpu = new CPU(this, width);
     }
