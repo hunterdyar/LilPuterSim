@@ -48,6 +48,7 @@ public class CPU
 		InstructionOperandOut = new Pin(comp.WireManager, "InsOut Pin");
 
 		//Bring in the instruction and break it out to individual bits.
+		//todo: not really doing this anymore.
 		_instruction = new Breakout(comp, "Instruction", width);
 		Instruction.ConnectTo(_instruction.Input);
 		
