@@ -19,10 +19,20 @@ public class Counter
 	private int _value;
 	private readonly int _width;
 	private readonly int _max;
-	public Counter(ComputerBase comp, int width)
+
+	///	<param name="max">Exclusive Upper end of counter before looping to zero. If set as negative, will use 2^width.</param>
+	public Counter(ComputerBase comp, int width, int max = -1)
 	{
 		_width = width;
-		this._max = (int)Math.Pow(2,width);//8 bits is 255.
+		if (max < 0)
+		{
+			this._max = (int)Math.Pow(2, width); //8 bits is 255.
+		}
+		else
+		{
+			this._max = max;
+		}
+
 		_value = 0;
 
 		Reset = new Pin(comp.WireManager, "Counter Reset");

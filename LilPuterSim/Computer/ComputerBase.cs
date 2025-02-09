@@ -10,9 +10,10 @@ public class ComputerBase
     public CPUInstructionManager MicrocodeDecoder => _microcodeDecoder;
     private CPUInstructionManager _microcodeDecoder;
     
+    //TODO: Rewrite InstructionMemory so it splits the registers into Ins and Op
     public RAM InstructionMemory =>_instructionMemory;
     private RAM _instructionMemory;
-
+    
     public Bus Bus => _bus;
     private Bus _bus;
     public CPU CPU => _cpu;
@@ -29,5 +30,8 @@ public class ComputerBase
         _instructionMemory = new RAM(this, width, 256);
         _bus = new Bus(this, width);
         _cpu = new CPU(this, width);
+
+        _instructionMemory.Out.ConnectTo(_microcodeDecoder.Instruction);
     }
+    
 }
