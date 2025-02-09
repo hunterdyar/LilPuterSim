@@ -5,7 +5,7 @@
 /// </summary>
 public class ClockPin : ISystem
 {
-	public bool Enabled { get; }
+	public bool Enabled { get; private set; }
 	public string Name { get; }
 	
 	public Action OnTick;
@@ -22,6 +22,11 @@ public class ClockPin : ISystem
 	public void DisconnectPin()
 	{
 		throw new NotImplementedException("Disconnecting pins is not yet supported.");
+	}
+
+	public void SetEnabled(bool enabled)
+	{
+		Enabled = enabled;
 	}
 	 
 	public ClockPin(ClockManager manager)
@@ -41,22 +46,28 @@ public class ClockPin : ISystem
 	}
 	public void TickSilent()
 	{
-		OnTick?.Invoke();
-		//set all connectees high.
-		for (int i = 0; i < _connectees.Length; i++)
+		if (Enabled)
 		{
-			_connectees[i].Set(WireSignal.High);
+			OnTick?.Invoke();
+			//set all connectees high.
+			for (int i = 0; i < _connectees.Length; i++)
+			{
+				_connectees[i].Set(WireSignal.High);
+			}
 		}
 	}
 
 	public void TockSilent()
 	{
-		OnTock?.Invoke();
-		//set all connectees low.
-		//set all connectees high.
-		for (int i = 0; i < _connectees.Length; i++)
+		if (Enabled)
 		{
-			_connectees[i].Set(WireSignal.High);
+			OnTock?.Invoke();
+			//set all connectees low.
+			//set all connectees high.
+			for (int i = 0; i < _connectees.Length; i++)
+			{
+				_connectees[i].Set(WireSignal.High);
+			}
 		}
 	}
 }

@@ -34,16 +34,14 @@ public class ComputerBase
         _wireManager = new WireManager(this);
         _clock = new ClockManager(this);
         _microcodeDecoder = new CPUInstructionManager(this);
-        _instructionMemory = new RAM(this, width, 256);
-        _memory = new RAM(this, width, 1024);
+        _instructionMemory = new RAM(this,"Instruction Memory", width, 256);
+        _memory = new RAM(this,"Data Memory", width, 1024);
+        _memory.Load.Set(WireSignal.Low);
         _bus = new Bus(this, width);
         _cpu = new CPU(this, width);
-
-        _instructionMemory.Out.ConnectTo(_microcodeDecoder.Instruction);
-
         
-        Bus.RegisterComponent("MI", true, _memory.In, _memory.Load);
-        Bus.RegisterComponent("MO", false, _memory.Out);
+        Bus.RegisterComponent("MO", true, _memory.In, _memory.Load);
+        Bus.RegisterComponent("MI", false, _memory.Out);
     }
     
 }

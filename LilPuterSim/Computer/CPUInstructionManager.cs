@@ -20,7 +20,7 @@ public class CPUInstructionManager
 	public CPUInstructionManager(ComputerBase computerBase)
 	{
 		_computer = computerBase;
-		_microcode = new RAM(computerBase, computerBase.Width, 64);
+		_microcode = new RAM(computerBase, "Microcode Lookup Table",computerBase.Width, 1024);
 		_counter = new Counter(computerBase, computerBase.Width, 5);//5 microinstructions per instruction.
 		_clock = new ClockPin(computerBase.Clock);
 		_clock.OnTick += OnTick;
@@ -52,7 +52,7 @@ public class CPUInstructionManager
 
 	private int MakeMicrocodeAddress(int instruction, int count)
 	{
-		return (instruction << 8) | count;
+		return (instruction << 4) | (count & 0b00001111);
 	}
 	public void CreateMicrocode()
 	{

@@ -10,6 +10,7 @@ public class ConsoleOutput
 	
 	public ConsoleOutput(ComputerBase comp)
 	{
+		Enable = new Pin(comp.WireManager,"Output Enable");
 		OutIn = new Pin(comp.WireManager, "Out In");
 		Clock = new ClockPin(comp.Clock, "Clock");
 		

@@ -213,6 +213,10 @@ public class Pin : IObservable, ISystem
 
 	public void DependsOn(Pin pin)
 	{
+		if (pin == null)
+		{
+			throw new NullReferenceException("Pin cannot be null when setting dependencies.");
+		}
 		_manager.SetDependentOn(pin,this);
 	}
 

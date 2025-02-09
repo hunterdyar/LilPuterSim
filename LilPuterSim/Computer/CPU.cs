@@ -28,7 +28,7 @@ public class CPU
 	public Pin Instruction => _instruction.Input;
 	private readonly Breakout _instruction;
 	
-	public Pin InstructionOperandOut;
+	public Pin InstructionOperand;
 	
 	//
 	public Bus Bus;
@@ -45,12 +45,11 @@ public class CPU
 		ALU = new ALUMultiBit(comp,width);
 		Clock = new ClockPin(comp.Clock);
 		Output = new ConsoleOutput(comp);
-		InstructionOperandOut = new Pin(comp.WireManager, "InsOut Pin");
+		InstructionOperand = new Pin(comp.WireManager, "InsOut Pin");
 
 		//Bring in the instruction and break it out to individual bits.
 		//todo: not really doing this anymore.
 		_instruction = new Breakout(comp, "Instruction", width);
-		Instruction.ConnectTo(_instruction.Input);
 		
 		A.Output.ConnectTo(ALU.A);
 		B.Output.ConnectTo(ALU.B);
@@ -59,22 +58,22 @@ public class CPU
 		
 		//Register on the bus!
 		//a register
-		comp.Bus.RegisterComponent("AI", true, A.Input, A.Load);
-		comp.Bus.RegisterComponent("AO", false, A.Output);
+		comp.Bus.RegisterComponent("AO", true, A.Input, A.Load);
+		comp.Bus.RegisterComponent("AI", false, A.Output);
 
 		//b register
-		comp.Bus.RegisterComponent("BI", true, B.Input, B.Load);
-		comp.Bus.RegisterComponent("BO", false, B.Output);
+		comp.Bus.RegisterComponent("BO", true, B.Input, B.Load);
+		comp.Bus.RegisterComponent("BI", false, B.Output);
 
 		//program counter enable and output
 		comp.Bus.RegisterComponent("PCE", true, PC.Input, PC.CountEnable, true);
-		comp.Bus.RegisterComponent("PCO", false, PC.Out);
+		comp.Bus.RegisterComponent("PCI", false, PC.Out);
 
 		//output enable. (bus IN to the output)
 		comp.Bus.RegisterComponent("OI", false, Output.OutIn, Output.Enable);
 
 		//Instructions
-		comp.Bus.RegisterComponent("IOO", false, InstructionOperandOut);
+		comp.Bus.RegisterComponent("IOI", false, InstructionOperand);
 
 		Clock.OnTick += OnTick;
 		Clock.OnTock += OnTock;
