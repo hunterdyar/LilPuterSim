@@ -11,8 +11,6 @@ public class ComputerBase
     //Memory Components. 
     
     //CPU Instruction memory is a wrapper for an 'EEPROM' - the truth table of instruction+microcode offset => control code. 
-    public CPUInstructionManager MicrocodeDecoder => _microcodeDecoder;
-    private CPUInstructionManager _microcodeDecoder;
     
     //TODO: Rewrite InstructionMemory so it splits the registers into Ins and Op. Operator and Operand on different pins, but internally stored as some x width byte.
     
@@ -26,11 +24,8 @@ public class ComputerBase
         int width = 8;
         _wireManager = new WireManager(this);
         _clock = new ClockManager(this);
-        _microcodeDecoder = new CPUInstructionManager(this);
        
         _cpu = new CPU(this, width);
-        
-      
     }
     
 }

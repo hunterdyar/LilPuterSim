@@ -62,4 +62,5 @@ public class  InstructionTests
 		_bus.SetBus(add);
 		Assert.That(_comp.CPU.A.Output.Value, Is.EqualTo(50));
 	}
+	
 }

@@ -40,7 +40,8 @@ public class CPU
 	public ClockPin Clock;
 	//Input: Instructions (instructionMem[pc]). inM: Data[pc]. Reset)
 	//Output: outM, writeM, addressM <- to data memory pc-> to instruction memory
-
+	public CPUInstructionManager MicrocodeDecoder => _microcodeDecoder;
+	private CPUInstructionManager _microcodeDecoder;
 
 	public CPU(ComputerBase comp, int width = 8)
 	{
@@ -52,7 +53,8 @@ public class CPU
 		ALU = new ALUMultiBit(comp,width);
 		Clock = new ClockPin(comp.Clock);
 		Output = new ConsoleOutput(comp);
-		
+		_microcodeDecoder = new CPUInstructionManager(comp);
+
 		_instructionMemory = new RAM(comp, "Instruction Memory", width, 256);
 		_instructionMemory.Load.Set(WireSignal.Low);
 		_dataMemory = new RAM(comp, "Data Memory", width, 1024);
@@ -106,5 +108,7 @@ public class CPU
 		
 		//reset
 		Bus.SetBus(0);
+
+		_microcodeDecoder.CreateMicrocode();
 	}
 }
