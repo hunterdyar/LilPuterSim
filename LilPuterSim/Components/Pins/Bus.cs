@@ -14,8 +14,8 @@ public class Bus
 	//todo: make this a pre-allocated array.
 	public readonly List<BusConnection> Connections;
 	
-	private int _width;
-	private ComputerBase _computer;
+	private readonly int _width;
+	private readonly ComputerBase _computer;
 	public readonly ClockPin ClockPin;
 
 	public Bus(ComputerBase comp, int dataWidth)
@@ -66,7 +66,7 @@ public class Bus
 	{
 		for (int i = 0; i < Connections.Count; i++)
 		{
-			Connections[0].SetEnabled(((controlCode >> i) & 1) == 1);
+			Connections[i].SetEnabled(((controlCode >> i) & 1) == 1);
 		}
 	}
 
@@ -102,7 +102,7 @@ public class Bus
 			{
 				if (!Connections[i].IsInput)
 				{
-					Connections[i].Pin.Set(_value);
+					_computer.WireManager.SetPin(Connections[i].Pin, _value);
 					break;
 				}
 			}
