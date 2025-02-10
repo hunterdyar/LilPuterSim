@@ -11,11 +11,10 @@ public class CPUInstructionManager
 	public RAM Microcode => _microcode;
 	private RAM _microcode;
 	private Counter _counter;
-	public Pin Instruction => _computer.InstructionMemory.Out;
-	
 	
 	private ComputerBase _computer;
-	private Bus Bus => _computer.Bus;
+	private CPU CPU => _computer.CPU;
+	private Bus Bus => _computer.CPU.Bus;
 	private ClockPin _clock;
 	public CPUInstructionManager(ComputerBase computerBase)
 	{
@@ -47,7 +46,8 @@ public class CPUInstructionManager
 
 	private int GetMicrocodeAddress()
 	{
-		return MakeMicrocodeAddress(Instruction.Value,_counter.Out.Value);
+		// return MakeMicrocodeAddress(CPU.Instruction.Value,_counter.Out.Value);
+		return 0;
 	}
 
 	private int MakeMicrocodeAddress(int instruction, int count)
@@ -57,10 +57,10 @@ public class CPUInstructionManager
 	public void CreateMicrocode()
 	{
 		//Fetch
-		int fetchA = _computer.Bus.GetCodeFor("CO", "IMI");
+		int fetchA = Bus.GetCodeFor("CO", "IMI");
 		//1. CounterOut, MemoryIn (Put the counter on the bus and put that into InstructionMemory (in: address selector)
 		//MemoryOut, InstructionRegisterIn, program counter out (Take this instruction from InstrtuctionMemory and put it in the instructin register. Hey, we care about that!)
-		int fetchB = _computer.Bus.GetCodeFor("II", "IMO", "PCE");
+		int fetchB = Bus.GetCodeFor("II", "IMO", "PCE");
 
 		int nop = 0b0000;
 		_microcode.Registers[MakeMicrocodeAddress(nop, 0)] = fetchA; //get code for PC Enable;
@@ -71,20 +71,27 @@ public class CPUInstructionManager
 		_microcode.Registers[MakeMicrocodeAddress(lda, 0)] = fetchA;
 		_microcode.Registers[MakeMicrocodeAddress(lda, 1)] = fetchB;
 		//Instruction-Operand out, A-in
-		_microcode.Registers[MakeMicrocodeAddress(lda, 2)] = _computer.Bus.GetCodeFor("IOO", "AI");
+		_microcode.Registers[MakeMicrocodeAddress(lda, 2)] = Bus.GetCodeFor("IOO", "AI");
 		
 		//LOAD B
 		int ldb = 2;
 		_microcode.Registers[MakeMicrocodeAddress(ldb, 0)] = fetchA;
 		_microcode.Registers[MakeMicrocodeAddress(ldb, 1)] = fetchB;
-		_microcode.Registers[MakeMicrocodeAddress(ldb, 2)] = _computer.Bus.GetCodeFor("IOO", "BI");
+		_microcode.Registers[MakeMicrocodeAddress(ldb, 2)] = Bus.GetCodeFor("IOO", "BI");
 		
 		//OUTPUT A Register
 		int aOut = 3;
 		_microcode.Registers[MakeMicrocodeAddress(aOut, 0)] = fetchA;
 		_microcode.Registers[MakeMicrocodeAddress(aOut, 1)] = fetchB;
-		_microcode.Registers[MakeMicrocodeAddress(aOut, 2)] = _computer.Bus.GetCodeFor("AO","OI");
+		_microcode.Registers[MakeMicrocodeAddress(aOut, 2)] = Bus.GetCodeFor("AO","OI");
 
+		//Take the sum of A and B and put into A.
+		int addAB = 4;
+		_microcode.Registers[MakeMicrocodeAddress(addAB, 0)] = fetchA;
+		_microcode.Registers[MakeMicrocodeAddress(addAB, 1)] = fetchB;
+		//todo: Control code for setting ALU operation (depends on multi-bit control codes)
+		
+		_microcode.Registers[MakeMicrocodeAddress(addAB, 2)] = Bus.GetCodeFor("AI", "ALUO");
 		//execute
 		//Read in the instruction registrer, and increment OUR counter, which is tied to clock. It is the clock, really.
 		//Set the bus with this and the next x instructions.

@@ -24,14 +24,19 @@ public class CPU
 	public ALUMultiBit ALU;
 	
 	public ConsoleOutput Output;
-	//Connect this pin to the Instruction ROM Output
-	public Pin Instruction => _instruction.Input;
-	private readonly Breakout _instruction;
+	
+	public RAM InstructionMemory => _instructionMemory;
+	private RAM _instructionMemory;
+
+	public RAM DataMemory => _dataMemory;
+	private RAM _dataMemory;
 	
 	public Pin InstructionOperand;
 	
 	//
-	public Bus Bus;
+	public Bus Bus => _bus;
+	private Bus _bus;
+	
 	public ClockPin Clock;
 	//Input: Instructions (instructionMem[pc]). inM: Data[pc]. Reset)
 	//Output: outM, writeM, addressM <- to data memory pc-> to instruction memory
@@ -39,17 +44,21 @@ public class CPU
 
 	public CPU(ComputerBase comp, int width = 8)
 	{
+		_bus = new Bus(comp, width);
+
 		A = new Register(comp, width);
 		B = new Register(comp, width);
 		PC = new Counter(comp, width);
 		ALU = new ALUMultiBit(comp,width);
 		Clock = new ClockPin(comp.Clock);
 		Output = new ConsoleOutput(comp);
+		
+		_instructionMemory = new RAM(comp, "Instruction Memory", width, 256);
+		_instructionMemory.Load.Set(WireSignal.Low);
+		_dataMemory = new RAM(comp, "Data Memory", width, 1024);
+		_dataMemory.Load.Set(WireSignal.Low);
+		
 		InstructionOperand = new Pin(comp.WireManager, "InsOut Pin");
-
-		//Bring in the instruction and break it out to individual bits.
-		//todo: not really doing this anymore.
-		_instruction = new Breakout(comp, "Instruction", width);
 		
 		A.Output.ConnectTo(ALU.A);
 		B.Output.ConnectTo(ALU.B);
@@ -63,54 +72,39 @@ public class CPU
 		
 		//Register on the bus!
 		//a register
-		comp.Bus.RegisterComponent("AI", true, false,A.Input, A.Load);
-		comp.Bus.RegisterComponent("AO", false, true, A.Output);
+		Bus.RegisterComponent("AI", true, false,A.Input, A.Load);
+		Bus.RegisterComponent("AO", false, true, A.Output);
 
 		//b register
-		comp.Bus.RegisterComponent("BI", true,false, B.Input, B.Load);
-		comp.Bus.RegisterComponent("BO", false,true, B.Output);
+		Bus.RegisterComponent("BI", true,false, B.Input, B.Load);
+		Bus.RegisterComponent("BO", false,true, B.Output);
 
 		//program counter enable and output
-		comp.Bus.RegisterComponent("PCE", false, false,null, PC.CountEnable, true);
-		comp.Bus.RegisterComponent("CO", false,true, PC.Out);//connect the counter to the bus.
-		comp.Bus.RegisterComponent("J", false,true, PC.LoadInput, PC.LoadEnable);
+		Bus.RegisterComponent("PCE", false, false,null, PC.CountEnable, true);
+		Bus.RegisterComponent("CO", false,true, PC.Out);//connect the counter to the bus.
+		Bus.RegisterComponent("J", false,true, PC.LoadInput, PC.LoadEnable);
 		// comp.Bus.RegisterComponent("J", true, PC.Load, PC.Load);
 
+		Bus.RegisterComponent("MI", true, false, _dataMemory.In, _dataMemory.Load);
+		Bus.RegisterComponent("MO", false, true, _dataMemory.Out);
+
+		
 		//Logic and Things.
 		//We never load the bus data. We only load it's Select state.
 		//We need to change this to bus control, breakout select from bus data to control lines. ADD, AND, OR, etc.
 		//We need two pins in on the bus for select. todo: BusConnections can have width.
 		//comp.Bus.RegisterComponent("ALUS", true, false, ALU.Operation);
-		comp.Bus.RegisterComponent("ALUO", false, true, ALU.Result);
+		Bus.RegisterComponent("ALUO", false, true, ALU.Result);
 		
 		//Status Register will get connected directly from the ALU and always be updated. read only, basically
 		
-		
 		//output enable. (bus IN to the output)
-		comp.Bus.RegisterComponent("OI", false, true,Output.OutIn, Output.Enable);
+		Bus.RegisterComponent("OI", false, true,Output.OutIn, Output.Enable);
 
 		//Instructions
-		comp.Bus.RegisterComponent("IOI", false,true, InstructionOperand);
-
-		Clock.OnTick += OnTick;
-		Clock.OnTock += OnTock;
+		Bus.RegisterComponent("IOI", false,true, InstructionOperand);
 		
 		//reset
-		comp.Bus.SetBus(0);
-	}
-
-	private void OnTick()
-	{
-		//Todo: Implement microcode?
-		//Decode the Instruction. If Instruction is 0, then it's an A instruction, and we load the A register with... something
-		if (_instruction.OutPins[0].Signal == WireSignal.High)
-		{
-			
-		}
-	}
-
-	private void OnTock()
-	{
-		
+		Bus.SetBus(0);
 	}
 }

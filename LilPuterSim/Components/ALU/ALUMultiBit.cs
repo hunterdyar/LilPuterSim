@@ -86,7 +86,6 @@ public class ALUMultiBit
 
 		Result.Set(val);
 
-		Console.WriteLine($"Some bit changed. ALU was {before}. Is now {Result.Value}");
 	}
 
 	private void InputAChanged(ISystem obj)

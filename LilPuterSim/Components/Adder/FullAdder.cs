@@ -2,11 +2,11 @@
 
 public class FullAdder
 {
-	public Pin A;
-	public Pin B;
-	public Pin CarryIn;
-	public Pin SumOut;
-	public Pin CarryOut;
+	public readonly Pin A;
+	public readonly Pin B;
+	public readonly Pin CarryIn;
+	public readonly Pin SumOut;
+	public readonly Pin CarryOut;
 
 	private XorGate _xorA;
 	private XorGate _xorB;
