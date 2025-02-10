@@ -58,25 +58,30 @@ public class CPU
 		
 		//Register on the bus!
 		//a register
-		comp.Bus.RegisterComponent("AO", true, A.Input, A.Load);
-		comp.Bus.RegisterComponent("AI", false, A.Output);
+		comp.Bus.RegisterComponent("AI", true, false,A.Input, A.Load);
+		comp.Bus.RegisterComponent("AO", false, true, A.Output);
 
 		//b register
-		comp.Bus.RegisterComponent("BO", true, B.Input, B.Load);
-		comp.Bus.RegisterComponent("BI", false, B.Output);
+		comp.Bus.RegisterComponent("BI", true,false, B.Input, B.Load);
+		comp.Bus.RegisterComponent("BO", false,true, B.Output);
 
 		//program counter enable and output
-		comp.Bus.RegisterComponent("PCE", true, PC.Input, PC.CountEnable, true);
-		comp.Bus.RegisterComponent("PCI", false, PC.Out);
+		comp.Bus.RegisterComponent("PCE", false, false,null, PC.CountEnable, true);
+		comp.Bus.RegisterComponent("CO", false,true, PC.Out);//connect the counter to the bus.
+		comp.Bus.RegisterComponent("J", false,true, PC.LoadInput, PC.LoadEnable);
+		// comp.Bus.RegisterComponent("J", true, PC.Load, PC.Load);
 
 		//output enable. (bus IN to the output)
-		comp.Bus.RegisterComponent("OI", false, Output.OutIn, Output.Enable);
+		comp.Bus.RegisterComponent("OI", false, true,Output.OutIn, Output.Enable);
 
 		//Instructions
-		comp.Bus.RegisterComponent("IOI", false, InstructionOperand);
+		comp.Bus.RegisterComponent("IOI", false,true, InstructionOperand);
 
 		Clock.OnTick += OnTick;
 		Clock.OnTock += OnTock;
+		
+		//reset
+		comp.Bus.SetBus(0);
 	}
 
 	private void OnTick()

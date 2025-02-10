@@ -8,8 +8,6 @@ public class Register
 	public readonly Pin Load;
 	public readonly Pin Input;
 	public readonly Pin Output;
-	public readonly ClockPin ClockIn;
-	private int _data;
 
 	/// <summary>
 	/// This multi-bit register is not based off of DataFlipFlops.
@@ -22,26 +20,22 @@ public class Register
 		Load = new Pin(comp.WireManager,"Register Load");
 		Input = new Pin(comp.WireManager, "Register In", bits);
 		Output = new Pin(comp.WireManager, "Register Out", bits);
-		ClockIn = new ClockPin(comp.Clock);
-		_data = 0;
 		Bits = bits;
+		
 		Output.DependsOn(Input);
 		Output.DependsOn(Load);
 		
-		ClockIn.OnTick += OnTick;
-		ClockIn.OnTock += OnTock;
+		comp.WireManager.RegisterSystemAction(Load, OnInputChange);
+		comp.WireManager.RegisterSystemAction(Input, OnInputChange);
 	}
 
-	private void OnTick()
+	private void OnInputChange(ISystem pin)
 	{
 		if (Load.Signal == WireSignal.High)
 		{
-			_data = Input.Value;
+			Output.Set(Input.Value);
 		}
 	}
 
-	private void OnTock()
-	{
-		Output.Set(_data);
-	}
+	
 }

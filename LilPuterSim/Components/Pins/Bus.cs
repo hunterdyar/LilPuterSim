@@ -37,7 +37,7 @@ public class Bus
 		Trigger();
 	}
 	
-	public int RegisterComponent(string compName, bool isInput, Pin pin,  Pin? loadPin = null, bool invertedLoad = false)
+	public int RegisterComponent(string compName, bool setFromBus, bool setTobus, Pin pin,  Pin? loadPin = null, bool invertedLoad = false)
 	{
 		if (Connections.Any(x => x.Name == compName))
 		{
@@ -47,7 +47,8 @@ public class Bus
 		Connections.Add(new BusConnection()
 		{
 			Name = compName,
-			IsInput = isInput,
+			SetFromBus = setFromBus,
+			SetToBus = setTobus,
 			LoadPin = loadPin,
 			Pin = pin,
 			InvertedLoad = invertedLoad,
@@ -73,17 +74,18 @@ public class Bus
 	
 	private void Trigger()
 	{
-		//Run through twice, first for inputs, second for outputs.
+		//Run through twice, first for data to the bus, second data from the bus.
 		//Todo: During setup, create separte internal lists to cache. (or lists of indices in the connections)
-		
+
 		var ic = 0;
 		for (var i = 0; i < Connections.Count; i++)
 		{
 			if (Connections[i].Enabled)
 			{
-				if (Connections[i].IsInput)
+				if (Connections[i].SetToBus)
 				{
-					_value = Connections[i].Pin.Value;
+					//IsInput and Null Pin cannot both be true, so we supress.
+					_value = Connections[i].Pin!.Value;
 					ic++;
 					break;
 				}
@@ -94,15 +96,21 @@ public class Bus
 		{
 			throw new Exception("More than one input enabled! This isn't allowed on bus trigger.");
 		}
-		
+
 		//Get the output pins that are enabled and set their value to value.
 		for (var i = 0; i < Connections.Count; i++)
 		{
 			if (Connections[i].Enabled)
 			{
-				if (!Connections[i].IsInput)
+				if (Connections[i].SetFromBus)
 				{
-					_computer.WireManager.SetPin(Connections[i].Pin, _value);
+					var pin = Connections[i].Pin;
+					if (pin != null)
+					{
+						//Todo: replace with pin SetAndImpulse so we can use multiple wiremanagers.
+						_computer.WireManager.SetPin(pin, _value);
+					}
+
 					break;
 				}
 			}

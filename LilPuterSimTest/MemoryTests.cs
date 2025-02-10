@@ -23,18 +23,10 @@ public class MemoryTests
 		_clock.Cycle();
 		Assert.That(bit.Output.Signal, Is.EqualTo(WireSignal.Low));
 		_manager.SetPin(bit.Input, WireSignal.High);
-		
-		//output doesn't change until we cycle
-		Assert.That(bit.Output.Signal, Is.EqualTo(WireSignal.Low));
-		_clock.Tick();
-		Assert.That(bit.Output.Signal, Is.EqualTo(WireSignal.Low));
-		_clock.Tock();
+		_clock.Cycle();
 		Assert.That(bit.Output.Signal, Is.EqualTo(WireSignal.High));
 		_manager.SetPin(bit.Input, WireSignal.Low);
-		Assert.That(bit.Output.Signal, Is.EqualTo(WireSignal.High));//doesn't change instantly
-		_clock.Tick();
-		Assert.That(bit.Output.Signal, Is.EqualTo(WireSignal.High));//doesn't change on tick
-		_clock.Tock();
+		_clock.Cycle();
 		Assert.That(bit.Output.Signal, Is.EqualTo(WireSignal.Low));//changes on tock
 		
 		//Test that nothing happens when load is off.
@@ -65,7 +57,8 @@ public class MemoryTests
 	public void CounterTest(int width)
 	{
 		var c = new Counter(_computerBase,width);
-		_manager.SetPin(c.Input,0);
+		_manager.SetPin(c.LoadInput,0);
+		_manager.SetPin(c.LoadEnable, WireSignal.Low);
 		_manager.SetPin(c.CountEnable, WireSignal.High);
 		_manager.SetPin(c.Reset, WireSignal.Low);
 		//Can we cycle through all possible values?
@@ -82,10 +75,12 @@ public class MemoryTests
 
 		//Can we load a value?
 		_manager.SetPin(c.CountEnable, WireSignal.Low);
-		_manager.SetPin(c.Input,width-1);
+		_manager.SetPin(c.LoadEnable, WireSignal.High);
+		_manager.SetPin(c.LoadInput,width-1);
 		_clock.Cycle();
 		Assert.That(c.Out.Value, Is.EqualTo(width-1));
 		_manager.SetPin(c.CountEnable, WireSignal.High);
+		_manager.SetPin(c.LoadEnable, WireSignal.Low);
 		_clock.Cycle();
 		Assert.That(c.Out.Value, Is.EqualTo(width));
 		
@@ -94,10 +89,13 @@ public class MemoryTests
 
 		//Does reset keep our values low regardless?
 		_manager.SetPin(c.CountEnable, WireSignal.Low);
-		_manager.SetPin(c.Input, width - 1);
+		_manager.SetPin(c.LoadEnable, WireSignal.High);
+		_manager.SetPin(c.LoadInput, width - 1);
 		_clock.Cycle();
 		Assert.That(c.Out.Value, Is.EqualTo(0));
 		_manager.SetPin(c.CountEnable, WireSignal.High);
+		_manager.SetPin(c.LoadEnable, WireSignal.Low);
+
 		_clock.Cycle();
 		Assert.That(c.Out.Value, Is.EqualTo(0));
 		_clock.Cycle();

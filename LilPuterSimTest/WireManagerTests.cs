@@ -56,13 +56,14 @@ public class WireManagerTests
 	[Test]
 	public void TopoSortTest()
 	{
-		var a = new Pin(_manager, "A");
-		var b = new Pin(_manager, "B");
-		var c = new Pin(_manager, "C");
-		var d = new Pin(_manager, "D");
-		var e = new Pin(_manager, "E");
-		var f = new Pin(_manager, "F");
-		var g = new Pin(_manager, "G");
+		WireManager m = new WireManager(_computerBase);
+		var a = new Pin(m, "A");
+		var b = new Pin(m, "B");
+		var c = new Pin(m, "C");
+		var d = new Pin(m, "D");
+		var e = new Pin(m, "E");
+		var f = new Pin(m, "F");
+		var g = new Pin(m, "G");
 
 		a.ConnectTo(b);
 		a.ConnectTo(c);
@@ -75,30 +76,31 @@ public class WireManagerTests
 		g.ConnectTo(f); 
 		
 		//There are multiple correct answers.
-		var sorted = _manager.GetTopoSort();
+		var sorted = m.GetTopoSort();
  		Assert.That(new[] { a, g, b, c, d, e, f }, Is.EqualTo(sorted.ToArray()));
 	}
 
 	[Test]
 	public void TopoSortTest2()
 	{
-		var a = new Pin(_manager, "A");
-		var b = new Pin(_manager, "B");
-		var c = new Pin(_manager, "C");
-		var d = new Pin(_manager, "D");
-		var e = new Pin(_manager, "E");
-		var f = new Pin(_manager, "F");
-		var g = new Pin(_manager, "G");
+		WireManager m = new WireManager(_computerBase);
+		var a = new Pin(m, "A");
+		var b = new Pin(m, "B");
+		var c = new Pin(m, "C");
+		var d = new Pin(m, "D");
+		var e = new Pin(m, "E");
+		var f = new Pin(m, "F");
+		var g = new Pin(m, "G");
 		
 		f.ConnectTo(g);
 		e.ConnectTo(f);
-		_manager.ConnectPins(d, e);
+		m.ConnectPins(d, e);
 		c.ConnectTo(d);
 		b.ConnectTo(c);
-		_manager.ConnectPins(a,b);
+		m.ConnectPins(a,b);
 
 		//There are multiple correct answers.
-		var sorted = _manager.GetTopoSort();
+		var sorted = m.GetTopoSort();
 		Assert.That(new[] { a, b, c, d, e, f, g }, Is.EqualTo(sorted.ToArray()));
 	}
 

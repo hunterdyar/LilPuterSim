@@ -2,7 +2,7 @@
 
 namespace LilPuterSimTest;
 
-public class PlexTests
+public class PlexTests 
 {
 	private ComputerBase _computerBase;
 	private WireManager _manager => _computerBase.WireManager;

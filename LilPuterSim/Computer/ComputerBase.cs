@@ -40,8 +40,8 @@ public class ComputerBase
         _bus = new Bus(this, width);
         _cpu = new CPU(this, width);
         
-        Bus.RegisterComponent("MO", true, _memory.In, _memory.Load);
-        Bus.RegisterComponent("MI", false, _memory.Out);
+        Bus.RegisterComponent("MI", true, false,_memory.In, _memory.Load);
+        Bus.RegisterComponent("MO", false,true, _memory.Out);
     }
     
 }
