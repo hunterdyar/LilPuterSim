@@ -64,4 +64,9 @@ public class ALUOneBit
 		B.ConnectTo(_or.B);
 		_or.Out.ConnectTo(_mux.Inputs[2]);
 	}
+
+	public override string ToString()
+	{
+		return $"ALUOneBit ({Result.Value})";
+	}
 }

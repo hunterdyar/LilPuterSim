@@ -161,6 +161,10 @@ public class Pin : IObservable, ISystem
 		_manager.SetPin(this, flip);
 	}
 
+	public void SetAndImpulse(int data)
+	{
+		_manager.SetPin(this,data);
+	}
 	/// <summary>
 	/// Sets the pin values.
 	/// </summary>
@@ -226,4 +230,6 @@ public class Pin : IObservable, ISystem
 	{
 		return Value == FloatingVal[Width];
 	}
+
+	
 }

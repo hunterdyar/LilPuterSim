@@ -2,21 +2,21 @@
 
 public class ALUMultiBit
 {
-	public ALUOneBit[] ALUOneBits;
-	public Pin Operation;
-	public Pin A;
-	public Pin B;
-	private Pin CarryIn;
+	public readonly ALUOneBit[] ALUOneBits;
+	public readonly Pin Operation;
+	public readonly Pin A;
+	public readonly Pin B;
+	private readonly Pin CarryIn;
 
-	public Pin InvertA;
-	public Pin InvertB;
+	public readonly Pin InvertA;
+	public readonly Pin InvertB;
 	
 	//Outputs
-	public Pin CarryOut;//overflow
-	public Pin Result;
-	public Pin IsZero;
+	public readonly Pin CarryOut;//overflow
+	public readonly Pin Result;
+	public readonly Pin IsZero;
 
-	private int _width;
+	private readonly int _width;
 	private WireManager _manager;
 	public ALUMultiBit(ComputerBase manager, int width)
 	{
@@ -32,6 +32,7 @@ public class ALUMultiBit
 		IsZero = new Pin(manager.WireManager, "ALU IsZero");
 		InvertA	= new Pin(manager.WireManager, "ALU Invert A");
 		InvertB = new Pin(manager.WireManager, "ALU Invert B");
+		
 		for (int i = 0; i < width; i++)
 		{
 			ALUOneBits[i] = new ALUOneBit(_manager);
@@ -51,12 +52,16 @@ public class ALUMultiBit
 		CarryIn.ConnectTo(ALUOneBits[0].CarryIn);
 		ALUOneBits[width-1].CarryOut.ConnectTo(CarryOut);
 
-		manager.WireManager.RegisterSystemAction(A,InputAChanged);
+		manager.WireManager.RegisterSystemAction(A, InputAChanged);
 		manager.WireManager.RegisterSystemAction(B, InputBChanged);
 		
 		IsZero.DependsOn(Result);
 		manager.WireManager.RegisterSystemAction(Result,ResultChanged);
 		manager.WireManager.SetPin(CarryIn,WireSignal.Low);
+		
+		//this is implicit via the 1bit registers.  
+		Result.DependsOn(A);
+		Result.DependsOn(B);
 	}
 
 	private void ResultChanged(ISystem res)
@@ -71,13 +76,17 @@ public class ALUMultiBit
 		//which means that this function will get called 8 times when we change an 8 bit value?
 		//I don't... love that... I think I need some kind of buffered call or something.
 		//Luckily, because of the toposort system, we won't actually propogate out 8 times. It will just keep getting changed.
-
+		int before = Result.Value;
+		int val = 0;
 		for (int i = 0; i < _width; i++)
 		{
 			//todo: Test this
-			Result.SetBit(i, (WireSignal)(ALUOneBits[i].Result.Value >> (i)));
+			val = (ALUOneBits[i].Result.Value << (i)) | val;
 		}
-		
+
+		Result.Set(val);
+
+		Console.WriteLine($"Some bit changed. ALU was {before}. Is now {Result.Value}");
 	}
 
 	private void InputAChanged(ISystem obj)

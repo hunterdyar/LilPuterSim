@@ -53,6 +53,11 @@ public class CPU
 		
 		A.Output.ConnectTo(ALU.A);
 		B.Output.ConnectTo(ALU.B);
+		ALU.Operation.Set(0);//ADD 
+		//ALU Status to Status (Combiner then) register.
+		//TODO: We don't have invert in the ALU yet.
+		comp.WireManager.SetPin(ALU.InvertA, WireSignal.Low);
+		comp.WireManager.SetPin(ALU.InvertB, WireSignal.Low);
 		
 		PC.CountEnable.SetSilently(WireSignal.Low);
 		
@@ -71,6 +76,16 @@ public class CPU
 		comp.Bus.RegisterComponent("J", false,true, PC.LoadInput, PC.LoadEnable);
 		// comp.Bus.RegisterComponent("J", true, PC.Load, PC.Load);
 
+		//Logic and Things.
+		//We never load the bus data. We only load it's Select state.
+		//We need to change this to bus control, breakout select from bus data to control lines. ADD, AND, OR, etc.
+		//We need two pins in on the bus for select. todo: BusConnections can have width.
+		//comp.Bus.RegisterComponent("ALUS", true, false, ALU.Operation);
+		comp.Bus.RegisterComponent("ALUO", false, true, ALU.Result);
+		
+		//Status Register will get connected directly from the ALU and always be updated. read only, basically
+		
+		
 		//output enable. (bus IN to the output)
 		comp.Bus.RegisterComponent("OI", false, true,Output.OutIn, Output.Enable);
 

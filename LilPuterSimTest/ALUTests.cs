@@ -68,6 +68,19 @@ public class ALUTests
 		_manager.SetPin(alu.Operation, 0);//000 is add
 		Assert.That(alu.Result.Value, Is.EqualTo(0));
 	}
-	
+
+	[Test]
+	public void ALUAddViaCPURegistersTest()
+	{
+		_computerBase.CPU.A.Load.SetAndImpulse(WireSignal.High);
+		_computerBase.CPU.A.Input.SetAndImpulse(32);
+		_computerBase.CPU.A.Load.SetAndImpulse(WireSignal.Low);
+		_computerBase.CPU.B.Load.SetAndImpulse(WireSignal.High);
+		_computerBase.CPU.B.Input.SetAndImpulse(40);
+		_computerBase.CPU.B.Load.SetAndImpulse(WireSignal.Low);
+		_computerBase.CPU.ALU.Operation.SetAndImpulse(0);
+		
+		Assert.That(_computerBase.CPU.ALU.Result.Value, Is.EqualTo(72));
+	}
 
 }

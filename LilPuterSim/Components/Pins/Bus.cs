@@ -30,11 +30,11 @@ public class Bus
 
 	private void OnTick()
 	{
-		Trigger();
+		//Trigger();
 	}
 	private void OnTock()
 	{
-		Trigger();
+		//Trigger();
 	}
 	
 	public int RegisterComponent(string compName, bool setFromBus, bool setTobus, Pin pin,  Pin? loadPin = null, bool invertedLoad = false)
@@ -69,6 +69,8 @@ public class Bus
 		{
 			Connections[i].SetEnabled(((controlCode >> i) & 1) == 1);
 		}
+
+		Trigger();
 	}
 
 	
