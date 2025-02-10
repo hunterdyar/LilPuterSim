@@ -7,6 +7,7 @@ public class ConsoleOutput
 	public Pin OutIn;
 	public ClockPin Clock;
 	public Pin Enable;
+	public Action<int> OnOutput;
 	
 	public ConsoleOutput(ComputerBase comp)
 	{
@@ -23,6 +24,7 @@ public class ConsoleOutput
 		if (Enable.Signal == WireSignal.High)
 		{
 			Console.WriteLine($"{OutIn.Value:B} - {OutIn.Value:D}");
+			OnOutput?.Invoke(OutIn.Value);
 		}
 	}
 }

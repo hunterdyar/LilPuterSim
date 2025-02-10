@@ -68,5 +68,13 @@ public class RAM
 			_registers[_currentAddress] = In.Value;
 		}
 	}
-	
+
+	/// <summary>
+	/// Call after manually writing over the internals to update the simulation.
+	/// </summary>
+	public void ForceUpdateOutput()
+	{
+		_currentAddress = Address.Value;
+		Out.Set(_registers[_currentAddress]);
+	}
 }

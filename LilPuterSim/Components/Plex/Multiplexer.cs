@@ -48,7 +48,7 @@ public class Multiplexer
 		//whats a more efficient way to do this?
 		if(Select.Value == (int)Math.Pow(2,Select.Width))
 		{
-			Console.WriteLine("Multiplexer Select is floating");
+			//Console.WriteLine("Multiplexer Select is floating");
 			return;
 		}
 		int val = Select.Value;

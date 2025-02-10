@@ -25,13 +25,11 @@ public class CPU
 	
 	public ConsoleOutput Output;
 	
-	public RAM InstructionMemory => _instructionMemory;
-	private RAM _instructionMemory;
+	public InstructionMemory InstructionMemory => _instructionMemory;
+	private InstructionMemory _instructionMemory;
 
 	public RAM DataMemory => _dataMemory;
 	private RAM _dataMemory;
-	
-	public Pin InstructionOperand;
 	
 	//
 	public Bus Bus => _bus;
@@ -53,14 +51,11 @@ public class CPU
 		ALU = new ALUMultiBit(comp,width);
 		Clock = new ClockPin(comp.Clock);
 		Output = new ConsoleOutput(comp);
-		_microcodeDecoder = new CPUInstructionManager(comp);
 
-		_instructionMemory = new RAM(comp, "Instruction Memory", width, 256);
-		_instructionMemory.Load.Set(WireSignal.Low);
+		_instructionMemory = new InstructionMemory(comp, width, width);
 		_dataMemory = new RAM(comp, "Data Memory", width, 1024);
 		_dataMemory.Load.Set(WireSignal.Low);
-		
-		InstructionOperand = new Pin(comp.WireManager, "InsOut Pin");
+		_microcodeDecoder = new CPUInstructionManager(comp,_bus);
 		
 		A.Output.ConnectTo(ALU.A);
 		B.Output.ConnectTo(ALU.B);
@@ -104,11 +99,30 @@ public class CPU
 		Bus.RegisterComponent("OI", false, true,Output.OutIn, Output.Enable);
 
 		//Instructions
-		Bus.RegisterComponent("IOI", false,true, InstructionOperand);
-		
+		Bus.RegisterComponent("IOO", false,true, _instructionMemory.Operand);
+		Bus.RegisterComponent("IMO", false, true, _instructionMemory.Instruction);
+		Bus.RegisterComponent("II", true, false, _instructionMemory.Address);
+
 		//reset
 		Bus.SetBus(0);
 
 		_microcodeDecoder.CreateMicrocode();
+	}
+	
+	public void LoadProgram(string program)
+	{
+		_instructionMemory.Clear();
+		var ops = program.Split('\n');
+		for (int i = 0; i < ops.Length; i++)
+		{
+			string d = ops[i].Trim();
+			if(d.Length == 0){continue;}
+			var m = d.Split(' ');
+			int instruction = MicrocodeDecoder.OpCodes[m[0].ToUpper()];
+			int data = int.Parse(m[1]);
+			_instructionMemory.Program[i] = (instruction << 8) | data;
+		}
+
+		_instructionMemory.ForceUpdateOutputs();
 	}
 }

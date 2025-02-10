@@ -8,7 +8,7 @@
 	<s:String x:Key="/Default/CodeInspection/ExcludedFiles/FilesAndFoldersToSkip2/=7020124F_002D9FFC_002D4AC3_002D8F3D_002DAAB8E0240759_002Ff_003ARuntimeType_002Ecs_002Fl_003AC_0021_003FUsers_003FBlooper_003FAppData_003FLocal_003FSymbols_003Fsrc_003Fdotnet_003Fruntime_003F087e15321bb712ef6fe8b0ba6f8bd12facf92629_003Fsrc_003Flibraries_003FSystem_002EPrivate_002ECoreLib_003Fsrc_003FSystem_003FRuntimeType_002Ecs/@EntryIndexedValue">ForceIncluded</s:String>
 	<s:String x:Key="/Default/CodeInspection/ExcludedFiles/FilesAndFoldersToSkip2/=7020124F_002D9FFC_002D4AC3_002D8F3D_002DAAB8E0240759_002Ff_003AThrowHelper_002Ecs_002Fl_003AC_0021_003FUsers_003FBlooper_003FAppData_003FLocal_003FSymbols_003Fsrc_003Fdotnet_003Fruntime_003F087e15321bb712ef6fe8b0ba6f8bd12facf92629_003Fsrc_003Flibraries_003FSystem_002EPrivate_002ECoreLib_003Fsrc_003FSystem_003FThrowHelper_002Ecs/@EntryIndexedValue">ForceIncluded</s:String>
 	<s:String x:Key="/Default/Environment/Highlighting/HighlightingSourceSnapshotLocation/@EntryValue">C:\Users\Blooper\AppData\Local\JetBrains\Rider2024.3\resharper-host\temp\Rider\vAny\CoverageData\_LilPuter.-877075271\Snapshot\snapshot.utdcvr</s:String>
-	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=12ccddbe_002D61d7_002D4816_002Db2f2_002D510fd0dfc7ff/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="BusAndRegistersTest" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=12ccddbe_002D61d7_002D4816_002Db2f2_002D510fd0dfc7ff/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="BusAndRegistersTest" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
   &lt;TestAncestor&gt;&#xD;
     &lt;TestId&gt;NUnit3x::C2C2DECF-7979-4879-8286-A469FD198754::net8.0::LilPuterSimTest.InstructionTests.BusAndRegistersTest&lt;/TestId&gt;&#xD;
   &lt;/TestAncestor&gt;&#xD;
@@ -16,12 +16,13 @@
 	
 	
 	
-	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=3544c04c_002D3d24_002D4304_002D801a_002Dbc66190f40ee/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="All tests from Solution" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;
-  &lt;Solution /&gt;
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=3544c04c_002D3d24_002D4304_002D801a_002Dbc66190f40ee/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="All tests from Solution" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
+  &lt;Solution /&gt;&#xD;
 &lt;/SessionState&gt;</s:String>
-	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=f2acd916_002D68e1_002D4724_002Da9e0_002D17a30de05b7e/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="BusAndRegistersTest #2" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=f2acd916_002D68e1_002D4724_002Da9e0_002D17a30de05b7e/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="BusAndRegistersTest #2" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
   &lt;TestAncestor&gt;&#xD;
     &lt;TestId&gt;NUnit3x::C2C2DECF-7979-4879-8286-A469FD198754::net8.0::LilPuterSimTest.InstructionTests.BusAndRegistersTest&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;NUnit3x::C2C2DECF-7979-4879-8286-A469FD198754::net8.0::LilPuterSimTest.InstructionTests.ProgramTest&lt;/TestId&gt;&#xD;
   &lt;/TestAncestor&gt;&#xD;
 &lt;/SessionState&gt;</s:String>
 	

@@ -16,25 +16,13 @@ public class Bus
 	
 	private readonly int _width;
 	private readonly ComputerBase _computer;
-	public readonly ClockPin ClockPin;
 
 	public Bus(ComputerBase comp, int dataWidth)
 	{
 		_computer = comp;
 		_width = dataWidth;
 		Connections = [];
-		ClockPin = new ClockPin(comp.Clock, "Bus Clock");
-		ClockPin.OnTick += OnTick;
-		ClockPin.OnTock += OnTock;
-	}
-
-	private void OnTick()
-	{
-		//Trigger();
-	}
-	private void OnTock()
-	{
-		//Trigger();
+		
 	}
 	
 	public int RegisterComponent(string compName, bool setFromBus, bool setTobus, Pin pin,  Pin? loadPin = null, bool invertedLoad = false)
@@ -78,7 +66,7 @@ public class Bus
 	{
 		//Run through twice, first for data to the bus, second data from the bus.
 		//Todo: During setup, create separte internal lists to cache. (or lists of indices in the connections)
-
+		string debug = "";
 		var ic = 0;
 		for (var i = 0; i < Connections.Count; i++)
 		{
@@ -88,6 +76,7 @@ public class Bus
 				{
 					//IsInput and Null Pin cannot both be true, so we supress.
 					_value = Connections[i].Pin!.Value;
+					debug += Connections[i].Name + " ";
 					ic++;
 					break;
 				}
@@ -111,12 +100,16 @@ public class Bus
 					{
 						//Todo: replace with pin SetAndImpulse so we can use multiple wiremanagers.
 						_computer.WireManager.SetPin(pin, _value);
+						debug += Connections[i].Name + " ";
+
 					}
 
 					break;
 				}
 			}
 		}
+		
+		Console.WriteLine(debug);
 	}
 
 	public int GetCodeFor(params string[] enabledConnections)

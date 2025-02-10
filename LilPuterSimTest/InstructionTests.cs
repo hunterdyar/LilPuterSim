@@ -1,4 +1,5 @@
-﻿using LilPuter;
+﻿using System.Text;
+using LilPuter;
 
 namespace LilPuterSimTest;
 
@@ -7,10 +8,14 @@ public class  InstructionTests
 	private ComputerBase _comp;
 	private CPU _cpu => _comp.CPU;
 	private Bus _bus => _comp.CPU.Bus;
+	private StringBuilder _programOutput = new StringBuilder();
+	
 	[SetUp]
 	public void Setup()
 	{
+		_programOutput.Clear();
 		_comp = new ComputerBase();
+		_comp.CPU.Output.OnOutput += o => _programOutput.AppendLine($"{o:D}");
 	}
 
 
@@ -61,6 +66,25 @@ public class  InstructionTests
 		Assert.That(_comp.CPU.ALU.Result.Value, Is.EqualTo(50));
 		_bus.SetBus(add);
 		Assert.That(_comp.CPU.A.Output.Value, Is.EqualTo(50));
+	}
+
+	[Test]
+	public void ProgramTest()
+	{
+		_cpu.LoadProgram(new StringBuilder().Append("""
+		                                            LDA 1
+		                                            LDA 2
+		                                            ADD 0
+		                                            OUT 0
+		                                            """)
+			.ToString());
+
+		for (var i = 0; i < 50; i++)
+		{
+			_comp.Clock.Cycle();
+		}
+		
+		Assert.That(_programOutput.ToString(),Is.EqualTo("3"));
 	}
 	
 }
