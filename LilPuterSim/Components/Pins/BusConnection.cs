@@ -44,4 +44,9 @@ public class BusConnection
 			}
 		}
 	}
+
+	public override string ToString()
+	{
+		return $"BusConn: {Name} - {Enabled}";
+	}
 }
