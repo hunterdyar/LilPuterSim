@@ -98,7 +98,6 @@ public class  InstructionTests
 	[Test]
 	public void StoreValueInstructionTest()
 	{
-		//print out multiples of 3 until we crash or break.
 		_cpu.LoadProgram(new StringBuilder().Append("""
 		                                            LDAI 3
 		                                            STA 15
