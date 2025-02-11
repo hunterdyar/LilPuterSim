@@ -72,8 +72,8 @@ public class  InstructionTests
 	public void ProgramTest()
 	{
 		_cpu.LoadProgram(new StringBuilder().Append("""
-		                                            LDA 2
-		                                            LDB 7
+		                                            LDA 22
+		                                            LDB 20
 		                                            ADD
 		                                            OUT
 		                                            HLT
@@ -92,7 +92,7 @@ public class  InstructionTests
 			}
 		}
 		
-		Assert.That(_programOutput.ToString().Trim(),Is.EqualTo("9"));
+		Assert.That(_programOutput.ToString().Trim(),Is.EqualTo("42"));
 	}
 	
 }
