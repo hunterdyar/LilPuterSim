@@ -93,7 +93,7 @@ public class Bus
 		{
 			if (Connections[i].Enabled)
 			{
-				if (Connections[i].SetFromBus)
+				if (Connections[i].SetFromBus )
 				{
 					var pin = Connections[i].Pin;
 					if (pin != null)
@@ -106,6 +106,15 @@ public class Bus
 
 					break;
 				}
+				else
+				{
+					//could be a load-pin only signal.
+					if (Connections[i].LoadPin != null)
+					{
+						debug += Connections[i].Name + " ";
+					}
+				}
+				
 			}
 		}
 		

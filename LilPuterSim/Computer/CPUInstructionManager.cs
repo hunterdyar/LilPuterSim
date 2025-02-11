@@ -22,6 +22,8 @@ public class CPUInstructionManager
 		_computer = computerBase;
 		_counter = new Counter(computerBase, computerBase.Width, 5);//5 microinstructions per instruction.
 		_counter.CountEnable.Set(WireSignal.High);
+		_counter.Reset.Set(WireSignal.Low);
+		_counter.LoadEnable.Set(WireSignal.Low);
 		_microcode = new RAM(computerBase, "Microcode Lookup Table", computerBase.Width, 1024);
 		_clock = new ClockPin(computerBase.Clock);
 		_clock.OnTick += OnTick;
