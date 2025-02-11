@@ -39,11 +39,23 @@ public class CPUInstructionManager
 		
 		//we get the microcode by combining the current external instruction with our clock.
 		var insadr = GetMicrocodeAddress();
-		
-		Console.WriteLine($"{_computer.CPU.InstructionMemory.Address.Value}: {_computer.CPU.InstructionMemory.Instruction.Value}-{_counter.Out.Value} and Microcode {insadr}");
+	
+
 		_computer.WireManager.SetPin(_microcode.Address, insadr);//Set and Impulse to get the value we want. This is inefficient.
 		//after impulse, we're updated.
 		var controlCode = _microcode.Out.Value;
+		
+		//some debugging
+		if (controlCode != 0)
+		{
+			Console.WriteLine(
+				$"IMemA:{_computer.CPU.InstructionMemory.Address.Value}: IM-Ins:{_computer.CPU.InstructionMemory.Instruction.Value}, IM-op: {_computer.CPU.InstructionMemory.Operand.Value}. microcode-counter: {_counter.Out.Value} and Microcode {insadr:B}");
+		}
+		else
+		{
+			Console.WriteLine("nop");
+		}
+		
 		_bus.SetBus(controlCode);
 	}
 
@@ -65,16 +77,23 @@ public class CPUInstructionManager
 	
 	public void CreateMicrocode()
 	{
+		//Param Reference:
+		//IOO - Instruction Operand Out
+		//AI - A In
+		//MAI - Memory Address In
+		//MO/MI - Memory Out/In
+		
+		
 		CreateInstructionMicrocode("NOP",[]);
 		
 		//Load A with operand value.
 		CreateInstructionMicrocode("LDAI", ["IOO", "AI"]);//direct addressing
 		//Load a with Memory value
-		CreateInstructionMicrocode("LDA", ["IOO","MAI"],["MO", "AI"]);
+		CreateInstructionMicrocode("LDA", ["IOO","MAI"],["MO", "AI"]);//indirect addressing
 
 		//Store A: Set the memory address to the operand. Then move a into memory.
 		CreateInstructionMicrocode("STA", ["IOO", "MAI"],["AO", "MI"]);//Indirect addressing.
-		CreateInstructionMicrocode("LDBI", ["IOO", "BI"]);
+		CreateInstructionMicrocode("LDBI",["IOO", "BI"]);
 		CreateInstructionMicrocode("LDB", ["IOO", "MAI"], ["MO", "BI"]);
 
 		CreateInstructionMicrocode("STB", ["IOO", "MAI"], ["BO", "MI"]);
@@ -83,8 +102,7 @@ public class CPUInstructionManager
 		
 		CreateInstructionMicrocode("ADD", ["AI", "ALUO"]);
 		//todo: SUB
-		
-		
+		CreateInstructionMicrocode("JMP", ["IOO", "J"]);
 		CreateInstructionMicrocode("HLT", ["HLT"]);
 	}
 

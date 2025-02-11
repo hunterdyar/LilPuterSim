@@ -45,7 +45,7 @@ public class RAM
 		Out.DependsOn(In);
 		Load.DependsOn(In);
 		comp.WireManager.RegisterSystemAction(Address, OnAddressChange);
-		
+		comp.WireManager.RegisterSystemAction(In,OnInChange);
 	}
 
 	private void OnAddressChange(ISystem obj)
@@ -54,7 +54,7 @@ public class RAM
 		Out.Set(_registers[_currentAddress]);
 	}
 
-	private void OnLoadChange()
+	private void OnInChange(ISystem obj)
 	{
 		if (Load.Signal == WireSignal.High)
 		{

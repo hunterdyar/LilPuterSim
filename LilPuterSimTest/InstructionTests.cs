@@ -94,5 +94,34 @@ public class  InstructionTests
 		
 		Assert.That(_programOutput.ToString().Trim(),Is.EqualTo("42"));
 	}
-	
+
+	[Test]
+	public void StoreValueInstructionTest()
+	{
+		//print out multiples of 3 until we crash or break.
+		_cpu.LoadProgram(new StringBuilder().Append("""
+		                                            LDAI 3
+		                                            STA 15
+		                                            LDBI 42
+		                                            STB 12
+		                                            HLT
+		                                            """)
+			.ToString());
+
+		for (var i = 0; i < 100; i++)
+		{
+			if (_comp.CPU.HaltLine.Signal == WireSignal.Low)
+			{
+				_comp.Clock.Cycle();
+			}
+			else
+			{
+				break;
+			}
+		}
+
+		Assert.That(_cpu.DataMemory.Registers[15], Is.EqualTo(3));
+		Assert.That(_cpu.DataMemory.Registers[12], Is.EqualTo(42));
+
+	}
 }

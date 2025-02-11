@@ -8,7 +8,7 @@ namespace LilPuter;
 /// </summary>
 public class Bus
 {
-	public int Value => Value;
+	public int Value => _value;
 	private int _value;
 	
 	//todo: make this a pre-allocated array.
@@ -66,7 +66,14 @@ public class Bus
 			Connections[i].SetEnabled(((controlCode >> i) & 1) == 1);
 		}
 
-		Trigger();
+		if (controlCode != 0)
+		{
+			Trigger();
+		}
+		else
+		{
+			//useful spot to put break point on NOPS in the middle of a program.
+		}
 	}
 
 	
