@@ -56,7 +56,7 @@ public class MemoryTests
 	// [TestCase(16)]//this one takes a lil longer :p
 	public void CounterTest(int width)
 	{
-		var c = new Counter(_computerBase,width);
+		var c = new Counter(_computerBase, "C",width);
 		_manager.SetPin(c.LoadInput,0);
 		_manager.SetPin(c.LoadEnable, WireSignal.Low);
 		_manager.SetPin(c.CountEnable, WireSignal.High);

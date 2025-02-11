@@ -8,7 +8,8 @@ public class ClockManager
 {
 	private List<ClockPin> _clocks = new List<ClockPin>();
 	private WireManager _wireManager;
-
+	
+	private bool halted;
 	public ClockManager(ComputerBase comp)
 	{
 		_wireManager = comp.WireManager;
@@ -40,6 +41,7 @@ public class ClockManager
 	/// </summary>
 	public void Cycle()
 	{
+		if(halted){ return; }
 		Tick();
 		Tock();
 	}
@@ -64,5 +66,16 @@ public class ClockManager
 		Parallel.ForEach(_clocks, pin => pin.TockSilent());
 
 		_wireManager.Impulse();
+	}
+
+	public void Halt()
+	{
+		halted = true;
+	}
+
+	//Unhalt!
+	public void Reset()
+	{
+		halted = false;
 	}
 }

@@ -72,19 +72,27 @@ public class  InstructionTests
 	public void ProgramTest()
 	{
 		_cpu.LoadProgram(new StringBuilder().Append("""
-		                                            LDA 1
 		                                            LDA 2
-		                                            ADD 0
-		                                            OUT 0
+		                                            LDB 7
+		                                            ADD
+		                                            OUT
+		                                            HLT
 		                                            """)
 			.ToString());
 
-		for (var i = 0; i < 50; i++)
+		for (var i = 0; i < 100; i++)
 		{
-			_comp.Clock.Cycle();
+			if (_comp.CPU.HaltLine.Signal == WireSignal.Low)
+			{
+				_comp.Clock.Cycle();
+			}
+			else
+			{
+				break;
+			}
 		}
 		
-		Assert.That(_programOutput.ToString(),Is.EqualTo("3"));
+		Assert.That(_programOutput.ToString().Trim(),Is.EqualTo("9"));
 	}
 	
 }

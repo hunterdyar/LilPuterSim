@@ -7,13 +7,11 @@ namespace LilPuter;
 /// </summary>
 public class Counter
 {
-	public ClockPin _ClockPin;
 	//Counts when High.
 	public readonly Pin LoadInput;
 	public readonly Pin LoadEnable;
-
 	public readonly Pin CountEnable;
-	
+	public readonly Pin Count;
 	public readonly Pin Reset;
 	
 	public readonly Pin Out;//Current counter value.
@@ -23,8 +21,9 @@ public class Counter
 	private readonly int _max;
 
 	///	<param name="max">Exclusive Upper end of counter before looping to zero. If set as negative, will use 2^width.</param>
-	public Counter(ComputerBase comp, int width, int max = -1)
+	public Counter(ComputerBase comp, string name, int width, int max = -1)
 	{
+		Name = name;
 		_width = width;
 		if (max < 0)
 		{
@@ -36,57 +35,47 @@ public class Counter
 		}
 
 		_value = 0;
-
-		Reset = new Pin(comp.WireManager, "PC Counter Reset");
-		LoadInput = new Pin(comp.WireManager, "PC Load Data");
-		LoadEnable = new Pin(comp.WireManager, "PC Load Enabled");
-		CountEnable = new Pin(comp.WireManager, "PC Count Enable");
+		Count = new Pin(comp.WireManager, $"{Name} Count");
+		Reset = new Pin(comp.WireManager, $"{Name} Counter Reset");
+		LoadInput = new Pin(comp.WireManager, $"{Name} Load Data");
+		LoadEnable = new Pin(comp.WireManager, $"{Name} Load Enabled");
+		CountEnable = new Pin(comp.WireManager, $"{Name} Count Enable");
 		
-		_ClockPin = new ClockPin(comp.Clock);
 		Out = new Pin(comp.WireManager, "Counter Out", width);
 		
+		Out.DependsOn(Count);
 		Out.DependsOn(LoadInput);
 		LoadInput.DependsOn(Reset);
 		Out.DependsOn(LoadEnable);
 		Out.DependsOn(Reset);
 		Out.DependsOn(CountEnable);
 
-		_ClockPin.OnTick += OnTick;
-		_ClockPin.OnTock += OnTock;
-
 		comp.WireManager.RegisterSystemAction(Reset, OnResetChange);
 		comp.WireManager.RegisterSystemAction(LoadInput, OnInputChange);
 		comp.WireManager.RegisterSystemAction(LoadEnable, OnInputChange);
+		comp.WireManager.RegisterSystemAction(Count, OnCountChange);
 		
 		//zero the output to start.
 		Out.SetSilently(0);
 		Reset.SetSilently(WireSignal.Low);
 	}
 
-	private void OnTock()
-	{
-		Out.Set(_value);
-	}
+	public string Name { get; set; }
 
-	private void OnTick()
+	private void OnCountChange(ISystem obj)
 	{
-		if (Reset.Signal == WireSignal.High)
+		if (CountEnable.Signal == WireSignal.High && Count.Signal == WireSignal.High)
 		{
-			_value = 0;
-			Out.Set(0);
-		}else if (LoadEnable.Signal == WireSignal.Low)
-		{
-			if (CountEnable.Signal == WireSignal.High)
+			//Assume it was low if it's changed and is now high.
+			_value++;
+			if (_value >= _max)
 			{
-				_value++;
-				if (_value >= _max)
-				{
-					_value = 0;
-				}
+				_value = 0;
 			}
+
+			Out.Set(_value);
 		}
 	}
-	
 
 	private void OnInputChange(ISystem obj)
 	{

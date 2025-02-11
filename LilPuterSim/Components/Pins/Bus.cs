@@ -22,16 +22,24 @@ public class Bus
 		_computer = comp;
 		_width = dataWidth;
 		Connections = [];
-		
 	}
 	
-	public int RegisterComponent(string compName, bool setFromBus, bool setTobus, Pin pin,  Pin? loadPin = null, bool invertedLoad = false)
+	public int RegisterComponent(string compName, bool setFromBus, bool setTobus, Pin? pin,  Pin? loadPin = null, bool invertedLoad = false)
 	{
 		if (Connections.Any(x => x.Name == compName))
 		{
 			throw new Exception($"Component {compName} is already registered on the bus.");
 		}
+		
 		int i = Connections.Count;
+		if (setTobus || setFromBus)
+		{
+			if (pin == null)
+			{
+				throw new Exception($"Invalid bus component {compName}. Must have a data-line connection to bus.");
+			}
+			//todo: check pin width.
+		}
 		Connections.Add(new BusConnection()
 		{
 			Name = compName,
@@ -101,14 +109,13 @@ public class Bus
 						//Todo: replace with pin SetAndImpulse so we can use multiple wiremanagers.
 						_computer.WireManager.SetPin(pin, _value);
 						debug += Connections[i].Name + " ";
-
 					}
 
 					break;
 				}
 				else
 				{
-					//could be a load-pin only signal.
+					//could be a load-pin only signal, which will have gotten set with SetBus()
 					if (Connections[i].LoadPin != null)
 					{
 						debug += Connections[i].Name + " ";
