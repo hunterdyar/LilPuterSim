@@ -22,7 +22,7 @@ public class CPU
 	/// Arithmetic Logic Unit
 	/// </summary>
 	public ALUMultiBit ALU;
-	
+	public StatusRegister StatusRegister;
 	public ConsoleOutput Output;
 	
 	public InstructionMemory InstructionMemory => _instructionMemory;
@@ -50,6 +50,7 @@ public class CPU
 		B = new Register(comp, width);
 		PC = new Counter(comp, "PC",width);
 		ALU = new ALUMultiBit(comp,width);
+		StatusRegister = new StatusRegister(comp,ALU);
 		Clock = new ClockPin(comp.Clock);
 		Output = new ConsoleOutput(comp);
 		
@@ -87,6 +88,8 @@ public class CPU
 		Bus.RegisterComponent("J", false,true, PC.LoadInput, PC.LoadEnable);
 		// comp.Bus.RegisterComponent("J", true, PC.Load, PC.Load);
 
+		Bus.RegisterComponent("MAO", false, true, _dataMemory.Address);
+		Bus.RegisterComponent("MAI", true, false, _dataMemory.Address);
 		Bus.RegisterComponent("MI", true, false, _dataMemory.In, _dataMemory.Load);
 		Bus.RegisterComponent("MO", false, true, _dataMemory.Out);
 

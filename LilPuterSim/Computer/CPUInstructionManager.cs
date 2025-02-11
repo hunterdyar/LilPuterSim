@@ -12,7 +12,7 @@ public class CPUInstructionManager
 	private RAM _microcode;
 	private Counter _counter;
 	
-	private ComputerBase _computer;
+	private readonly ComputerBase _computer;
 	private Bus _bus;
 	private ClockPin _clock;
 	public readonly Dictionary<string,int> OpCodes = new Dictionary<string, int>();
@@ -67,13 +67,23 @@ public class CPUInstructionManager
 	{
 		CreateInstructionMicrocode("NOP",[]);
 		
-		CreateInstructionMicrocode("LDA", ["IOO", "AI"]);
-		
-		CreateInstructionMicrocode("LDB", ["IOO", "BI"]);
-		
+		//Load A with operand value.
+		CreateInstructionMicrocode("LDAI", ["IOO", "AI"]);//direct addressing
+		//Load a with Memory value
+		CreateInstructionMicrocode("LDA", ["IOO","MAI"],["MO", "AI"]);
+
+		//Store A: Set the memory address to the operand. Then move a into memory.
+		CreateInstructionMicrocode("STA", ["IOO", "MAI"],["AO", "MI"]);//Indirect addressing.
+		CreateInstructionMicrocode("LDBI", ["IOO", "BI"]);
+		CreateInstructionMicrocode("LDB", ["IOO", "MAI"], ["MO", "BI"]);
+
+		CreateInstructionMicrocode("STB", ["IOO", "MAI"], ["BO", "MI"]);
+
 		CreateInstructionMicrocode("OUT", ["AO", "OI"]);
 		
 		CreateInstructionMicrocode("ADD", ["AI", "ALUO"]);
+		//todo: SUB
+		
 		
 		CreateInstructionMicrocode("HLT", ["HLT"]);
 	}

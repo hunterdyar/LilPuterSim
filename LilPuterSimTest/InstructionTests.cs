@@ -72,8 +72,8 @@ public class  InstructionTests
 	public void ProgramTest()
 	{
 		_cpu.LoadProgram(new StringBuilder().Append("""
-		                                            LDA 22
-		                                            LDB 20
+		                                            LDAI 22
+		                                            LDBI 20
 		                                            ADD
 		                                            OUT
 		                                            HLT
