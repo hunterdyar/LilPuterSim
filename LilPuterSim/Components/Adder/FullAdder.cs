@@ -1,52 +1,53 @@
-﻿namespace LilPuter;
-
-public class FullAdder
+﻿namespace LilPuter
 {
-	public readonly Pin A;
-	public readonly Pin B;
-	public readonly Pin CarryIn;
-	public readonly Pin SumOut;
-	public readonly Pin CarryOut;
-
-	private XorGate _xorA;
-	private XorGate _xorB;
-	private AndGate _andA;
-	private AndGate _andB;
-	private OrGate _or;
-	
-	private WireManager _manager;
-
-	public FullAdder(WireManager manager)
+	public class FullAdder
 	{
-		_manager = manager;
-		A = new Pin(manager, "FullAdderA");
-		B = new Pin(manager, "FullAdderB");
-		CarryIn = new Pin(manager, "FullAdderCarryIn");
-		SumOut = new Pin(manager, "FullAdderSumOut");
-		CarryOut = new Pin(manager, "FullAdderCarryOut");
+		public readonly Pin A;
+		public readonly Pin B;
+		public readonly Pin CarryIn;
+		public readonly Pin SumOut;
+		public readonly Pin CarryOut;
 
-		_andA = new AndGate(manager);
-		_andB = new AndGate(manager);
-		_xorA = new XorGate(manager);
-		_xorB = new XorGate(manager);
-		_or = new OrGate(manager);
+		private XorGate _xorA;
+		private XorGate _xorB;
+		private AndGate _andA;
+		private AndGate _andB;
+		private OrGate _or;
+	
+		private WireManager _manager;
 
-		A.ConnectTo(_xorA.A);
-		A.ConnectTo(_andB.A);
+		public FullAdder(WireManager manager)
+		{
+			_manager = manager;
+			A = new Pin(manager, "FullAdderA");
+			B = new Pin(manager, "FullAdderB");
+			CarryIn = new Pin(manager, "FullAdderCarryIn");
+			SumOut = new Pin(manager, "FullAdderSumOut");
+			CarryOut = new Pin(manager, "FullAdderCarryOut");
 
-		B.ConnectTo(_xorA.B);
-		B.ConnectTo(_andB.B);
+			_andA = new AndGate(manager);
+			_andB = new AndGate(manager);
+			_xorA = new XorGate(manager);
+			_xorB = new XorGate(manager);
+			_or = new OrGate(manager);
 
-		CarryIn.ConnectTo(_xorB.B);
-		CarryIn.ConnectTo(_andA.B);
+			A.ConnectTo(_xorA.A);
+			A.ConnectTo(_andB.A);
 
-		_xorA.Out.ConnectTo(_xorB.A);
-		_xorA.Out.ConnectTo(_andA.A);
+			B.ConnectTo(_xorA.B);
+			B.ConnectTo(_andB.B);
 
-		_andA.Out.ConnectTo(_or.A);
-		_andB.Out.ConnectTo(_or.B);
-		_xorB.Out.ConnectTo(SumOut);
+			CarryIn.ConnectTo(_xorB.B);
+			CarryIn.ConnectTo(_andA.B);
 
-		_or.Out.ConnectTo(CarryOut);
+			_xorA.Out.ConnectTo(_xorB.A);
+			_xorA.Out.ConnectTo(_andA.A);
+
+			_andA.Out.ConnectTo(_or.A);
+			_andB.Out.ConnectTo(_or.B);
+			_xorB.Out.ConnectTo(SumOut);
+
+			_or.Out.ConnectTo(CarryOut);
+		}
 	}
 }

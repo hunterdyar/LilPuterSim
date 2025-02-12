@@ -1,8 +1,9 @@
-﻿namespace LilPuter;
-
-public class Bit : Register
+﻿namespace LilPuter
 {
-	public Bit(ComputerBase comp) : base(comp, 1)
+	public class Bit : Register
 	{
+		public Bit(ComputerBase comp) : base(comp, 1)
+		{
+		}
 	}
 }

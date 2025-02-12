@@ -1,40 +1,41 @@
-﻿namespace LilPuter;
-
-public abstract class SubscriberBase<T> : IObservable<T>
+﻿namespace LilPuter
 {
-	protected List<IObservable<T>.OnValueChangeDelegate> _subscribers = new List<IObservable<T>.OnValueChangeDelegate>();
-	public void Subscribe(IObservable<T>.OnValueChangeDelegate subscriber)
+	public abstract class SubscriberBase<T> : IObservable<T>
 	{
-		if(!_subscribers.Contains(subscriber))
+		protected List<IObservable<T>.OnValueChangeDelegate> _subscribers = new List<IObservable<T>.OnValueChangeDelegate>();
+		public void Subscribe(IObservable<T>.OnValueChangeDelegate subscriber)
 		{
-			_subscribers.Add(subscriber);
+			if(!_subscribers.Contains(subscriber))
+			{
+				_subscribers.Add(subscriber);
+			}
+			else
+			{
+				throw new Exception("Subscriber already exists. Can't add.");
+			}
 		}
-		else
+
+		public void Unubscribe(IObservable<T>.OnValueChangeDelegate subscriber)
 		{
-			throw new Exception("Subscriber already exists. Can't add.");
+			if (!_subscribers.Remove(subscriber))
+			{
+				throw new Exception("Subscriber not found. Can't Remove.");
+			}
 		}
-	}
 
-	public void Unubscribe(IObservable<T>.OnValueChangeDelegate subscriber)
-	{
-		if (!_subscribers.Remove(subscriber))
+		protected void UpdateSubscribers()
 		{
-			throw new Exception("Subscriber not found. Can't Remove.");
+			foreach (var onChange in _subscribers)
+			{
+				onChange(ReadValue());
+			}
 		}
-	}
 
-	protected void UpdateSubscribers()
-	{
-		foreach (var onChange in _subscribers)
+		public int SubscriberCount()
 		{
-			onChange(ReadValue());
+			return _subscribers.Count;
 		}
-	}
 
-	public int SubscriberCount()
-	{
-		return _subscribers.Count;
+		public abstract T ReadValue();
 	}
-
-	public abstract T ReadValue();
 }
