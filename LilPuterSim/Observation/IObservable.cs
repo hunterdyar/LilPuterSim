@@ -1,8 +1,8 @@
 ﻿namespace LilPuter;
 
-public interface IObservable
+public interface IObservable<T>
 {
-	public delegate void OnValueChangeDelegate(int newData);
+	public delegate void OnValueChangeDelegate(T newData);
 
 
 	public void Subscribe(OnValueChangeDelegate subscriber);
@@ -12,5 +12,5 @@ public interface IObservable
 	/// <summary>
 	/// Read the current value of the component.
 	/// </summary>
-	public int ReadValue();
+	public T ReadValue();
 }

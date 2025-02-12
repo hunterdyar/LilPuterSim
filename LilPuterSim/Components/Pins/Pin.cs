@@ -7,7 +7,7 @@
 /// This reduces the number of calls to the wire manager and number of connections for what is conceptually a "single" connection.
 ///	e.g. conceptually... and actually in this sim.
 /// </summary>
-public class Pin : IObservable, ISystem
+public class Pin : SubscriberBase<int>, ISystem
 {
 	private static readonly int[] FloatingVal = [1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024,2048,4096,8192,16384, 32768, 65536];
 	public string Name { get; set; }
@@ -17,9 +17,6 @@ public class Pin : IObservable, ISystem
 	public PinType PinType => PinUtility.GetPinType(this);
 	private readonly WireManager _manager;
 	
-	private readonly List<IObservable.OnValueChangeDelegate> _subscribers = [];
-	public int SubscriberCount() => _subscribers.Count;
-
 	private readonly int _validMask;
 
 	public Pin(WireManager manager, string name, int bitWidth = 1)
@@ -37,24 +34,7 @@ public class Pin : IObservable, ISystem
 		}
 	}
 
-	public void Subscribe(IObservable.OnValueChangeDelegate subscriber)
-	{
-		_subscribers.Add(subscriber);
-	}
-
-	public void Unubscribe(IObservable.OnValueChangeDelegate subscriber)
-	{
-		if (_subscribers.Contains(subscriber))
-		{
-			_subscribers.Remove(subscriber);
-		}
-		else
-		{
-			throw new Exception("Subscriber not found. Can't Remove.");
-		}
-	}
-
-	public int ReadValue()
+	public override int ReadValue()
 	{
 		return Value;
 	}
@@ -110,14 +90,6 @@ public class Pin : IObservable, ISystem
 		}
 
 		return changed;
-	}
-
-	private void UpdateSubscribers()
-	{
-		foreach (var onChange in _subscribers)
-		{
-			onChange(Value);
-		}
 	}
 
 	internal bool Set(WireSignal newVal, bool alwaysUpdate = false)

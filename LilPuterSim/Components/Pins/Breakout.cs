@@ -1,14 +1,11 @@
 ﻿namespace LilPuter;
 
-public class Breakout
+public class Breakout : SubscriberBase<int>
 {
 	public Pin Input;
 	public Pin[] OutPins => _outs;
 	public readonly Pin[] _outs;
-		
-	private readonly List<IObservable.OnValueChangeDelegate> _subscribers = [];
-	public int SubscriberCount() => _subscribers.Count;
-
+	
 	public readonly int Width = 1;
 	public Breakout(ComputerBase comp,string name, int width)
 	{
@@ -32,5 +29,10 @@ public class Breakout
 			int bitVal = (val >> i) & 1;
 			_outs[i].Set(bitVal);
 		}
+	}
+
+	public override int ReadValue()
+	{
+		return Input.Value;
 	}
 }

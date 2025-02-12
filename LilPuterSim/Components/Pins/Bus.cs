@@ -6,11 +6,12 @@ namespace LilPuter;
 /// <summary>
 /// TODO: This is currently the controller for setting various components, but... we're not using the load pins of our simulated systems, which we need for zooming into the ALU and such.
 /// </summary>
-public class Bus
+public class Bus : SubscriberBase<int>
 {
 	public int Value => _value;
 	private int _value;
-	
+	public override int ReadValue() => _value;
+
 	//todo: make this a pre-allocated array.
 	public readonly List<BusConnection> Connections;
 	
