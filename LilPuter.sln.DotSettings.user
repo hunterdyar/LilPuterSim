@@ -21,10 +21,11 @@
 	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=3544c04c_002D3d24_002D4304_002D801a_002Dbc66190f40ee/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="All tests from Solution" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
   &lt;Solution /&gt;&#xD;
 &lt;/SessionState&gt;</s:String>
-	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=f2acd916_002D68e1_002D4724_002Da9e0_002D17a30de05b7e/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="BusAndRegistersTest #2" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=f2acd916_002D68e1_002D4724_002Da9e0_002D17a30de05b7e/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="BusAndRegistersTest #2" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
   &lt;TestAncestor&gt;&#xD;
     &lt;TestId&gt;NUnit3x::C2C2DECF-7979-4879-8286-A469FD198754::net8.0::LilPuterSimTest.InstructionTests.BusAndRegistersTest&lt;/TestId&gt;&#xD;
     &lt;TestId&gt;NUnit3x::C2C2DECF-7979-4879-8286-A469FD198754::net8.0::LilPuterSimTest.InstructionTests.ProgramTest&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;NUnit3x::C2C2DECF-7979-4879-8286-A469FD198754::net8.0::LilPuterSimTest.PlexTests.Mux41Test&lt;/TestId&gt;&#xD;
   &lt;/TestAncestor&gt;&#xD;
 &lt;/SessionState&gt;</s:String>
 	

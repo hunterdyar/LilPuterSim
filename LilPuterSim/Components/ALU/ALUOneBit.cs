@@ -17,7 +17,7 @@ public class ALUOneBit
 	public Pin CarryOut;
 	
 	//Internal
-	private Multiplexer _mux;
+	private Mux4by1 _mux;
 	private FullAdder _adder;
 	private AndGate _and;
 	private OrGate _or;
@@ -32,8 +32,8 @@ public class ALUOneBit
 		CarryIn = new Pin(manager, "CarryIn");
 		CarryOut = new Pin(manager, "CarryOut");
 		Result = new Pin(manager, "Result");
-		_mux = new Multiplexer(manager, 3);//Add, And, Or.
-		Op = new Pin(manager,"Op", _mux.SelectorWidth);
+		_mux = new Mux4by1(manager);//Add, And, Or, and UNUSED
+		Op = new Pin(manager,"Op");
 		
 		CarryOut.DependsOn(Op);
 		Result.DependsOn(Op);
@@ -45,24 +45,26 @@ public class ALUOneBit
 		_or = new OrGate(manager);
 		//Connect the internal components
 		Op.ConnectTo(_mux.Select);
-		_mux.Output.ConnectTo(Result);
+		_mux.Out.ConnectTo(Result);
 		
 		//Adder. Op is 0
 		A.ConnectTo(_adder.A);
 		B.ConnectTo(_adder.B);
 		CarryIn.ConnectTo(_adder.CarryIn);
 		_adder.CarryOut.ConnectTo(CarryOut);
-		_adder.SumOut.ConnectTo(_mux.Inputs[0]);
+		_adder.SumOut.ConnectTo(_mux.A);
 		
 		//And. Op is 001
 		A.ConnectTo(_and.A);
 		B.ConnectTo(_and.B);
-		_and.Out.ConnectTo(_mux.Inputs[1]);
+		_and.Out.ConnectTo(_mux.B);
 		
 		//Or. Op is 10
 		A.ConnectTo(_or.A);
 		B.ConnectTo(_or.B);
-		_or.Out.ConnectTo(_mux.Inputs[2]);
+		_or.Out.ConnectTo(_mux.C);
+		
+		_mux.D.SetSilently(WireSignal.Low);
 	}
 
 	public override string ToString()
