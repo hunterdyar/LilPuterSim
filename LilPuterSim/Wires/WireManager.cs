@@ -1,4 +1,7 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
 using LilPuter.Clock;
 
 namespace LilPuter
@@ -8,7 +11,7 @@ namespace LilPuter
 	/// Wire Manager handles connections for "combinatorial" chip simulation. Not sequential. ...howevert, this is directional and acyclic.
 	/// Time, as far as this system is concerned; "a cpu cycle" or "tick" or pulse or such; is not what Impulse simulates here.
 	/// </summary>
-	public class WireManager(ComputerBase computerBase)
+	public class WireManager
 	{
 		private readonly HashSet<ISystem> _allPins = new HashSet<ISystem>();
 		/// <summary>
@@ -26,7 +29,17 @@ namespace LilPuter
 		//stores if a pin has been set or updated, and thus needs to be impulsed.
 		private readonly Dictionary<ISystem, bool> _needsTick = new Dictionary<ISystem, bool>();
 	
-		private ComputerBase _computerBase = computerBase;
+		private ComputerBase _computerBase;
+
+		/// <summary>
+		/// Wire Manager handles connections for "combinatorial" chip simulation. Not sequential. ...howevert, this is directional and acyclic.
+		/// Time, as far as this system is concerned; "a cpu cycle" or "tick" or pulse or such; is not what Impulse simulates here.
+		/// </summary>
+		public WireManager(ComputerBase computerBase)
+		{
+			_computerBase = computerBase;
+		}
+
 		public delegate void PinChangedHandler(Pin pin);
 
 		/// <summary>
@@ -182,7 +195,7 @@ namespace LilPuter
 				_needsTick[from] = true;
 			}
 		
-			if (!_dependencies.TryAdd(from, [to]))
+			if (!_dependencies.TryAdd(from, new List<ISystem> { to }))
 			{
 				_dependencies[from].Add(to);
 			}

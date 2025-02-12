@@ -1,4 +1,6 @@
-﻿namespace LilPuter
+﻿using System;
+
+namespace LilPuter
 {
 	/// <summary>
 	/// A pin is a wire (or set of wires) that can be set. It holds a byte[] value (like everything else).
@@ -9,7 +11,7 @@
 	/// </summary>
 	public class Pin : SubscriberBase<int>, ISystem
 	{
-		private static readonly int[] FloatingVal = [1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024,2048,4096,8192,16384, 32768, 65536];
+		private static readonly int[] FloatingVal = new []{1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024,2048,4096,8192,16384, 32768, 65536};
 		public string Name { get; set; }
 		public int Value { get; private set; } //Default should be not connected == floating
 		public WireSignal Signal => (WireSignal)Value;

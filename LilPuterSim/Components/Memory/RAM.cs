@@ -1,4 +1,5 @@
-﻿using LilPuter.Clock;
+﻿using System;
+using LilPuter.Clock;
 
 namespace LilPuter
 {

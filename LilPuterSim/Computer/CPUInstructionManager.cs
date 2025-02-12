@@ -1,4 +1,7 @@
-﻿using LilPuter.Clock;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using LilPuter.Clock;
 
 namespace LilPuter
 {
@@ -46,15 +49,16 @@ namespace LilPuter
 			var controlCode = _microcode.Out.Value;
 		
 			//some debugging
+			#if DEBUG_STANDALONE
 			if (controlCode != 0)
 			{
-				Console.WriteLine(
-					$"IMemA:{_computer.CPU.InstructionMemory.Address.Value}: IM-Ins:{_computer.CPU.InstructionMemory.Instruction.Value}, IM-op: {_computer.CPU.InstructionMemory.Operand.Value}. microcode-counter: {_counter.Out.Value} and Microcode {insadr:B}");
+				Console.WriteLine($"IMemA:{_computer.CPU.InstructionMemory.Address.Value}: IM-Ins:{_computer.CPU.InstructionMemory.Instruction.Value}, IM-op: {_computer.CPU.InstructionMemory.Operand.Value}. microcode-counter: {_counter.Out.Value} and Microcode {insadr}");
 			}
 			else
 			{
 				Console.WriteLine("nop");
 			}
+			#endif
 		
 			_bus.SetBus(controlCode);
 		}
@@ -84,26 +88,26 @@ namespace LilPuter
 			//MO/MI - Memory Out/In
 		
 		
-			CreateInstructionMicrocode("NOP",[]);
+			CreateInstructionMicrocode("NOP");
 		
 			//Load A with operand value.
-			CreateInstructionMicrocode("LDAI", ["IOO", "AI"]);//direct addressing
+			CreateInstructionMicrocode("LDAI", new[] { "IOO", "AI" });//direct addressing
 			//Load a with Memory value
-			CreateInstructionMicrocode("LDA", ["IOO","MAI"],["MO", "AI"]);//indirect addressing
+			CreateInstructionMicrocode("LDA", new[] { "IOO", "MAI" }, new[] { "MO", "AI" });//indirect addressing
 
 			//Store A: Set the memory address to the operand. Then move a into memory.
-			CreateInstructionMicrocode("STA", ["IOO", "MAI"],["AO", "MI"]);//Indirect addressing.
-			CreateInstructionMicrocode("LDBI",["IOO", "BI"]);
-			CreateInstructionMicrocode("LDB", ["IOO", "MAI"], ["MO", "BI"]);
+			CreateInstructionMicrocode("STA", new[] { "IOO", "MAI" }, new[] { "AO", "MI" });//Indirect addressing.
+			CreateInstructionMicrocode("LDBI", new[] { "IOO", "BI" });
+			CreateInstructionMicrocode("LDB", new[] { "IOO", "MAI" }, new[] { "MO", "BI" });
 
-			CreateInstructionMicrocode("STB", ["IOO", "MAI"], ["BO", "MI"]);
+			CreateInstructionMicrocode("STB", new[] { "IOO", "MAI" }, new[] { "BO", "MI" });
 
-			CreateInstructionMicrocode("OUT", ["AO", "OI"]);
+			CreateInstructionMicrocode("OUT", new[] { "AO", "OI" });
 		
-			CreateInstructionMicrocode("ADD", ["AI", "ALUO"]);
+			CreateInstructionMicrocode("ADD", new[] { "AI", "ALUO" });
 			//todo: SUB
-			CreateInstructionMicrocode("JMP", ["IOO", "J"]);
-			CreateInstructionMicrocode("HLT", ["HLT"]);
+			CreateInstructionMicrocode("JMP", new[] { "IOO", "J" });
+			CreateInstructionMicrocode("HLT", new[] { "HLT" });
 		}
 
 		private int CreateInstructionMicrocode(string instructionName, params string[][] cCodeSets)

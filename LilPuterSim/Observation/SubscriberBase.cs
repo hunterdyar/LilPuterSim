@@ -1,4 +1,7 @@
-﻿namespace LilPuter
+﻿using System;
+using System.Collections.Generic;
+
+namespace LilPuter
 {
 	public abstract class SubscriberBase<T> : IObservable<T>
 	{

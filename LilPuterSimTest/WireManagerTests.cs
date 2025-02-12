@@ -1,5 +1,6 @@
 ﻿using System.Text;
 using LilPuter;
+using NUnit.Framework;
 using NUnit.Framework.Internal;
 
 namespace LilPuterSimTest

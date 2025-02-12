@@ -1,4 +1,5 @@
 ﻿using LilPuter;
+using NUnit.Framework;
 
 namespace LilPuterSimTest
 {

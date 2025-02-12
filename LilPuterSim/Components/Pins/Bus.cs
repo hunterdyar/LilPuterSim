@@ -1,4 +1,7 @@
-﻿using LilPuter.Clock;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using LilPuter.Clock;
 using Microsoft.VisualBasic;
 
 namespace LilPuter
@@ -22,7 +25,7 @@ namespace LilPuter
 		{
 			_computer = comp;
 			_width = dataWidth;
-			Connections = [];
+			Connections = new List<BusConnection> { };
 		}
 	
 		public int RegisterComponent(string compName, bool setFromBus, bool setTobus, Pin? pin,  Pin? loadPin = null, bool invertedLoad = false)

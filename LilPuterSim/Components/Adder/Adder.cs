@@ -1,4 +1,6 @@
-﻿namespace LilPuter
+﻿using System;
+
+namespace LilPuter
 {
 	public class Adder
 	{

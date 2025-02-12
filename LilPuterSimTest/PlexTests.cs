@@ -1,4 +1,6 @@
 ﻿using LilPuter;
+using NUnit.Framework;
+
 // ReSharper disable SuggestVarOrType_BuiltInTypes
 
 namespace LilPuterSimTest

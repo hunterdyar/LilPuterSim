@@ -1,4 +1,5 @@
-﻿using LilPuter.Clock;
+﻿using System;
+using LilPuter.Clock;
 
 namespace LilPuter
 {
@@ -23,7 +24,10 @@ namespace LilPuter
 		{
 			if (Enable.Signal == WireSignal.High)
 			{
+#if DEBUG_STANDALONE
 				Console.WriteLine($"{OutIn.Value:B} - {OutIn.Value:D}");
+#endif
+
 				OnOutput?.Invoke(OutIn.Value);
 			}
 		}

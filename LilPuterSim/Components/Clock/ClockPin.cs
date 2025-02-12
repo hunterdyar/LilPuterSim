@@ -1,4 +1,6 @@
-﻿namespace LilPuter.Clock
+﻿using System;
+
+namespace LilPuter.Clock
 {
 	/// <summary>
 	/// Clock Input receives the global clock pulse.
@@ -10,7 +12,7 @@
 	
 		public Action OnTick;
 		public Action OnTock;
-		private Pin[] _connectees = [];
+		private Pin[] _connectees = Array.Empty<Pin>();
 		private readonly ClockManager _manager;
 
 		public void ConnectPin(Pin pin)

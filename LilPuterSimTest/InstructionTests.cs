@@ -1,5 +1,6 @@
 ﻿using System.Text;
 using LilPuter;
+using NUnit.Framework;
 
 namespace LilPuterSimTest
 {
@@ -71,14 +72,13 @@ namespace LilPuterSimTest
 		[Test]
 		public void ProgramTest()
 		{
-			_cpu.LoadProgram(new StringBuilder().Append("""
-			                                            LDAI 22
-			                                            LDBI 20
-			                                            ADD
-			                                            OUT
-			                                            HLT
-			                                            """)
-				.ToString());
+			var sb = new StringBuilder();
+			sb.AppendLine("LDAI 22");
+			sb.AppendLine("LDBI 20");
+			sb.AppendLine("ADD");
+			sb.AppendLine("OUT");
+			sb.AppendLine("HLT");
+			_cpu.LoadProgram(sb.ToString());
 
 			for (var i = 0; i < 100; i++)
 			{
@@ -98,14 +98,13 @@ namespace LilPuterSimTest
 		[Test]
 		public void StoreValueInstructionTest()
 		{
-			_cpu.LoadProgram(new StringBuilder().Append("""
-			                                            LDAI 3
-			                                            STA 15
-			                                            LDBI 42
-			                                            STB 12
-			                                            HLT
-			                                            """)
-				.ToString());
+			var sb = new StringBuilder();
+			sb.AppendLine("LDAI 3");
+			sb.AppendLine("STA 15");
+			sb.AppendLine("LDBI 42");
+			sb.AppendLine("STB 12");
+			sb.AppendLine("HLT");
+			_cpu.LoadProgram(sb.ToString());
 
 			for (var i = 0; i < 100; i++)
 			{

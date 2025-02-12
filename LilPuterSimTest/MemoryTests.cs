@@ -1,4 +1,6 @@
-﻿using LilPuter;
+﻿using System;
+using LilPuter;
+using NUnit.Framework;
 
 namespace LilPuterSimTest
 {
