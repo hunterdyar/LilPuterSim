@@ -10,18 +10,18 @@ public class Breakout
 	public int SubscriberCount() => _subscribers.Count;
 
 	public readonly int Width = 1;
-	public Breakout(ComputerBase comp,string name, int width)
+	public Breakout(WireManager wireManager,string name, int width)
 	{
-		Input = new Pin(comp.WireManager,"Breakout In", width);
+		Input = new Pin(wireManager,"Breakout In", width);
 		Width = width;
 		
 		_outs = new Pin[width];
 		for (int i = 0; i < width; i++)
 		{
-			_outs[i] = new Pin(comp.WireManager, "Breakout_" + i);
+			_outs[i] = new Pin(wireManager, "Breakout_" + i);
 			_outs[i].DependsOn(Input);
 		}
-		comp.WireManager.RegisterSystemAction(Input, OnChange);
+		wireManager.RegisterSystemAction(Input, OnChange);
 	}
 
 	private void OnChange(ISystem obj)
