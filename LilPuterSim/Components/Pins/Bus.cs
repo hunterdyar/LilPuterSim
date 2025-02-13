@@ -97,6 +97,7 @@ namespace LilPuter
 						_value = Connections[i].Pin!.Value;
 						debug += Connections[i].Name + " ";
 						ic++;
+						UpdateSubscribers();
 						break;
 					}
 				}

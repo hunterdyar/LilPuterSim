@@ -2,7 +2,7 @@
 
 namespace LilPuter
 {
-	public class Register
+	public class Register : SubscriberBase<int>
 	{
 		public readonly int Bits;
 		public readonly Pin Load;
@@ -34,9 +34,14 @@ namespace LilPuter
 			if (Load.Signal == WireSignal.High)
 			{
 				Output.Set(Input.Value);
+				UpdateSubscribers();
 			}
 		}
 
-	
+
+		public override int ReadValue()
+		{
+			return Output.Value;
+		}
 	}
 }
