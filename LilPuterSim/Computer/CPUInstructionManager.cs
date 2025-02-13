@@ -13,8 +13,9 @@ namespace LilPuter
 	{
 		public RAM Microcode => _microcode;
 		private RAM _microcode;
+		public Counter Counter => _counter;
 		private Counter _counter;
-	
+		public Pin LastMicroInstruction;//tied to inverted clock and AND to reset Counter.
 		private readonly ComputerBase _computer;
 		private Bus _bus;
 		private ClockPin _clock;
@@ -25,6 +26,7 @@ namespace LilPuter
 		{
 			_bus = bus;
 			_computer = computerBase;
+			LastMicroInstruction = new Pin(computerBase.WireManager,"Last MicroInstruction");
 			_counter = new Counter(computerBase, "Microcode Counter",computerBase.Width, 5);//5 microinstructions per instruction.
 			_counter.CountEnable.Set(WireSignal.High);
 			_counter.Reset.Set(WireSignal.Low);
@@ -37,12 +39,13 @@ namespace LilPuter
 
 		private void OnTock()
 		{
+			
 			_counter.Count.SetAndImpulse(WireSignal.High);
+			
 			//Set the bus on Tock, right before whatever-is-set does it's thing on tick.
 		
 			//we get the microcode by combining the current external instruction with our clock.
 			var insadr = GetMicrocodeAddress();
-	
 
 			_computer.WireManager.SetPin(_microcode.Address, insadr);//Set and Impulse to get the value we want. This is inefficient.
 			//after impulse, we're updated.
@@ -61,11 +64,14 @@ namespace LilPuter
 			#endif
 		
 			_bus.SetBus(controlCode);
+			//
+			
 		}
 
 		private void OnTick()
 		{
 			_counter.Count.SetAndImpulse(WireSignal.Low);
+			//LastMicroInstruction.Set(WireSignal.Low);
 		}
 
 		private int GetMicrocodeAddress()
@@ -93,21 +99,21 @@ namespace LilPuter
 			//Load A with operand value.
 			CreateInstructionMicrocode("LDAI", new[] { "IOO", "AI" });//direct addressing
 			//Load a with Memory value
-			CreateInstructionMicrocode("LDA", new[] { "IOO", "MAI" }, new[] { "MO", "AI" });//indirect addressing
+			CreateInstructionMicrocode("LDA", new[] { "IOO", "MAI" }, new[] { "MO", "AI"});//indirect addressing
 
 			//Store A: Set the memory address to the operand. Then move a into memory.
 			CreateInstructionMicrocode("STA", new[] { "IOO", "MAI" }, new[] { "AO", "MI" });//Indirect addressing.
-			CreateInstructionMicrocode("LDBI", new[] { "IOO", "BI" });
-			CreateInstructionMicrocode("LDB", new[] { "IOO", "MAI" }, new[] { "MO", "BI" });
+			CreateInstructionMicrocode("LDBI", new[] { "IOO", "BI"});
+			CreateInstructionMicrocode("LDB", new[] { "IOO", "MAI" }, new[] { "MO", "BI"});
 
-			CreateInstructionMicrocode("STB", new[] { "IOO", "MAI" }, new[] { "BO", "MI" });
+			CreateInstructionMicrocode("STB", new[] { "IOO", "MAI" }, new[] { "BO", "MI"});
 
-			CreateInstructionMicrocode("OUT", new[] { "AO", "OI" });
+			CreateInstructionMicrocode("OUT", new[] { "AO", "OI"});
 		
-			CreateInstructionMicrocode("ADD", new[] { "AI", "ALUO" });
+			CreateInstructionMicrocode("ADD", new[] { "AI", "ALUO"});
 			//todo: SUB
 			CreateInstructionMicrocode("JMP", new[] { "IOO", "J" });
-			CreateInstructionMicrocode("HLT", new[] { "HLT" });
+			CreateInstructionMicrocode("HLT", new[] { "HLT"});
 		}
 
 		private int CreateInstructionMicrocode(string instructionName, params string[][] cCodeSets)
@@ -129,10 +135,18 @@ namespace LilPuter
 			_microcode.Registers[MakeMicrocodeAddress(instructionCode, 0)] = fetchA;
 			_microcode.Registers[MakeMicrocodeAddress(instructionCode, 1)] = fetchB;
 
-			for (int i = 0; i < cCodeSets.Length; i++)
+			for (int i = 0; i <= cCodeSets.Length; i++)
 			{
-				_microcode.Registers[MakeMicrocodeAddress(instructionCode, 2+i)] = _bus.GetCodeFor(cCodeSets[i]);
+				if(i == cCodeSets.Length)
+				{
+					_microcode.Registers[MakeMicrocodeAddress(instructionCode, 2 + i)] = _bus.GetCodeFor("END");
+				}
+				else
+				{
+					_microcode.Registers[MakeMicrocodeAddress(instructionCode, 2 + i)] = _bus.GetCodeFor(cCodeSets[i]);
+				}
 			}
+			
 
 			return instructionCode;
 		}

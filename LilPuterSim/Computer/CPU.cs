@@ -113,6 +113,8 @@ namespace LilPuter
 			Bus.RegisterComponent("IMO", false, true, _instructionMemory.Instruction);
 			Bus.RegisterComponent("II", true, false, _instructionMemory.Address);
 
+			Bus.RegisterComponent("END",false,false,null,_microcodeDecoder.LastMicroInstruction);
+
 			//reset. todo: This is kind of breaking things because the cpu. variables aren't set.
 			Bus.SetBus(0);
 
