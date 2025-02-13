@@ -6,7 +6,7 @@ namespace LilPuter
 	/// <summary>
 	/// By default, we connect counters to the clock. The load pin is for setting the clock to a value.
 	/// </summary>
-	public class Counter
+	public class Counter : SubscriberBase<int>
 	{
 		//Counts when High.
 		public readonly Pin LoadInput;
@@ -73,7 +73,7 @@ namespace LilPuter
 				{
 					_value = 0;
 				}
-
+				UpdateSubscribers();
 				Out.Set(_value);
 			}
 		}
@@ -83,10 +83,12 @@ namespace LilPuter
 			if (Reset.Signal == WireSignal.High)
 			{
 				_value = 0;
+				UpdateSubscribers();
 				Out.Set(0);
 			}else if (LoadEnable.Signal == WireSignal.High)
 			{
 				_value = LoadInput.Value;
+				UpdateSubscribers();
 				Out.Set(_value);
 			}
 		}
@@ -97,9 +99,14 @@ namespace LilPuter
 			if (Reset.Signal == WireSignal.High)
 			{
 				_value = 0;
+				UpdateSubscribers();
 				Out.Set(0);
 			}
 		}
 
+		public override int ReadValue()
+		{
+			return _value;
+		}
 	}
 }

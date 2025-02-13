@@ -3,6 +3,7 @@ using System.Collections.Generic;
 
 namespace LilPuter
 {
+	//todo: rename this. It's not a subscriber it's a subscribbableable.
 	public abstract class SubscriberBase<T> : IObservable<T>
 	{
 		protected List<IObservable<T>.OnValueChangeDelegate> _subscribers = new List<IObservable<T>.OnValueChangeDelegate>();
