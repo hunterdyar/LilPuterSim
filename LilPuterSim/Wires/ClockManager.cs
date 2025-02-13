@@ -52,21 +52,21 @@ namespace LilPuter
 		public void Tick()
 		{
 			//This feels like the part that we can multithread. Run all of the cores, then run all of the wires to propogate on one thread after.
-			// foreach (var pin in _clocks)
-			// {
-			// 	pin.TickSilent();
-			// }
-			Parallel.ForEach(_clocks, pin => pin.TickSilent());
+			foreach (var pin in _clocks)
+			{
+				pin.TickSilent();
+			}
+			//Parallel.ForEach(_clocks, pin => pin.TickSilent());
 			_wireManager.Impulse();
 		}
 
 		public void Tock()
 		{
-			// foreach (var pin in _clocks)
-			// {
-			// 	pin.TockSilent();
-			// }
-			Parallel.ForEach(_clocks, pin => pin.TockSilent());
+			foreach (var pin in _clocks)
+			{
+				pin.TockSilent();
+			}
+			//Parallel.ForEach(_clocks, pin => pin.TockSilent());
 
 			_wireManager.Impulse();
 		}
