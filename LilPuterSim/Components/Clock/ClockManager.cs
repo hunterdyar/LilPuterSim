@@ -9,6 +9,7 @@ namespace LilPuter
 //So I've cloned this part out. 
 	public class ClockManager
 	{
+		public readonly Pin ClockIsHighPin;
 		private List<ClockPin> _clocks = new List<ClockPin>();
 		private WireManager _wireManager;
 	
@@ -16,6 +17,7 @@ namespace LilPuter
 		public ClockManager(ComputerBase comp)
 		{
 			_wireManager = comp.WireManager;
+			ClockIsHighPin = new Pin(comp.WireManager, "Clock High Pin");
 		}
 
 		public void RegisterClockPin(ClockPin pin)
@@ -57,6 +59,7 @@ namespace LilPuter
 				pin.TickSilent();
 			}
 			//Parallel.ForEach(_clocks, pin => pin.TickSilent());
+			ClockIsHighPin.Set(WireSignal.High);
 			_wireManager.Impulse();
 		}
 
@@ -67,7 +70,7 @@ namespace LilPuter
 				pin.TockSilent();
 			}
 			//Parallel.ForEach(_clocks, pin => pin.TockSilent());
-
+			ClockIsHighPin.Set(WireSignal.Low);
 			_wireManager.Impulse();
 		}
 
