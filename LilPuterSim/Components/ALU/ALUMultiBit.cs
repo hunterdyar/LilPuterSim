@@ -1,6 +1,6 @@
 ﻿namespace LilPuter
 {
-	public class ALUMultiBit
+	public class ALUMultiBit : SubscriberBase<ALUMultiBit>
 	{
 		public readonly ALUOneBit[] ALUOneBits;
 		public readonly Pin Operation;
@@ -85,7 +85,7 @@
 			}
 
 			Result.Set(val);
-
+			UpdateSubscribers();
 		}
 
 		private void InputAChanged(ISystem obj)
@@ -94,6 +94,7 @@
 			{
 				ALUOneBits[i].A.Set((A.Value >> i) & 1);
 			}
+			UpdateSubscribers();
 		}
 
 		private void InputBChanged(ISystem obj)
@@ -102,6 +103,12 @@
 			{
 				ALUOneBits[i].B.Set((B.Value >> i) & 1);
 			}
+			UpdateSubscribers();
+		}
+
+		public override ALUMultiBit ReadValue()
+		{
+			return this;
 		}
 	}
 }

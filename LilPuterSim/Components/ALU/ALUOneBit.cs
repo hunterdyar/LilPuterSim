@@ -71,5 +71,20 @@
 		{
 			return $"ALUOneBit ({Result.Value})";
 		}
+
+		public static string OpAsString(int op)
+		{
+			switch (op)
+			{
+				case 0:
+					return "+";
+				case 1:
+					return "AND";
+				case 2:
+					return "OR";
+			}
+
+			return "";
+		}
 	}
 }

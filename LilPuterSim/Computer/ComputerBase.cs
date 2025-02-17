@@ -27,6 +27,6 @@ namespace LilPuter
        
             _cpu = new CPU(this, width);
         }
-    
+        
     }
 }
