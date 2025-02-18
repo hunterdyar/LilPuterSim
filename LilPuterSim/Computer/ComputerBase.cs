@@ -8,7 +8,6 @@ namespace LilPuter
         public ClockManager Clock => _clock;
         private ClockManager _clock;
         private NotGate _invertHaltGate;
-    
         //Memory Components. 
     
         //CPU Instruction memory is a wrapper for an 'EEPROM' - the truth table of instruction+microcode offset => control code. 

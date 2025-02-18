@@ -115,7 +115,6 @@ namespace LilPuter
 			CreateInstructionMicrocode("LDB", new[] { "IOO", "MAI" }, new[] { "MO", "BI"});
 
 			CreateInstructionMicrocode("STB", new[] { "IOO", "MAI" }, new[] { "BO", "MI"});
-
 			CreateInstructionMicrocode("OUT", new[] { "AO", "OI"});
 		
 			CreateInstructionMicrocode("ADD", new[] { "AI", "ALUO"});
