@@ -27,6 +27,19 @@ namespace LilPuter
        
             _cpu = new CPU(this, width);
         }
+
+        public void ExecuteOneInstruction()
+        {
+            if (_cpu.MicrocodeDecoder.Counter.Out.Value == 0)
+            {
+                _clock.Cycle();
+            }
+
+            while (_cpu.MicrocodeDecoder.Counter.Out.Value != 0)
+            {
+                _clock.Cycle();
+            }
+        }
         
     }
 }
