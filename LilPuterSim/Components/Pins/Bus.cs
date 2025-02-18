@@ -164,5 +164,18 @@ namespace LilPuter
 				throw new Exception($"Unable to find bus connection {connection}");
 			}
 		}
+
+		//sort of the opposite of GetCodeFor...
+		public List<BusConnection> GetConnectionsForCode(int busCode)
+		{
+			var connections = new List<BusConnection>();
+			for (int i = 0; i < Connections.Count; i++)
+			{
+				bool isInCode = (busCode & (1 << Connections[i].Index)) != 0;
+				if(isInCode){ connections.Add(Connections[i]); }
+			}
+
+			return connections;
+		}
 	}
 }

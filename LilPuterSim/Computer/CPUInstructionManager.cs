@@ -9,13 +9,13 @@ namespace LilPuter
 	/// Gets set to an address, then as the clock counts, it increments through a set of instructions that have been loaded into its memory.
 	/// This manages the microcode and setting the bus from the given instruction.
 	/// </summary>
-	public class CPUInstructionManager
+	public class CPUInstructionManager : SubscriberBase<CPUInstructionManager>
 	{
 		public RAM Microcode => _microcode;
 		private RAM _microcode;
 		public Counter Counter => _counter;
-		private Counter _counter;
-		public Pin LastMicroInstruction;//tied to inverted clock and AND to reset Counter.
+		private readonly Counter _counter;
+		public readonly Pin LastMicroInstruction;//tied to inverted clock and AND to reset Counter.
 		private readonly ComputerBase _computer;
 		private Bus _bus;
 		private ClockPin _clock;
@@ -65,13 +65,14 @@ namespace LilPuter
 		
 			_bus.SetBus(controlCode);
 			//
-			
+			UpdateSubscribers();
 		}
 
 		private void OnTick()
 		{
 			_counter.Count.SetAndImpulse(WireSignal.Low);
 			//LastMicroInstruction.Set(WireSignal.Low);
+			UpdateSubscribers();
 		}
 
 		private int GetMicrocodeAddress()
@@ -80,11 +81,19 @@ namespace LilPuter
 			return 0;
 		}
 
-		private int MakeMicrocodeAddress(int instruction, int count)
+		public int MakeMicrocodeAddress(int instruction, int count)
 		{
 			return (instruction << 4) | (count & 0b00001111);
 		}
-	
+
+		public string GetOpcodeName(int address)
+		{
+			if(OpCodeReverseLookup.TryGetValue(address, out var n))
+			{
+				return n;
+			};
+			return "NO-OPCODE";
+		}
 		public void CreateMicrocode()
 		{
 			//Param Reference:
@@ -149,6 +158,11 @@ namespace LilPuter
 			
 
 			return instructionCode;
+		}
+
+		public override CPUInstructionManager ReadValue()
+		{
+			return this;
 		}
 	}
 }
