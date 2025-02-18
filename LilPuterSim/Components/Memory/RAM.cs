@@ -50,7 +50,7 @@ namespace LilPuter
 		}
 
 		private void OnAddressChange(ISystem obj)
-		{
+		 {
 			_currentAddress = Address.Value;
 			Out.Set(_registers[_currentAddress]);
 		}
@@ -64,9 +64,10 @@ namespace LilPuter
 				{
 					//is this a real error? 
 					throw new AggregateException("Invalid Memory Address");
-				}
+				} 
 
 				_registers[_currentAddress] = In.Value;
+				Out.Set(_registers[_currentAddress]);
 			}
 		}
 
