@@ -78,7 +78,6 @@ namespace LilPuter
 		private int GetMicrocodeAddress()
 		{
 			return MakeMicrocodeAddress(_computer.CPU.InstructionMemory.Instruction.Value,_counter.Out.Value);
-			return 0;
 		}
 
 		public int MakeMicrocodeAddress(int instruction, int count)

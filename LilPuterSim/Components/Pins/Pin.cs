@@ -84,14 +84,6 @@ namespace LilPuter
 			}
 
 			return changed;
-
-			if (changed || alwaysUpdate)
-			{
-				_manager.Changed(this, Value);
-				UpdateSubscribers();
-			}
-
-			return changed;
 		}
 
 		internal bool Set(WireSignal newVal, bool alwaysUpdate = false)

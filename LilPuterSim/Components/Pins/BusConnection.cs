@@ -1,8 +1,9 @@
-﻿namespace LilPuter
+﻿#nullable enable
+namespace LilPuter
 {
 	public class BusConnection
 	{
-		public string Name;
+		public string Name = "";
 		public bool Enabled { get; private set; }
 		public bool SetFromBus;
 		public bool SetToBus;
@@ -14,11 +15,7 @@
 		public Pin? LoadPin;
 		public bool InvertedLoad;
 		public int Index;
-
-		public BusConnection()
-		{
 		
-		}
 		/// <summary>
 		/// Sets enabled and updates the given load pin.
 		/// </summary>
