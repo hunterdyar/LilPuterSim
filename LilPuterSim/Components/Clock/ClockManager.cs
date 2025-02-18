@@ -9,15 +9,17 @@ namespace LilPuter
 //So I've cloned this part out. 
 	public class ClockManager
 	{
+		public readonly Pin EnableClock;
 		public readonly Pin ClockIsHighPin;
-		private List<ClockPin> _clocks = new List<ClockPin>();
-		private WireManager _wireManager;
-	
-		private bool halted;
+		private readonly List<ClockPin> _clocks = new List<ClockPin>();
+		private readonly WireManager _wireManager;
+		
 		public ClockManager(ComputerBase comp)
 		{
 			_wireManager = comp.WireManager;
+			EnableClock = new Pin(comp.WireManager, "Enable Clock Pin");
 			ClockIsHighPin = new Pin(comp.WireManager, "Clock High Pin");
+			EnableClock.SetSilently(WireSignal.High);
 		}
 
 		public void RegisterClockPin(ClockPin pin)
@@ -46,18 +48,27 @@ namespace LilPuter
 		/// </summary>
 		public void Cycle()
 		{
-			if(halted){ return; }
+			if (EnableClock.Signal == WireSignal.Low)
+			{
+				return;
+			}
+
 			Tick();
 			Tock();
 		}
 
 		public void Tick()
 		{
+			if (EnableClock.Signal == WireSignal.Low)
+			{
+				return;
+			}
 			//This feels like the part that we can multithread. Run all of the cores, then run all of the wires to propogate on one thread after.
 			foreach (var pin in _clocks)
 			{
 				pin.TickSilent();
 			}
+
 			//Parallel.ForEach(_clocks, pin => pin.TickSilent());
 			ClockIsHighPin.Set(WireSignal.High);
 			_wireManager.Impulse();
@@ -65,24 +76,18 @@ namespace LilPuter
 
 		public void Tock()
 		{
+			if (EnableClock.Signal == WireSignal.Low)
+			{
+				return;
+			}
 			foreach (var pin in _clocks)
 			{
 				pin.TockSilent();
 			}
+
 			//Parallel.ForEach(_clocks, pin => pin.TockSilent());
 			ClockIsHighPin.Set(WireSignal.Low);
 			_wireManager.Impulse();
-		}
-
-		public void Halt()
-		{
-			halted = true;
-		}
-
-		//Unhalt!
-		public void Reset()
-		{
-			halted = false;
 		}
 	}
 }

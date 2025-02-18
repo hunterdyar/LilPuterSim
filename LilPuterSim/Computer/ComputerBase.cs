@@ -7,6 +7,7 @@ namespace LilPuter
         private WireManager _wireManager;
         public ClockManager Clock => _clock;
         private ClockManager _clock;
+        private NotGate _invertHaltGate;
     
         //Memory Components. 
     
@@ -24,8 +25,10 @@ namespace LilPuter
             int width = 8;
             _wireManager = new WireManager(this);
             _clock = new ClockManager(this);
-       
             _cpu = new CPU(this, width);
+            _invertHaltGate = new NotGate(_wireManager);
+            _cpu.HaltLine.ConnectTo(_invertHaltGate.A);
+            _invertHaltGate.Out.ConnectTo(_clock.EnableClock);
         }
 
         public void ExecuteOneInstruction()

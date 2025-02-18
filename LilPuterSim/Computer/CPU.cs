@@ -1,4 +1,5 @@
 ﻿using LilPuter.Clock;
+using UnityEngine;
 
 namespace LilPuter
 {
@@ -73,7 +74,6 @@ namespace LilPuter
 		
 			//Manage Halting
 			HaltLine.SetSilently(WireSignal.Low);
-			comp.WireManager.RegisterSystemAction(HaltLine,(h => comp.Clock.Halt()));
 			//Register on the bus!
 			//a register
 			Bus.RegisterComponent("AI", true, false,A.Input, A.Load);
