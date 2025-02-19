@@ -1,26 +1,30 @@
 ﻿namespace LilPuter
 {
-	public class ALUOneBit
+	public class ALUOneBit : SubscriberBase<ALUOneBit>
 	{
 		//Inputs
-		public Pin A;
-		public Pin B;
-		public Pin InvertA;
-		public Pin InvertB;
-		public Pin CarryIn;
+		public readonly Pin A;
+		public readonly Pin B;
+		public readonly Pin InvertA;
+		public readonly Pin InvertB;
+		public readonly Pin CarryIn;
 	
 		//OpCode
-		public Pin Op;// 000 = Add, 001... etc.
+		public readonly Pin Op;// 000 = Add, 001... etc.
 	
 		//Outputs
-		public Pin Result;
-		public Pin CarryOut;
+		public readonly Pin Result;
+		public readonly Pin CarryOut;
 	
 		//Internal
-		private Mux4by1 _mux;
-		private FullAdder _adder;
-		private AndGate _and;
-		private OrGate _or;
+		public Mux4by1 Mux => _mux;
+		private readonly Mux4by1 _mux;
+		public FullAdder FullAdder => _adder;
+		private readonly FullAdder _adder;
+		public AndGate And => _and;
+		private readonly AndGate _and;
+		public OrGate Or => _or;
+		private readonly OrGate _or;
 	
 		public ALUOneBit(WireManager manager)
 		{
@@ -85,6 +89,11 @@
 			}
 
 			return "";
+		}
+
+		public override ALUOneBit ReadValue()
+		{
+			return this;
 		}
 	}
 }
